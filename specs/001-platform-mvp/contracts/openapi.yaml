@@ -1,0 +1,1042 @@
+openapi: 3.0.3
+info:
+  title: InterfaceHive API
+  description: |-
+    InterfaceHive Platform MVP API - connecting project hosts with contributors.
+    
+    **Features:**
+    - JWT authentication with access/refresh tokens
+    - Project CRUD with full-text search
+    - Contribution workflow with atomic credit awards
+    - GDPR-compliant data deletion and export
+    - WCAG 2.1 AA accessible responses
+    
+    **Authentication:**
+    - Obtain JWT tokens via `/api/v1/auth/login`
+    - Include access token in `Authorization: Bearer {token}` header
+    - Refresh tokens using `/api/v1/auth/refresh`
+  version: 1.0.0
+  contact:
+    name: InterfaceHive Support
+    email: support@interfacehive.example.com
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development
+  - url: https://api.interfacehive.example.com/api/v1
+    description: Production
+
+tags:
+  - name: Authentication
+    description: User authentication and registration
+  - name: Users
+    description: User profiles and management
+  - name: Projects
+    description: Project (Call for Contribution) management
+  - name: Contributions
+    description: Contribution submission and review
+  - name: Credits
+    description: Credit balance and transaction history
+
+paths:
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - display_name
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: alice@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  example: SecurePass123!
+                display_name:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                  example: Alice Builder
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/User'
+                  - type: object
+                    properties:
+                      access_token:
+                        type: string
+                      refresh_token:
+                        type: string
+        '400':
+          $ref: '#/components/responses/ValidationError'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Log in with email and password
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refresh
+              properties:
+                refresh:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access:
+                    type: string
+                  refresh:
+                    type: string
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: Log out (blacklist refresh token)
+      operationId: logout
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refresh
+              properties:
+                refresh:
+                  type: string
+      responses:
+        '200':
+          description: Logged out successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Successfully logged out
+
+  /me:
+    get:
+      tags:
+        - Users
+      summary: Get current user profile
+      operationId: getCurrentUser
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/User'
+                  - type: object
+                    properties:
+                      credit_balance:
+                        type: integer
+                        example: 5
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    
+    patch:
+      tags:
+        - Users
+      summary: Update current user profile
+      operationId: updateCurrentUser
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                display_name:
+                  type: string
+                bio:
+                  type: string
+                skills:
+                  type: array
+                  items:
+                    type: string
+                github_url:
+                  type: string
+                  format: uri
+                portfolio_url:
+                  type: string
+                  format: uri
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    
+    delete:
+      tags:
+        - Users
+      summary: Request account deletion (GDPR)
+      operationId: deleteAccount
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Deletion requested
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Account deletion scheduled. Data will be anonymized in 30 days.
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /me/export:
+    get:
+      tags:
+        - Users
+      summary: Export user data (GDPR)
+      operationId: exportUserData
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User data export
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+                  projects:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Project'
+                  contributions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Contribution'
+                  credit_transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CreditTransaction'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /users/{user_id}:
+    get:
+      tags:
+        - Users
+      summary: Get public user profile
+      operationId: getUserProfile
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Public profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  display_name:
+                    type: string
+                  bio:
+                    type: string
+                  skills:
+                    type: array
+                    items:
+                      type: string
+                  github_url:
+                    type: string
+                  portfolio_url:
+                    type: string
+                  credit_balance:
+                    type: integer
+                  created_at:
+                    type: string
+                    format: date-time
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /projects:
+    get:
+      tags:
+        - Projects
+      summary: List projects with search and filters
+      operationId: listProjects
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Keyword search (title + description)
+        - name: tags
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          description: Filter by tags (comma-separated)
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, open, closed]
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [newest, active]
+            default: newest
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: Paginated project list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ProjectListItem'
+    
+    post:
+      tags:
+        - Projects
+      summary: Create a new project
+      operationId: createProject
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectCreate'
+      responses:
+        '201':
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+
+  /projects/{project_id}:
+    get:
+      tags:
+        - Projects
+      summary: Get project details
+      operationId: getProject
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    
+    patch:
+      tags:
+        - Projects
+      summary: Update project (host only)
+      operationId: updateProject
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectUpdate'
+      responses:
+        '200':
+          description: Project updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /projects/{project_id}/close:
+    post:
+      tags:
+        - Projects
+      summary: Close project (host only)
+      operationId: closeProject
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Project closed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: closed
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /projects/{project_id}/contributions:
+    get:
+      tags:
+        - Contributions
+      summary: List project contributions
+      operationId: listContributions
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      responses:
+        '200':
+          description: Contribution list (filtered by viewer role)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contribution'
+    
+    post:
+      tags:
+        - Contributions
+      summary: Submit a contribution
+      operationId: createContribution
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - body
+              properties:
+                title:
+                  type: string
+                body:
+                  type: string
+                  minLength: 20
+                  maxLength: 5000
+                links:
+                  type: array
+                  items:
+                    type: string
+                    format: uri
+                  maxItems: 10
+      responses:
+        '201':
+          description: Contribution created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contribution'
+        '403':
+          description: Project closed or user is host
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          $ref: '#/components/responses/RateLimitExceeded'
+
+  /contributions/{contribution_id}/accept:
+    patch:
+      tags:
+        - Contributions
+      summary: Accept contribution (host only)
+      operationId: acceptContribution
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: contribution_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Contribution accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    example: accepted
+                  credit_awarded:
+                    type: boolean
+                    description: True if credit was awarded, false if user already has credit for this project
+                  decided_at:
+                    type: string
+                    format: date-time
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Contribution already decided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /contributions/{contribution_id}/decline:
+    patch:
+      tags:
+        - Contributions
+      summary: Decline contribution (host only)
+      operationId: declineContribution
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: contribution_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Contribution declined
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                    example: declined
+                  decided_at:
+                    type: string
+                    format: date-time
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /me/credits/balance:
+    get:
+      tags:
+        - Credits
+      summary: Get current user's credit balance
+      operationId: getCreditBalance
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Credit balance
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  balance:
+                    type: integer
+                    example: 5
+                  last_updated:
+                    type: string
+                    format: date-time
+
+  /me/credits/ledger:
+    get:
+      tags:
+        - Credits
+      summary: Get current user's credit transaction history
+      operationId: getCreditLedger
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Credit ledger
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  next:
+                    type: string
+                    nullable: true
+                  previous:
+                    type: string
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CreditTransaction'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    ProjectId:
+      name: project_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+        bio:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+        github_url:
+          type: string
+          format: uri
+        portfolio_url:
+          type: string
+          format: uri
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ProjectListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+        host:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            display_name:
+              type: string
+        tags:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [draft, open, closed]
+        difficulty:
+          type: string
+          enum: [easy, intermediate, advanced]
+        accepted_contributors_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    Project:
+      allOf:
+        - $ref: '#/components/schemas/ProjectListItem'
+        - type: object
+          properties:
+            what_it_does:
+              type: string
+            inputs_dependencies:
+              type: string
+            outputs:
+              type: string
+            estimated_time:
+              type: string
+            github_link:
+              type: string
+              format: uri
+            updated_at:
+              type: string
+              format: date-time
+
+    ProjectDetail:
+      allOf:
+        - $ref: '#/components/schemas/Project'
+        - type: object
+          properties:
+            accepted_contributors:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  display_name:
+                    type: string
+                  profile_url:
+                    type: string
+                  accepted_at:
+                    type: string
+                    format: date-time
+
+    ProjectCreate:
+      type: object
+      required:
+        - title
+        - description
+        - what_it_does
+        - outputs
+      properties:
+        title:
+          type: string
+          minLength: 5
+          maxLength: 200
+        description:
+          type: string
+          minLength: 20
+          maxLength: 5000
+        what_it_does:
+          type: string
+          minLength: 20
+          maxLength: 2000
+        inputs_dependencies:
+          type: string
+        outputs:
+          type: string
+          minLength: 20
+          maxLength: 2000
+        tags:
+          type: array
+          items:
+            type: string
+          maxItems: 10
+        difficulty:
+          type: string
+          enum: [easy, intermediate, advanced]
+        estimated_time:
+          type: string
+        github_link:
+          type: string
+          format: uri
+        status:
+          type: string
+          enum: [draft, open]
+          default: open
+
+    ProjectUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        what_it_does:
+          type: string
+        inputs_dependencies:
+          type: string
+        outputs:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        difficulty:
+          type: string
+          enum: [easy, intermediate, advanced]
+        estimated_time:
+          type: string
+        github_link:
+          type: string
+          format: uri
+
+    Contribution:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        project_id:
+          type: string
+          format: uuid
+        contributor:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            display_name:
+              type: string
+        title:
+          type: string
+        body:
+          type: string
+        links:
+          type: array
+          items:
+            type: string
+            format: uri
+        status:
+          type: string
+          enum: [pending, accepted, declined]
+        decided_by:
+          type: object
+          nullable: true
+          properties:
+            id:
+              type: string
+              format: uuid
+            display_name:
+              type: string
+        decided_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreditTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [award, reversal]
+        amount:
+          type: integer
+        project_title:
+          type: string
+        contribution_id:
+          type: string
+          format: uuid
+        timestamp:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        code:
+          type: string
+        fields:
+          type: object
+          additionalProperties:
+            type: string
+
+  responses:
+    ValidationError:
+      description: Validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Validation failed
+            code: VALIDATION_ERROR
+            fields:
+              title: This field is required
+              body: This field must be between 20 and 5000 characters
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Authentication credentials were not provided
+            code: UNAUTHORIZED
+
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: You do not have permission to perform this action
+            code: FORBIDDEN
+
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Resource not found
+            code: NOT_FOUND
+
+    RateLimitExceeded:
+      description: Rate limit exceeded
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: Rate limit exceeded. Try again in 30 minutes.
+            code: RATE_LIMIT_EXCEEDED
+
