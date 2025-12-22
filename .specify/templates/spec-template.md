@@ -1,115 +1,211 @@
-# Feature Specification: [FEATURE NAME]
+# Feature Specification: [FEATURE_NAME]
 
-**Feature Branch**: `[###-feature-name]`  
-**Created**: [DATE]  
-**Status**: Draft  
-**Input**: User description: "$ARGUMENTS"
+**Spec ID:** [SPEC_ID]
+**Plan Reference:** [PLAN_ID]
+**Created:** [DATE]
+**Status:** [Draft | In Review | Approved | In Development | Completed]
 
-## User Scenarios & Testing *(mandatory)*
+## Summary
 
-<!--
-  IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
-  Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
-  you should still have a viable MVP (Minimum Viable Product) that delivers value.
-  
-  Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
-  Think of each story as a standalone slice of functionality that can be:
-  - Developed independently
-  - Tested independently
-  - Deployed independently
-  - Demonstrated to users independently
--->
+[2-3 sentence summary of what is being built]
 
-### User Story 1 - [Brief Title] (Priority: P1)
+## Constitutional Compliance
 
-[Describe this user journey in plain language]
+✅ Code Quality: [Brief note on maintainability approach]
+✅ Test Coverage: [Brief note on testing strategy]
+✅ User Experience: [Brief note on UX/performance targets]
+✅ Performance: [Brief note on dependencies]
 
-**Why this priority**: [Explain the value and why it has this priority level]
-
-**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
-
-**Acceptance Scenarios**:
-
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-2. **Given** [initial state], **When** [action], **Then** [expected outcome]
-
----
-
-### User Story 2 - [Brief Title] (Priority: P2)
-
-[Describe this user journey in plain language]
-
-**Why this priority**: [Explain the value and why it has this priority level]
-
-**Independent Test**: [Describe how this can be tested independently]
-
-**Acceptance Scenarios**:
-
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-
----
-
-### User Story 3 - [Brief Title] (Priority: P3)
-
-[Describe this user journey in plain language]
-
-**Why this priority**: [Explain the value and why it has this priority level]
-
-**Independent Test**: [Describe how this can be tested independently]
-
-**Acceptance Scenarios**:
-
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-
----
-
-[Add more user stories as needed, each with an assigned priority]
-
-### Edge Cases
-
-<!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right edge cases.
--->
-
-- What happens when [boundary condition]?
-- How does system handle [error scenario]?
-
-## Requirements *(mandatory)*
-
-<!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right functional requirements.
--->
+## Detailed Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]
-- **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]  
-- **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
-- **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
-- **FR-005**: System MUST [behavior, e.g., "log all security events"]
+#### FR-1: [Requirement Name]
+**Priority:** [Critical | High | Medium | Low]
+**Description:** [Detailed description]
+**Acceptance Criteria:**
+- [ ] [Testable criterion 1]
+- [ ] [Testable criterion 2]
+- [ ] [Testable criterion 3]
 
-*Example of marking unclear requirements:*
+#### FR-2: [Requirement Name]
+**Priority:** [Critical | High | Medium | Low]
+**Description:** [Detailed description]
+**Acceptance Criteria:**
+- [ ] [Testable criterion 1]
+- [ ] [Testable criterion 2]
 
-- **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
-- **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
+### Non-Functional Requirements
 
-### Key Entities *(include if feature involves data)*
+#### NFR-1: Performance
+- Page load time: < 3 seconds (Principle 3)
+- API response time (p95): < 3 seconds (Principle 3)
+- Database query optimization: [specific targets]
 
-- **[Entity 1]**: [What it represents, key attributes without implementation]
-- **[Entity 2]**: [What it represents, relationships to other entities]
+#### NFR-2: Test Coverage
+- Minimum coverage: 70% (Principle 2)
+- Critical paths: 100% coverage
+- Test types: unit, integration, e2e
 
-## Success Criteria *(mandatory)*
+#### NFR-3: Code Quality
+- Self-documenting code (Principle 1)
+- Minimal comments, clear naming
+- Linting: no errors, minimal warnings
 
-<!--
-  ACTION REQUIRED: Define measurable success criteria.
-  These must be technology-agnostic and measurable.
--->
+#### NFR-4: Dependencies
+- New dependencies: [list with justification per Principle 4]
+- Bundle size impact: [measured impact]
+- Security: all dependencies scanned
 
-### Measurable Outcomes
+## User Interface Specification
 
-- **SC-001**: [Measurable metric, e.g., "Users can complete account creation in under 2 minutes"]
-- **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
-- **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
-- **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+### User Flows
+
+#### Flow 1: [Flow Name]
+1. User [action]
+2. System [response]
+3. User [action]
+4. System [response with < 3s latency]
+
+### Wireframes / Mockups
+[Link or embed UI designs]
+
+### Component Specifications
+
+#### Component: [ComponentName]
+**Purpose:** [What it does]
+**Props/Inputs:** [List]
+**States:** [default, loading, error, success]
+**Performance:** [Load time, interaction time]
+
+## API Specification
+
+### Endpoint: [METHOD /api/path]
+**Purpose:** [What it does]
+**Authentication:** [Required/Optional]
+**Rate Limit:** [Limit per user/IP]
+
+**Request:**
+```json
+{
+  "field": "type"
+}
+```
+
+**Response (Success):**
+```json
+{
+  "field": "value"
+}
+```
+
+**Response (Error):**
+```json
+{
+  "error": "message",
+  "code": "ERROR_CODE"
+}
+```
+
+**Performance Target:** < 3 seconds (p95)
+
+## Data Model
+
+### Model: [ModelName]
+```
+field_name: type (constraints)
+field_name: type (constraints)
+```
+
+**Relationships:**
+- [Relationship description]
+
+**Indexes:**
+- [Index specifications for performance]
+
+## Testing Specification
+
+### Unit Tests (70% coverage minimum)
+
+#### Test Suite: [ComponentName]
+- [ ] Test [scenario 1]
+- [ ] Test [scenario 2]
+- [ ] Test [error case 1]
+
+### Integration Tests
+
+#### Test Suite: [API Endpoint]
+- [ ] Test successful flow
+- [ ] Test authentication failure
+- [ ] Test validation errors
+- [ ] Test edge cases
+
+### End-to-End Tests
+
+#### Test: [Critical User Flow]
+**Steps:**
+1. [Action]
+2. [Verification]
+3. [Action]
+4. [Verification]
+
+**Expected Duration:** < [time]
+
+## Security Considerations
+
+- [ ] Input validation on all user-submitted data
+- [ ] Authorization checks for protected operations
+- [ ] Rate limiting to prevent abuse
+- [ ] Audit logging for sensitive actions
+- [ ] SQL injection prevention (parameterized queries)
+- [ ] XSS prevention (output escaping)
+
+## Deployment & Rollout
+
+### Prerequisites
+- [ ] [Database migration]
+- [ ] [Environment variable]
+- [ ] [Third-party service setup]
+
+### Feature Flags
+- [ ] [Flag name]: [purpose]
+
+### Monitoring
+- [ ] [Metric to track]
+- [ ] [Error alert threshold]
+- [ ] [Performance benchmark alert]
+
+## Documentation
+
+- [ ] API documentation updated
+- [ ] User-facing documentation (if needed)
+- [ ] Code comments for complex logic (per Principle 1)
+- [ ] README updated (if architecture changes)
+
+## Definition of Done
+
+- [ ] All functional requirements implemented
+- [ ] All acceptance criteria met
+- [ ] Test coverage >= 70%
+- [ ] All tests passing
+- [ ] Performance targets met (< 3s response times)
+- [ ] No new linter errors
+- [ ] Security review completed
+- [ ] Code review approved
+- [ ] Constitution compliance verified
+- [ ] Documentation completed
+
+## Appendix
+
+### References
+- Constitution: v1.0.0
+- Related specs: [links]
+- Design files: [links]
+
+### Change Log
+| Date | Change | Author |
+|------|--------|--------|
+| [date] | Initial spec | [name] |
+
+---
+*This specification adheres to the InterfaceHive Constitution v1.0.0*

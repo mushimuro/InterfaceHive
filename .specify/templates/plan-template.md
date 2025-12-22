@@ -1,104 +1,131 @@
-# Implementation Plan: [FEATURE]
+# Feature Plan: [FEATURE_NAME]
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Plan ID:** [PLAN_ID]
+**Created:** [DATE]
+**Status:** [Draft | In Review | Approved | Implemented]
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+## Overview
 
-## Summary
+[Brief description of the feature and its purpose]
 
-[Extract from feature spec: primary requirement + technical approach from research]
+## Constitution Alignment Check
 
-## Technical Context
+This plan MUST align with InterfaceHive's constitutional principles:
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
+- [ ] **Code Quality:** Solution design promotes self-documenting, maintainable code
+- [ ] **Test Coverage:** Testing approach defined with >= 70% coverage target
+- [ ] **User Experience:** Response times within 3 seconds, clear UI feedback defined
+- [ ] **Performance:** Dependency additions justified, minimal footprint maintained
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+## Goals
 
-## Constitution Check
+- [Goal 1]
+- [Goal 2]
+- [Goal 3]
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+## Non-Goals
 
-[Gates determined based on constitution file]
+- [What this feature explicitly will NOT do]
 
-## Project Structure
+## User Stories
 
-### Documentation (this feature)
+### Primary User Story
+As a [user type], I want to [action] so that [benefit].
 
-```text
-specs/[###-feature]/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+### Additional Stories
+- [Story 2]
+- [Story 3]
+
+## Technical Approach
+
+### Architecture
+[High-level architectural decisions]
+
+### Dependencies
+[List any new dependencies and justify each per Principle 4]
+
+| Dependency | Purpose | Justification | Bundle Size Impact |
+|------------|---------|---------------|-------------------|
+| [name]     | [why]   | [reason]      | [KB/MB]           |
+
+### Data Model Changes
+[Database schema changes, if any]
+
+### API Design
+[Endpoint specifications, if applicable]
+
+```
+METHOD /api/path
+Request: { ... }
+Response: { ... }
 ```
 
-### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
+## Testing Strategy
 
-```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
+**Target Coverage:** >= 70% (Principle 2)
 
-tests/
-├── contract/
-├── integration/
-└── unit/
+### Unit Tests
+- [Component/function to test]
+- [Component/function to test]
 
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
+### Integration Tests
+- [API endpoint or interaction to test]
+- [API endpoint or interaction to test]
 
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
+### End-to-End Tests
+- [Critical user flow to test]
 
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
+## User Experience Considerations
 
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
-```
+**Performance Target:** < 3 seconds response time (Principle 3)
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+### Loading States
+- [Where loading indicators are needed]
 
-## Complexity Tracking
+### Error Handling
+- [How errors are communicated to users]
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+### Responsive Design
+- [Mobile considerations]
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+## Performance Benchmarks
+
+- Initial page load: [target time]
+- API response time (p95): [target time]
+- Database query performance: [considerations]
+
+## Security & Permissions
+
+- [Authentication requirements]
+- [Authorization rules]
+- [Rate limiting considerations]
+
+## Rollout Plan
+
+### Phase 1: [Milestone]
+- [Task]
+- [Task]
+
+### Phase 2: [Milestone]
+- [Task]
+- [Task]
+
+## Success Metrics
+
+- [How we measure success]
+- [Quantitative metrics]
+
+## Open Questions
+
+- [ ] [Question 1]
+- [ ] [Question 2]
+
+## Approval
+
+- [ ] Constitution compliance verified
+- [ ] Technical review completed
+- [ ] UX review completed
+- [ ] Ready for implementation
+
+---
+*This plan adheres to the InterfaceHive Constitution v1.0.0*
