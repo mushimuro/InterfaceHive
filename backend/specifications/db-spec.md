@@ -9,6 +9,10 @@
 - `CREDIT_LEDGER_ENTRY`
 
 ### 1.2 Key constraints
+- User authentication:
+  - `USER.email` is unique
+  - **Only users with `email_verified = true` can log in**
+  - `email_verification_token` must be unique when non-null
 - Tags:
   - `PROJECT_TAG.name` is unique
 - Tag mapping:
@@ -20,8 +24,10 @@
 
 **Recommended Postgres partial unique index**
 - `UNIQUE(project_id, to_user_id) WHERE entry_type = 'AWARD'`
+- `UNIQUE(email_verification_token) WHERE email_verification_token IS NOT NULL`
 
 ### 1.3 Indexing
+- `USER(email_verified, email_verification_token)`
 - `PROJECT(host_user_id)`
 - `PROJECT(status, created_at DESC)`
 - `CONTRIBUTION(project_id, created_at DESC)`
@@ -47,6 +53,9 @@ erDiagram
     text bio
     string github_url
     string portfolio_url
+    boolean email_verified "false by default, required for login"
+    string email_verification_token "nullable, unique when set"
+    timestamp email_verified_at "nullable until verified"
     timestamp created_at
     timestamp updated_at
   }

@@ -1,328 +1,92 @@
 openapi: 3.0.3
 info:
   title: InterfaceHive API
-  description: |-
-    InterfaceHive Platform MVP API - connecting project hosts with contributors.
+  description: |
+    REST API for InterfaceHive - A platform connecting builders with contributors for open-source and real-world projects.
     
-    **Features:**
-    - JWT authentication with access/refresh tokens
-    - Project CRUD with full-text search
-    - Contribution workflow with atomic credit awards
-    - GDPR-compliant data deletion and export
-    - WCAG 2.1 AA accessible responses
+    ## Authentication
+    - JWT-based authentication using access tokens and refresh tokens
+    - Access tokens valid for 1 hour
+    - Refresh tokens valid for 7 days
+    - Include access token in `Authorization: Bearer <token>` header
     
-    **Authentication:**
-    - Obtain JWT tokens via `/api/v1/auth/login`
-    - Include access token in `Authorization: Bearer {token}` header
-    - Refresh tokens using `/api/v1/auth/refresh`
+    ## Rate Limiting
+    - Project creation: 10 requests/hour per user
+    - Contribution submission: 20 requests/hour per user
+    - General API: 100 requests/minute per IP
+    
+    ## Versioning
+    - API version included in URL path: `/api/v1/*`
+    - Breaking changes require new version (v2, v3, etc.)
+    
   version: 1.0.0
   contact:
     name: InterfaceHive Support
-    email: support@interfacehive.example.com
+    url: https://interfacehive.com/support
   license:
     name: MIT
 
 servers:
+  - url: https://api.interfacehive.com/api/v1
+    description: Production server
   - url: http://localhost:8000/api/v1
-    description: Local development
-  - url: https://api.interfacehive.example.com/api/v1
-    description: Production
+    description: Local development server
 
 tags:
-  - name: Authentication
-    description: User authentication and registration
+  - name: Auth
+    description: Authentication and user registration
   - name: Users
-    description: User profiles and management
+    description: User profile management
   - name: Projects
-    description: Project (Call for Contribution) management
+    description: Project creation and management
   - name: Contributions
     description: Contribution submission and review
   - name: Credits
-    description: Credit balance and transaction history
+    description: Credit balance and ledger
+
+security:
+  - BearerAuth: []
 
 paths:
+  # ============================================================================
+  # AUTH ENDPOINTS
+  # ============================================================================
+  
   /auth/register:
     post:
-      tags:
-        - Authentication
-      summary: Register a new user
-      operationId: register
+      tags: [Auth]
+      summary: Register a new user account
+      description: |
+        Creates a new user account and sends email verification link.
+        User cannot log in until email is verified.
+      security: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - email
-                - password
-                - display_name
+              required: [email, password, displayName]
               properties:
                 email:
                   type: string
                   format: email
+                  maxLength: 255
                   example: alice@example.com
                 password:
                   type: string
                   format: password
                   minLength: 8
                   example: SecurePass123!
-                display_name:
+                  description: Must be at least 8 characters with number or special char
+                displayName:
                   type: string
                   minLength: 1
                   maxLength: 100
                   example: Alice Builder
       responses:
         '201':
-          description: User created successfully
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/User'
-                  - type: object
-                    properties:
-                      access_token:
-                        type: string
-                      refresh_token:
-                        type: string
-        '400':
-          $ref: '#/components/responses/ValidationError'
-
-  /auth/login:
-    post:
-      tags:
-        - Authentication
-      summary: Log in with email and password
-      operationId: login
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - email
-                - password
-              properties:
-                email:
-                  type: string
-                  format: email
-                password:
-                  type: string
-                  format: password
-      responses:
-        '200':
-          description: Login successful
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  access_token:
-                    type: string
-                  refresh_token:
-                    type: string
-                  user:
-                    $ref: '#/components/schemas/User'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-  /auth/refresh:
-    post:
-      tags:
-        - Authentication
-      summary: Refresh access token
-      operationId: refreshToken
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - refresh
-              properties:
-                refresh:
-                  type: string
-      responses:
-        '200':
-          description: Token refreshed
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  access:
-                    type: string
-                  refresh:
-                    type: string
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-  /auth/logout:
-    post:
-      tags:
-        - Authentication
-      summary: Log out (blacklist refresh token)
-      operationId: logout
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - refresh
-              properties:
-                refresh:
-                  type: string
-      responses:
-        '200':
-          description: Logged out successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Successfully logged out
-
-  /me:
-    get:
-      tags:
-        - Users
-      summary: Get current user profile
-      operationId: getCurrentUser
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: User profile
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/User'
-                  - type: object
-                    properties:
-                      credit_balance:
-                        type: integer
-                        example: 5
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-    
-    patch:
-      tags:
-        - Users
-      summary: Update current user profile
-      operationId: updateCurrentUser
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                display_name:
-                  type: string
-                bio:
-                  type: string
-                skills:
-                  type: array
-                  items:
-                    type: string
-                github_url:
-                  type: string
-                  format: uri
-                portfolio_url:
-                  type: string
-                  format: uri
-      responses:
-        '200':
-          description: Profile updated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-    
-    delete:
-      tags:
-        - Users
-      summary: Request account deletion (GDPR)
-      operationId: deleteAccount
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Deletion requested
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: Account deletion scheduled. Data will be anonymized in 30 days.
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-  /me/export:
-    get:
-      tags:
-        - Users
-      summary: Export user data (GDPR)
-      operationId: exportUserData
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: User data export
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  user:
-                    $ref: '#/components/schemas/User'
-                  projects:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Project'
-                  contributions:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Contribution'
-                  credit_transactions:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/CreditTransaction'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-
-  /users/{user_id}:
-    get:
-      tags:
-        - Users
-      summary: Get public user profile
-      operationId: getUserProfile
-      parameters:
-        - name: user_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Public profile
+          description: User registered successfully. Verification email sent.
           content:
             application/json:
               schema:
@@ -331,70 +95,334 @@ paths:
                   id:
                     type: string
                     format: uuid
-                  display_name:
+                  email:
                     type: string
-                  bio:
+                  displayName:
                     type: string
-                  skills:
-                    type: array
-                    items:
-                      type: string
-                  github_url:
+                  message:
                     type: string
-                  portfolio_url:
+                    example: Registration successful. Please check your email to verify your account.
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Email already registered
+                code: EMAIL_EXISTS
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+  
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Log in with email and password
+      description: Returns access token and refresh token. Email must be verified.
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: alice@example.com
+                password:
+                  type: string
+                  format: password
+                  example: SecurePass123!
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access:
                     type: string
-                  credit_balance:
-                    type: integer
-                  created_at:
+                    description: JWT access token (1 hour expiry)
+                  refresh:
                     type: string
-                    format: date-time
-        '404':
-          $ref: '#/components/responses/NotFound'
+                    description: JWT refresh token (7 days expiry)
+                  user:
+                    $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          description: Invalid credentials or email not verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalidCredentials:
+                  value:
+                    error: Invalid email or password
+                    code: INVALID_CREDENTIALS
+                emailNotVerified:
+                  value:
+                    error: Email not verified. Please check your inbox for the verification link.
+                    code: EMAIL_NOT_VERIFIED
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+  
+  /auth/token/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      description: Use refresh token to get a new access token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh]
+              properties:
+                refresh:
+                  type: string
+                  description: JWT refresh token
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access:
+                    type: string
+                    description: New JWT access token (1 hour expiry)
+                  refresh:
+                    type: string
+                    description: Rotated refresh token (7 days expiry)
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  
+  /auth/verify-email:
+    post:
+      tags: [Auth]
+      summary: Verify email address
+      description: Verifies user email using token from verification link
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token]
+              properties:
+                token:
+                  type: string
+                  format: uuid
+                  description: Email verification token from link
+      responses:
+        '200':
+          description: Email verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Email verified successfully. You can now log in.
+        '400':
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Invalid or expired verification token
+                code: INVALID_TOKEN
+  
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Log out current user
+      description: Blacklists the current refresh token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh]
+              properties:
+                refresh:
+                  type: string
+                  description: JWT refresh token to blacklist
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logout successful
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
 
+  # ============================================================================
+  # USER ENDPOINTS
+  # ============================================================================
+  
+  /profile:
+    get:
+      tags: [Users]
+      summary: Get current user's profile
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    
+    patch:
+      tags: [Users]
+      summary: Update current user's profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                displayName:
+                  type: string
+                  minLength: 1
+                  maxLength: 100
+                bio:
+                  type: string
+                  maxLength: 1000
+                skills:
+                  type: array
+                  maxItems: 20
+                  items:
+                    type: string
+                githubUrl:
+                  type: string
+                  format: uri
+                  maxLength: 500
+                portfolioUrl:
+                  type: string
+                  format: uri
+                  maxLength: 500
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  
+  /users/{userId}:
+    get:
+      tags: [Users]
+      summary: Get public user profile
+      description: View another user's public profile information
+      security: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicUserProfile'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  # ============================================================================
+  # PROJECT ENDPOINTS
+  # ============================================================================
+  
   /projects:
     get:
-      tags:
-        - Projects
-      summary: List projects with search and filters
-      operationId: listProjects
+      tags: [Projects]
+      summary: List all projects
+      description: |
+        Get paginated list of projects with optional filtering and search.
+        Only OPEN projects visible to unauthenticated users.
+      security: []
       parameters:
         - name: search
           in: query
+          description: Keyword search in title and description
           schema:
             type: string
-          description: Keyword search (title + description)
+            example: authentication
         - name: tags
           in: query
+          description: Comma-separated list of tags to filter by
           schema:
-            type: array
-            items:
-              type: string
-          description: Filter by tags (comma-separated)
+            type: string
+            example: python,django,backend
         - name: status
           in: query
+          description: Filter by project status
           schema:
             type: string
             enum: [draft, open, closed]
-        - name: sort
+            default: open
+        - name: difficulty
           in: query
+          description: Filter by difficulty level
           schema:
             type: string
-            enum: [newest, active]
+            enum: [easy, intermediate, advanced]
+        - name: sort
+          in: query
+          description: Sort order
+          schema:
+            type: string
+            enum: [newest, oldest, active]
             default: newest
         - name: page
           in: query
+          description: Page number (1-indexed)
           schema:
             type: integer
+            minimum: 1
             default: 1
         - name: page_size
           in: query
+          description: Number of items per page
           schema:
             type: integer
-            default: 20
+            minimum: 1
             maximum: 100
+            default: 20
       responses:
         '200':
-          description: Paginated project list
+          description: Projects retrieved successfully
           content:
             application/json:
               schema:
@@ -402,24 +430,30 @@ paths:
                 properties:
                   count:
                     type: integer
+                    description: Total number of projects matching filters
                   next:
                     type: string
+                    format: uri
                     nullable: true
+                    description: URL to next page
                   previous:
                     type: string
+                    format: uri
                     nullable: true
+                    description: URL to previous page
                   results:
                     type: array
                     items:
-                      $ref: '#/components/schemas/ProjectListItem'
+                      $ref: '#/components/schemas/ProjectSummary'
+        '400':
+          $ref: '#/components/responses/ValidationError'
     
     post:
-      tags:
-        - Projects
+      tags: [Projects]
       summary: Create a new project
-      operationId: createProject
-      security:
-        - BearerAuth: []
+      description: |
+        Create a contribution request project.
+        Rate limited to 10 projects per hour per user.
       requestBody:
         required: true
         content:
@@ -428,43 +462,40 @@ paths:
               $ref: '#/components/schemas/ProjectCreate'
       responses:
         '201':
-          description: Project created
+          description: Project created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Project'
+                $ref: '#/components/schemas/ProjectDetail'
         '400':
           $ref: '#/components/responses/ValidationError'
         '401':
-          $ref: '#/components/responses/Unauthorized'
+          $ref: '#/components/responses/UnauthorizedError'
         '429':
-          $ref: '#/components/responses/RateLimitExceeded'
-
-  /projects/{project_id}:
+          $ref: '#/components/responses/RateLimitError'
+  
+  /projects/{projectId}:
     get:
-      tags:
-        - Projects
+      tags: [Projects]
       summary: Get project details
-      operationId: getProject
+      description: Retrieve detailed information about a specific project
+      security: []
       parameters:
         - $ref: '#/components/parameters/ProjectId'
       responses:
         '200':
-          description: Project details
+          description: Project retrieved successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProjectDetail'
         '404':
-          $ref: '#/components/responses/NotFound'
+          $ref: '#/components/responses/NotFoundError'
     
     patch:
-      tags:
-        - Projects
-      summary: Update project (host only)
-      operationId: updateProject
-      security:
-        - BearerAuth: []
+      tags: [Projects]
+      summary: Update project
+      description: Update project details. Only host can update.
       parameters:
         - $ref: '#/components/parameters/ProjectId'
       requestBody:
@@ -475,226 +506,87 @@ paths:
               $ref: '#/components/schemas/ProjectUpdate'
       responses:
         '200':
-          description: Project updated
+          description: Project updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Project'
+                $ref: '#/components/schemas/ProjectDetail'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '403':
-          $ref: '#/components/responses/Forbidden'
-
-  /projects/{project_id}/close:
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+  
+  /projects/{projectId}/close:
     post:
-      tags:
-        - Projects
-      summary: Close project (host only)
-      operationId: closeProject
-      security:
-        - BearerAuth: []
+      tags: [Projects]
+      summary: Close project
+      description: Close project to stop accepting contributions. Only host can close. Irreversible.
       parameters:
         - $ref: '#/components/parameters/ProjectId'
       responses:
         '200':
-          description: Project closed
+          description: Project closed successfully
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: closed
+                $ref: '#/components/schemas/ProjectDetail'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
         '403':
-          $ref: '#/components/responses/Forbidden'
-
-  /projects/{project_id}/contributions:
-    get:
-      tags:
-        - Contributions
-      summary: List project contributions
-      operationId: listContributions
-      parameters:
-        - $ref: '#/components/parameters/ProjectId'
-      responses:
-        '200':
-          description: Contribution list (filtered by viewer role)
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Contribution'
-    
-    post:
-      tags:
-        - Contributions
-      summary: Submit a contribution
-      operationId: createContribution
-      security:
-        - BearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/ProjectId'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - body
-              properties:
-                title:
-                  type: string
-                body:
-                  type: string
-                  minLength: 20
-                  maxLength: 5000
-                links:
-                  type: array
-                  items:
-                    type: string
-                    format: uri
-                  maxItems: 10
-      responses:
-        '201':
-          description: Contribution created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Contribution'
-        '403':
-          description: Project closed or user is host
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '429':
-          $ref: '#/components/responses/RateLimitExceeded'
-
-  /contributions/{contribution_id}/accept:
-    patch:
-      tags:
-        - Contributions
-      summary: Accept contribution (host only)
-      operationId: acceptContribution
-      security:
-        - BearerAuth: []
-      parameters:
-        - name: contribution_id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Contribution accepted
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                  status:
-                    type: string
-                    example: accepted
-                  credit_awarded:
-                    type: boolean
-                    description: True if credit was awarded, false if user already has credit for this project
-                  decided_at:
-                    type: string
-                    format: date-time
-        '403':
-          $ref: '#/components/responses/Forbidden'
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
         '409':
-          description: Contribution already decided
+          description: Project already closed
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+              example:
+                error: Project is already closed
+                code: PROJECT_ALREADY_CLOSED
 
-  /contributions/{contribution_id}/decline:
-    patch:
-      tags:
-        - Contributions
-      summary: Decline contribution (host only)
-      operationId: declineContribution
-      security:
-        - BearerAuth: []
+  # ============================================================================
+  # CONTRIBUTION ENDPOINTS
+  # ============================================================================
+  
+  /projects/{projectId}/contributions:
+    get:
+      tags: [Contributions]
+      summary: List project contributions
+      description: |
+        Get contributions for a project. Visibility depends on user role:
+        - Host: sees all contributions (pending, accepted, declined)
+        - Contributor: sees accepted + their own pending/declined
+        - Public: sees accepted only
       parameters:
-        - name: contribution_id
-          in: path
-          required: true
+        - $ref: '#/components/parameters/ProjectId'
+        - name: status
+          in: query
+          description: Filter by contribution status
           schema:
             type: string
-            format: uuid
-      responses:
-        '200':
-          description: Contribution declined
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                  status:
-                    type: string
-                    example: declined
-                  decided_at:
-                    type: string
-                    format: date-time
-        '403':
-          $ref: '#/components/responses/Forbidden'
-
-  /me/credits/balance:
-    get:
-      tags:
-        - Credits
-      summary: Get current user's credit balance
-      operationId: getCreditBalance
-      security:
-        - BearerAuth: []
-      responses:
-        '200':
-          description: Credit balance
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  balance:
-                    type: integer
-                    example: 5
-                  last_updated:
-                    type: string
-                    format: date-time
-
-  /me/credits/ledger:
-    get:
-      tags:
-        - Credits
-      summary: Get current user's credit transaction history
-      operationId: getCreditLedger
-      security:
-        - BearerAuth: []
-      parameters:
+            enum: [pending, accepted, declined]
         - name: page
           in: query
           schema:
             type: integer
+            minimum: 1
             default: 1
         - name: page_size
           in: query
           schema:
             type: integer
+            minimum: 1
+            maximum: 100
             default: 20
       responses:
         '200':
-          description: Credit ledger
+          description: Contributions retrieved successfully
           content:
             application/json:
               schema:
@@ -704,14 +596,219 @@ paths:
                     type: integer
                   next:
                     type: string
+                    format: uri
                     nullable: true
                   previous:
                     type: string
+                    format: uri
                     nullable: true
                   results:
                     type: array
                     items:
-                      $ref: '#/components/schemas/CreditTransaction'
+                      $ref: '#/components/schemas/Contribution'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    
+    post:
+      tags: [Contributions]
+      summary: Submit a contribution
+      description: |
+        Submit work to an open project.
+        Requirements:
+        - User must be authenticated
+        - Project must be OPEN
+        - User cannot be the project host
+        Rate limited to 20 submissions per hour per user.
+      parameters:
+        - $ref: '#/components/parameters/ProjectId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContributionCreate'
+      responses:
+        '201':
+          description: Contribution submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contribution'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Cannot submit to own project or project closed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                ownProject:
+                  value:
+                    error: You cannot submit contributions to your own project
+                    code: CANNOT_CONTRIBUTE_TO_OWN_PROJECT
+                projectClosed:
+                  value:
+                    error: Project is closed and no longer accepting contributions
+                    code: PROJECT_CLOSED
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+  
+  /contributions/{contributionId}/accept:
+    patch:
+      tags: [Contributions]
+      summary: Accept a contribution
+      description: |
+        Accept a pending contribution. Only project host can accept.
+        Awards 1 credit to contributor if first acceptance for this project.
+        Transaction is atomic: contribution status + credit award succeed/fail together.
+      parameters:
+        - $ref: '#/components/parameters/ContributionId'
+      responses:
+        '200':
+          description: Contribution accepted successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Contribution'
+                  - type: object
+                    properties:
+                      creditAwarded:
+                        type: boolean
+                        description: Whether credit was awarded (false if user already has credit for this project)
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          description: Only project host can accept contributions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Only the project host can accept contributions
+                code: PERMISSION_DENIED
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Contribution already decided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Contribution has already been accepted or declined
+                code: CONTRIBUTION_ALREADY_DECIDED
+  
+  /contributions/{contributionId}/decline:
+    patch:
+      tags: [Contributions]
+      summary: Decline a contribution
+      description: Decline a pending contribution. Only project host can decline.
+      parameters:
+        - $ref: '#/components/parameters/ContributionId'
+      responses:
+        '200':
+          description: Contribution declined successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contribution'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '409':
+          description: Contribution already decided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Contribution has already been accepted or declined
+                code: CONTRIBUTION_ALREADY_DECIDED
+
+  # ============================================================================
+  # CREDIT ENDPOINTS
+  # ============================================================================
+  
+  /me/credits/balance:
+    get:
+      tags: [Credits]
+      summary: Get current user's credit balance
+      description: Returns total credits earned from accepted contributions
+      responses:
+        '200':
+          description: Credit balance retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  balance:
+                    type: integer
+                    description: Total credits earned
+                    example: 5
+                  lastUpdated:
+                    type: string
+                    format: date-time
+                    description: Timestamp of most recent credit transaction
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+  
+  /me/credits/ledger:
+    get:
+      tags: [Credits]
+      summary: Get current user's credit transaction history
+      description: Returns paginated list of credit ledger entries
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Credit ledger retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  next:
+                    type: string
+                    format: uri
+                    nullable: true
+                  previous:
+                    type: string
+                    format: uri
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CreditLedgerEntry'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+# ==============================================================================
+# COMPONENTS
+# ==============================================================================
 
 components:
   securitySchemes:
@@ -719,18 +816,33 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-
+      description: JWT access token obtained from /auth/login
+  
   parameters:
     ProjectId:
-      name: project_id
+      name: projectId
       in: path
       required: true
+      description: Project UUID
       schema:
         type: string
         format: uuid
-
+    
+    ContributionId:
+      name: contributionId
+      in: path
+      required: true
+      description: Contribution UUID
+      schema:
+        type: string
+        format: uuid
+  
   schemas:
-    User:
+    # ============================================================================
+    # USER SCHEMAS
+    # ============================================================================
+    
+    UserProfile:
       type: object
       properties:
         id:
@@ -739,7 +851,7 @@ components:
         email:
           type: string
           format: email
-        display_name:
+        displayName:
           type: string
         bio:
           type: string
@@ -747,20 +859,162 @@ components:
           type: array
           items:
             type: string
-        github_url:
+        githubUrl:
           type: string
           format: uri
-        portfolio_url:
+        portfolioUrl:
           type: string
           format: uri
-        created_at:
+        emailVerified:
+          type: boolean
+        totalCredits:
+          type: integer
+          description: Total credits earned from accepted contributions
+        createdAt:
           type: string
           format: date-time
-        updated_at:
+        updatedAt:
           type: string
           format: date-time
-
-    ProjectListItem:
+    
+    PublicUserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        displayName:
+          type: string
+        bio:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+        githubUrl:
+          type: string
+          format: uri
+        portfolioUrl:
+          type: string
+          format: uri
+        totalCredits:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+    
+    UserSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        displayName:
+          type: string
+        githubUrl:
+          type: string
+          format: uri
+    
+    # ============================================================================
+    # PROJECT SCHEMAS
+    # ============================================================================
+    
+    ProjectCreate:
+      type: object
+      required:
+        - title
+        - description
+        - whatItDoes
+        - desiredOutputs
+      properties:
+        title:
+          type: string
+          minLength: 5
+          maxLength: 200
+          example: Build OAuth2 Authentication System
+        description:
+          type: string
+          minLength: 20
+          maxLength: 5000
+          example: This project needs a robust OAuth2 authentication system...
+        whatItDoes:
+          type: string
+          minLength: 20
+          maxLength: 2000
+          example: Implements user authentication using OAuth2 protocol with Google and GitHub providers
+        inputsDependencies:
+          type: string
+          maxLength: 2000
+          example: Existing Django backend with REST API
+        desiredOutputs:
+          type: string
+          minLength: 20
+          maxLength: 2000
+          example: Working OAuth2 integration with tests, documentation, and example implementation
+        tags:
+          type: array
+          maxItems: 10
+          items:
+            type: string
+          example: [authentication, oauth2, django, python, security]
+        difficulty:
+          type: string
+          enum: [easy, intermediate, advanced]
+          example: intermediate
+        estimatedTime:
+          type: string
+          maxLength: 50
+          example: 2 weeks
+        githubUrl:
+          type: string
+          format: uri
+          maxLength: 500
+          example: https://github.com/alice/my-project
+        status:
+          type: string
+          enum: [draft, open]
+          default: open
+          description: Initial status (draft or open)
+    
+    ProjectUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          minLength: 5
+          maxLength: 200
+        description:
+          type: string
+          minLength: 20
+          maxLength: 5000
+        whatItDoes:
+          type: string
+          minLength: 20
+          maxLength: 2000
+        inputsDependencies:
+          type: string
+          maxLength: 2000
+        desiredOutputs:
+          type: string
+          minLength: 20
+          maxLength: 2000
+        tags:
+          type: array
+          maxItems: 10
+          items:
+            type: string
+        difficulty:
+          type: string
+          enum: [easy, intermediate, advanced]
+        estimatedTime:
+          type: string
+          maxLength: 50
+        githubUrl:
+          type: string
+          format: uri
+          maxLength: 500
+    
+    ProjectSummary:
       type: object
       properties:
         id:
@@ -770,14 +1024,9 @@ components:
           type: string
         description:
           type: string
+          description: First 200 characters of description
         host:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-            display_name:
-              type: string
+          $ref: '#/components/schemas/UserSummary'
         tags:
           type: array
           items:
@@ -788,140 +1037,88 @@ components:
         difficulty:
           type: string
           enum: [easy, intermediate, advanced]
-        accepted_contributors_count:
+        estimatedTime:
+          type: string
+        acceptedContributorsCount:
           type: integer
-        created_at:
+          description: Number of unique users with accepted contributions
+        createdAt:
           type: string
           format: date-time
-
-    Project:
-      allOf:
-        - $ref: '#/components/schemas/ProjectListItem'
-        - type: object
-          properties:
-            what_it_does:
-              type: string
-            inputs_dependencies:
-              type: string
-            outputs:
-              type: string
-            estimated_time:
-              type: string
-            github_link:
-              type: string
-              format: uri
-            updated_at:
-              type: string
-              format: date-time
-
+    
     ProjectDetail:
       allOf:
-        - $ref: '#/components/schemas/Project'
+        - $ref: '#/components/schemas/ProjectSummary'
         - type: object
           properties:
-            accepted_contributors:
+            whatItDoes:
+              type: string
+            inputsDependencies:
+              type: string
+            desiredOutputs:
+              type: string
+            githubUrl:
+              type: string
+              format: uri
+            acceptedContributors:
               type: array
+              description: Users with accepted contributions, ordered by acceptance date
               items:
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                  display_name:
-                    type: string
-                  profile_url:
-                    type: string
-                  accepted_at:
-                    type: string
-                    format: date-time
-
-    ProjectCreate:
+                allOf:
+                  - $ref: '#/components/schemas/UserSummary'
+                  - type: object
+                    properties:
+                      acceptedAt:
+                        type: string
+                        format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+    
+    # ============================================================================
+    # CONTRIBUTION SCHEMAS
+    # ============================================================================
+    
+    ContributionCreate:
       type: object
       required:
-        - title
-        - description
-        - what_it_does
-        - outputs
+        - body
       properties:
         title:
           type: string
-          minLength: 5
           maxLength: 200
-        description:
+          example: Implemented OAuth2 with Google and GitHub
+        body:
           type: string
           minLength: 20
           maxLength: 5000
-        what_it_does:
-          type: string
-          minLength: 20
-          maxLength: 2000
-        inputs_dependencies:
-          type: string
-        outputs:
-          type: string
-          minLength: 20
-          maxLength: 2000
-        tags:
+          example: I've implemented the OAuth2 authentication flow with Google and GitHub providers...
+        links:
           type: array
-          items:
-            type: string
           maxItems: 10
-        difficulty:
-          type: string
-          enum: [easy, intermediate, advanced]
-        estimated_time:
-          type: string
-        github_link:
-          type: string
-          format: uri
-        status:
-          type: string
-          enum: [draft, open]
-          default: open
-
-    ProjectUpdate:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        what_it_does:
-          type: string
-        inputs_dependencies:
-          type: string
-        outputs:
-          type: string
-        tags:
-          type: array
           items:
             type: string
-        difficulty:
-          type: string
-          enum: [easy, intermediate, advanced]
-        estimated_time:
-          type: string
-        github_link:
-          type: string
-          format: uri
-
+            format: uri
+          example:
+            - https://github.com/bob/project/pull/42
+            - https://docs.google.com/document/d/abc123
+    
     Contribution:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        project_id:
-          type: string
-          format: uuid
-        contributor:
+        project:
           type: object
           properties:
             id:
               type: string
               format: uuid
-            display_name:
+            title:
               type: string
+        contributor:
+          $ref: '#/components/schemas/UserSummary'
         title:
           type: string
         body:
@@ -934,27 +1131,26 @@ components:
         status:
           type: string
           enum: [pending, accepted, declined]
-        decided_by:
-          type: object
-          nullable: true
-          properties:
-            id:
-              type: string
-              format: uuid
-            display_name:
-              type: string
-        decided_at:
+        decidedBy:
+          allOf:
+            - $ref: '#/components/schemas/UserSummary'
+            - nullable: true
+        decidedAt:
           type: string
           format: date-time
           nullable: true
-        created_at:
+        createdAt:
           type: string
           format: date-time
-        updated_at:
+        updatedAt:
           type: string
           format: date-time
-
-    CreditTransaction:
+    
+    # ============================================================================
+    # CREDIT SCHEMAS
+    # ============================================================================
+    
+    CreditLedgerEntry:
       type: object
       properties:
         id:
@@ -962,66 +1158,88 @@ components:
           format: uuid
         type:
           type: string
-          enum: [award, reversal]
+          enum: [award, reversal, adjustment]
         amount:
           type: integer
-        project_title:
-          type: string
-        contribution_id:
-          type: string
-          format: uuid
-        timestamp:
+          example: 1
+        project:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            title:
+              type: string
+        contribution:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            title:
+              type: string
+        createdBy:
+          $ref: '#/components/schemas/UserSummary'
+        createdAt:
           type: string
           format: date-time
-
+    
+    # ============================================================================
+    # ERROR SCHEMAS
+    # ============================================================================
+    
     Error:
       type: object
+      required:
+        - error
+        - code
       properties:
         error:
           type: string
+          description: Human-readable error message
         code:
           type: string
+          description: Machine-readable error code
         fields:
           type: object
+          description: Field-specific validation errors
           additionalProperties:
             type: string
-
-  responses:
+    
     ValidationError:
-      description: Validation error
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Error'
+      allOf:
+        - $ref: '#/components/schemas/Error'
+        - type: object
           example:
             error: Validation failed
             code: VALIDATION_ERROR
             fields:
               title: This field is required
-              body: This field must be between 20 and 5000 characters
-
-    Unauthorized:
-      description: Unauthorized
+              description: Ensure this field has at least 20 characters
+  
+  responses:
+    UnauthorizedError:
+      description: Authentication required or token invalid/expired
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
             error: Authentication credentials were not provided
-            code: UNAUTHORIZED
-
-    Forbidden:
-      description: Forbidden
+            code: NOT_AUTHENTICATED
+    
+    ForbiddenError:
+      description: Insufficient permissions
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
             error: You do not have permission to perform this action
-            code: FORBIDDEN
-
-    NotFound:
-      description: Not found
+            code: PERMISSION_DENIED
+    
+    NotFoundError:
+      description: Resource not found
       content:
         application/json:
           schema:
@@ -1029,14 +1247,21 @@ components:
           example:
             error: Resource not found
             code: NOT_FOUND
-
-    RateLimitExceeded:
+    
+    ValidationError:
+      description: Request validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationError'
+    
+    RateLimitError:
       description: Rate limit exceeded
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
           example:
-            error: Rate limit exceeded. Try again in 30 minutes.
+            error: Rate limit exceeded. Try again in 45 minutes.
             code: RATE_LIMIT_EXCEEDED
-
+            retryAfter: 2700

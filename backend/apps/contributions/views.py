@@ -1,0 +1,307 @@
+from rest_framework import generics, status, views
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from django.db import transaction, IntegrityError
+from django.utils import timezone
+from django_ratelimit.decorators import ratelimit
+from django.utils.decorators import method_decorator
+
+from apps.contributions.models import Contribution
+from apps.contributions.serializers import (
+    ContributionSerializer,
+    ContributionCreateSerializer,
+    ContributionDecisionSerializer
+)
+from apps.contributions.services import ContributionService
+from apps.projects.models import Project
+from apps.users.permissions import IsAuthenticatedAndVerified, IsHostOrReadOnly
+from core.pagination import CustomPageNumberPagination
+from core.responses import SuccessResponse, ErrorResponse
+
+
+class ProjectContributionListView(generics.ListAPIView):
+    """
+    List all contributions for a specific project.
+    
+    - Public users and contributors see only ACCEPTED contributions
+    - Project host sees all contributions (PENDING, ACCEPTED, DECLINED)
+    """
+    serializer_class = ContributionSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    pagination_class = CustomPageNumberPagination
+
+    def get_queryset(self):
+        project_id = self.kwargs.get('project_id')
+        queryset = Contribution.objects.filter(project_id=project_id).select_related(
+            'contributor', 'project', 'decided_by'
+        ).order_by('-created_at')
+        
+        # Visibility logic: host sees all, others see only ACCEPTED
+        request_user = self.request.user
+        if request_user.is_authenticated:
+            try:
+                project = Project.objects.get(id=project_id)
+                if project.host != request_user:
+                    queryset = queryset.filter(status='ACCEPTED')
+            except Project.DoesNotExist:
+                queryset = queryset.filter(status='ACCEPTED')
+        else:
+            queryset = queryset.filter(status='ACCEPTED')
+        
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return SuccessResponse(data=serializer.data)
+
+
+@method_decorator(ratelimit(key='user', rate='20/h', block=True), name='post')
+class ContributionCreateView(generics.CreateAPIView):
+    """
+    Create a new contribution for a project.
+    
+    Rate limited to 20 contributions per hour per user.
+    
+    Validation:
+    - User must be authenticated and email verified
+    - Project must be OPEN
+    - User cannot contribute to their own project
+    - User can only submit one contribution per project
+    """
+    queryset = Contribution.objects.all()
+    serializer_class = ContributionCreateSerializer
+    permission_classes = (IsAuthenticatedAndVerified,)
+
+    def create(self, request, *args, **kwargs):
+        # Get project from URL parameter
+        project_id = self.kwargs.get('project_id')
+        
+        # Validate project exists
+        try:
+            project = Project.objects.get(id=project_id)
+        except Project.DoesNotExist:
+            return ErrorResponse(
+                detail="Project not found.",
+                status_code=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Add project to request data
+        data = request.data.copy()
+        data['project'] = str(project.id)
+        
+        serializer = self.get_serializer(data=data)
+        try:
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
+            
+            return SuccessResponse(
+                data=serializer.data,
+                message="Contribution submitted successfully. The project host will review your submission.",
+                status_code=status.HTTP_201_CREATED,
+                headers=headers
+            )
+        except Exception as e:
+            # Handle rate limit exceeded
+            if hasattr(e, 'status_code') and e.status_code == 429:
+                return ErrorResponse(
+                    detail="Rate limit exceeded. You can submit up to 20 contributions per hour.",
+                    code="rate_limit_exceeded",
+                    status_code=status.HTTP_429_TOO_MANY_REQUESTS
+                )
+            raise
+
+
+class ContributionDetailView(generics.RetrieveAPIView):
+    """
+    Retrieve a single contribution by ID.
+    
+    Visibility:
+    - ACCEPTED contributions: visible to all
+    - PENDING/DECLINED contributions: visible only to contributor and project host
+    """
+    queryset = Contribution.objects.select_related('contributor', 'project', 'decided_by')
+    serializer_class = ContributionSerializer
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    lookup_field = 'id'
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # Check visibility permissions
+        if instance.status != 'ACCEPTED':
+            if not request.user.is_authenticated:
+                return ErrorResponse(
+                    detail="You do not have permission to view this contribution.",
+                    status_code=status.HTTP_403_FORBIDDEN
+                )
+            if request.user != instance.contributor and request.user != instance.project.host:
+                return ErrorResponse(
+                    detail="You do not have permission to view this contribution.",
+                    status_code=status.HTTP_403_FORBIDDEN
+                )
+        
+        serializer = self.get_serializer(instance)
+        return SuccessResponse(data=serializer.data)
+
+
+class MyContributionsView(generics.ListAPIView):
+    """
+    Get all contributions by the authenticated user.
+    
+    Supports filtering by status via query parameter.
+    """
+    serializer_class = ContributionSerializer
+    permission_classes = (IsAuthenticatedAndVerified,)
+    pagination_class = CustomPageNumberPagination
+
+    def get_queryset(self):
+        queryset = Contribution.objects.filter(
+            contributor=self.request.user
+        ).select_related(
+            'project', 'project__host', 'decided_by'
+        ).order_by('-created_at')
+        
+        # Filter by status if provided
+        status_filter = self.request.query_params.get('status')
+        if status_filter and status_filter.upper() in ['PENDING', 'ACCEPTED', 'DECLINED']:
+            queryset = queryset.filter(status=status_filter.upper())
+        
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return SuccessResponse(data=serializer.data)
+
+
+class ContributionAcceptView(views.APIView):
+    """
+    Accept a pending contribution (host only).
+    
+    Atomically updates contribution status AND awards credit to contributor.
+    If credit award fails (duplicate), contribution is still accepted.
+    """
+    permission_classes = (IsAuthenticatedAndVerified,)
+
+    def post(self, request, contribution_id):
+        try:
+            contribution = Contribution.objects.select_related('project', 'contributor').get(id=contribution_id)
+        except Contribution.DoesNotExist:
+            return ErrorResponse(
+                detail="Contribution not found.",
+                status_code=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Validate decision
+        serializer = ContributionDecisionSerializer(
+            data={'decision': 'ACCEPTED'},
+            context={'contribution': contribution, 'request': request}
+        )
+        
+        if not serializer.is_valid():
+            return ErrorResponse(
+                detail=serializer.errors,
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Accept the contribution with atomic credit award
+        try:
+            result = ContributionService.accept_contribution(
+                contribution=contribution,
+                decided_by=request.user
+            )
+            
+            response_data = {
+                'id': str(contribution.id),
+                'status': contribution.status,
+                'decided_at': contribution.decided_at,
+                'credit_awarded': result['credit_awarded']
+            }
+            
+            if result['credit_awarded']:
+                message = "Contribution accepted and credit awarded successfully."
+            else:
+                message = "Contribution accepted. Credit was already awarded for this project."
+            
+            return SuccessResponse(
+                data=response_data,
+                message=message
+            )
+        except ValueError as e:
+            return ErrorResponse(
+                detail=str(e),
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+        except PermissionError as e:
+            return ErrorResponse(
+                detail=str(e),
+                status_code=status.HTTP_403_FORBIDDEN
+            )
+
+
+class ContributionDeclineView(views.APIView):
+    """
+    Decline a pending contribution (host only).
+    
+    No credit is awarded for declined contributions.
+    """
+    permission_classes = (IsAuthenticatedAndVerified,)
+
+    def post(self, request, contribution_id):
+        try:
+            contribution = Contribution.objects.select_related('project', 'contributor').get(id=contribution_id)
+        except Contribution.DoesNotExist:
+            return ErrorResponse(
+                detail="Contribution not found.",
+                status_code=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Validate decision
+        serializer = ContributionDecisionSerializer(
+            data={'decision': 'DECLINED'},
+            context={'contribution': contribution, 'request': request}
+        )
+        
+        if not serializer.is_valid():
+            return ErrorResponse(
+                detail=serializer.errors,
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Decline the contribution
+        try:
+            contribution = ContributionService.decline_contribution(
+                contribution=contribution,
+                decided_by=request.user
+            )
+            
+            return SuccessResponse(
+                data={
+                    'id': str(contribution.id),
+                    'status': contribution.status,
+                    'decided_at': contribution.decided_at
+                },
+                message="Contribution declined."
+            )
+        except ValueError as e:
+            return ErrorResponse(
+                detail=str(e),
+                status_code=status.HTTP_400_BAD_REQUEST
+            )
+        except PermissionError as e:
+            return ErrorResponse(
+                detail=str(e),
+                status_code=status.HTTP_403_FORBIDDEN
+            )
