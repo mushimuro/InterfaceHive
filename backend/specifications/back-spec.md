@@ -5,7 +5,7 @@
 - `django-cors-headers` (if different domains)
 - `django-filter` (search/filter)
 - `drf-spectacular` (OpenAPI)
-- Auth options:
+- Auth:
   - JWT (SPA-friendly) via `djangorestframework-simplejwt`
 
 ### 1.2 Domain rules

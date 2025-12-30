@@ -31,10 +31,15 @@ InterfaceHive is a web platform connecting builders with contributors for open-s
 
 #### FR-1: User Authentication & Registration
 **Priority:** Critical
-**Description:** Users must be able to create accounts, log in securely, and manage their sessions.
+**Description:** Users must be able to create accounts, verify their email, log in securely, and manage their sessions.
 **Acceptance Criteria:**
 - [ ] Users can register with email and password
-- [ ] Users can log in with valid credentials
+- [ ] System sends email verification link upon registration
+- [ ] Users can verify email by clicking verification link
+- [ ] Only users with verified email can log in
+- [ ] Users can log in with valid credentials (verified email + correct password)
+- [ ] Users with unverified email receive error message on login attempt with instructions to verify
+- [ ] Users can request resend of verification email
 - [ ] Users can log out and end their session
 - [ ] Failed login attempts show clear, actionable error messages
 - [ ] Session persists across browser tabs
@@ -1004,15 +1009,17 @@ timestamp: DateTime
 ## Appendix
 
 ### Assumptions
-1. Email verification is optional in MVP; can be added post-launch
-2. File uploads for contributions are links-only in MVP (not direct file uploads)
-3. Email notifications are nice-to-have; implemented with queue-based graceful degradation
-4. Email service failures never block user operations; emails retry automatically
-5. Desktop-first responsive design; full mobile optimization in later phase
-6. Single-language support (English) in MVP
-7. No marketplace billing/payments in MVP; credits are reputation points only
-8. GitHub/GitLab integration is optional external links; no OAuth in MVP
-9. Message queue (e.g., Redis, Celery) used for asynchronous email processing
+1. Email verification is required for account activation; users cannot log in with unverified email
+2. Verification emails sent via async queue (Celery) with retry logic
+3. Verification tokens expire after 24 hours
+4. File uploads for contributions are links-only in MVP (not direct file uploads)
+5. Email notifications are nice-to-have; implemented with queue-based graceful degradation
+6. Email service failures never block user operations; emails retry automatically
+7. Desktop-first responsive design; full mobile optimization in later phase
+8. Single-language support (English) in MVP
+9. No marketplace billing/payments in MVP; credits are reputation points only
+10. GitHub/GitLab integration is optional external links; no OAuth in MVP
+11. Message queue (e.g., Redis, Celery) used for asynchronous email processing
 
 ### References
 - Constitution: v1.0.0
