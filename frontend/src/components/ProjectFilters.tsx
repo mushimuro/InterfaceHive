@@ -114,9 +114,9 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ filters, onFiltersChang
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Levels</SelectItem>
-            <SelectItem value="EASY">Easy</SelectItem>
-            <SelectItem value="INTERMEDIATE">Intermediate</SelectItem>
-            <SelectItem value="ADVANCED">Advanced</SelectItem>
+            <SelectItem value="easy">Easy</SelectItem>
+            <SelectItem value="intermediate">Intermediate</SelectItem>
+            <SelectItem value="advanced">Advanced</SelectItem>
           </SelectContent>
         </Select>
 
@@ -131,7 +131,6 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ filters, onFiltersChang
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="open">Open</SelectItem>
             <SelectItem value="closed">Closed</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
           </SelectContent>
         </Select>
 

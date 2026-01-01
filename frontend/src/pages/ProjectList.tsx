@@ -101,7 +101,7 @@ const ProjectList: React.FC = () => {
                   <div className="flex flex-col items-center gap-2">
                     <Search className="h-12 w-12 text-muted-foreground/50" />
                     <p className="text-muted-foreground text-lg font-medium">
-                      No projects found
+                      There is no project available
                     </p>
                     <p className="text-muted-foreground text-sm">
                       Try adjusting your search filters.

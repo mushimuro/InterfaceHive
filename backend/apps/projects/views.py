@@ -81,15 +81,33 @@ class ProjectListCreateView(generics.ListCreateAPIView):
                     tag_maps__tag__name__in=tag_names
                 ).distinct()
         
-        # Full-text search using PostgreSQL search vector
+        # Full-text search + Substring matching
         search_query = self.request.query_params.get('search')
         if search_query:
-            search_query_obj = SearchQuery(search_query)
-            queryset = queryset.filter(
-                search_vector=search_query_obj
-            ).annotate(
-                rank=SearchRank('search_vector', search_query_obj)
-            ).order_by('-rank')
+            # 1. Full-Text Search (Prefix matching for ranking)
+            words = [f"{word}:*" for word in search_query.split() if word]
+            fts_query = None
+            if words:
+                raw_query = " & ".join(words)
+                fts_query = SearchQuery(raw_query, search_type='raw')
+            
+            # 2. Substring matching (Standard Django icontains)
+            substring_filter = (
+                Q(title__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(desired_outputs__icontains=search_query)
+            )
+            
+            # Combine them: Match if either FTS matches OR substring filter matches
+            if fts_query:
+                queryset = queryset.filter(
+                    Q(search_vector=fts_query) | substring_filter
+                ).annotate(
+                    # Annotate rank; matches that only satisfy substring_filter get rank 0
+                    rank=SearchRank('search_vector', fts_query)
+                ).order_by('-rank')
+            else:
+                queryset = queryset.filter(substring_filter)
         
         return queryset
     
