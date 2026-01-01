@@ -70,7 +70,7 @@ class UserCreditLedgerView(generics.ListAPIView):
         return CreditLedgerEntry.objects.filter(
             to_user=self.request.user
         ).select_related(
-            'from_user', 'project', 'contribution'
+            'created_by_user', 'project', 'contribution'
         ).order_by('-created_at')
 
     def list(self, request, *args, **kwargs):

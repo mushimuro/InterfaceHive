@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import apiClient from '../api/client';
@@ -75,12 +75,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         password,
       });
 
-      // Store tokens
-      localStorage.setItem('access_token', data.access);
-      localStorage.setItem('refresh_token', data.refresh);
-
-      // Fetch user profile
-      await refreshUser();
+      // Store tokens (backend wraps response in { success, message, data })
+      localStorage.setItem('access_token', data.data.access);
+      localStorage.setItem('refresh_token', data.data.refresh);
+      
+      // Set user from login response
+      setUser(data.data.user);
 
       // Redirect to home
       navigate('/');
@@ -94,7 +94,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (email: string, password: string, display_name: string) => {
     try {
-      const { data } = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/register/`, {
+      await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/register/`, {
         email,
         password,
         display_name,
@@ -134,7 +134,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const refreshUser = async () => {
     try {
       const { data } = await apiClient.get('/auth/me/');
-      setUser(data);
+      setUser(data.data || data);
     } catch (error) {
       // If fetching user fails, logout
       logout();

@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
+import { Layers } from 'lucide-react';
 import ErrorMessage from '../components/ErrorMessage';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -19,6 +19,7 @@ const Login: React.FC = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -39,87 +40,82 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
-            Welcome back
-          </CardTitle>
-          <CardDescription className="text-center">
-            Sign in to your InterfaceHive account
-          </CardDescription>
-        </CardHeader>
-        
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-4">
+    <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
+      <div className="flex w-full max-w-sm flex-col gap-6">
+        <a href="/" className="flex items-center gap-2 self-center font-medium">
+          <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+            <Layers className="size-4" />
+          </div>
+          InterfaceHive
+        </a>
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-2 text-center">
+            <h1 className="text-2xl font-bold">Login to your account</h1>
+            <p className="text-muted-foreground text-sm">
+              Enter your email below to login to your account
+            </p>
+          </div>
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
             {error && <ErrorMessage message={error} type="error" />}
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="your.email@example.com"
-                {...register('email')}
-                disabled={isLoading}
-              />
-              {errors.email && (
-                <p className="text-sm text-red-500">{errors.email.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                {...register('password')}
-                disabled={isLoading}
-              />
-              {errors.password && (
-                <p className="text-sm text-red-500">{errors.password.message}</p>
-              )}
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="remember"
-                  className="h-4 w-4 rounded border-gray-300"
+            <div className="flex flex-col gap-6">
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                  {...register('email')}
+                  disabled={isLoading}
                 />
-                <Label htmlFor="remember" className="text-sm font-normal cursor-pointer">
-                  Remember me
-                </Label>
+                {errors.email && (
+                  <p className="text-sm text-red-500">{errors.email.message}</p>
+                )}
               </div>
-              <Link
-                to="/auth/forgot-password"
-                className="text-sm text-primary hover:underline"
+              <div className="grid gap-2">
+                <div className="flex items-center">
+                  <Label htmlFor="password">Password</Label>
+                  <Link
+                    to="/auth/forgot-password"
+                    className="ml-auto text-sm text-muted-foreground hover:text-primary"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  {...register('password')}
+                  disabled={isLoading}
+                />
+                {errors.password && (
+                  <p className="text-sm text-red-500">{errors.password.message}</p>
+                )}
+              </div>
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? <LoadingSpinner size="sm" /> : 'Login'}
+              </Button>
+              <Button
+                type="button"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => {
+                  setValue('email', 'test@example.com');
+                  setValue('password', 'Test1234!');
+                }}
+                disabled={isLoading}
               >
-                Forgot password?
-              </Link>
+                Fill in test user
+              </Button>
             </div>
-          </CardContent>
-
-          <CardFooter className="flex flex-col space-y-4">
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? <LoadingSpinner size="sm" /> : 'Sign In'}
-            </Button>
-
-            <p className="text-sm text-center text-muted-foreground">
-              Don't have an account?{' '}
-              <Link to="/auth/register" className="text-primary hover:underline">
-                Create one
-              </Link>
-            </p>
-          </CardFooter>
-        </form>
-      </Card>
+          </form>
+          <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
+            Don&apos;t have an account?{' '}
+            <Link to="/auth/register">Sign up</Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

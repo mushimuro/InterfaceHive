@@ -33,7 +33,7 @@ class ProjectContributionListView(generics.ListAPIView):
     def get_queryset(self):
         project_id = self.kwargs.get('project_id')
         queryset = Contribution.objects.filter(project_id=project_id).select_related(
-            'contributor', 'project', 'decided_by'
+            'contributor_user', 'project', 'decided_by_user'
         ).order_by('-created_at')
         
         # Visibility logic: host sees all, others see only ACCEPTED
@@ -41,7 +41,7 @@ class ProjectContributionListView(generics.ListAPIView):
         if request_user.is_authenticated:
             try:
                 project = Project.objects.get(id=project_id)
-                if project.host != request_user:
+                if project.host_user != request_user:
                     queryset = queryset.filter(status='ACCEPTED')
             except Project.DoesNotExist:
                 queryset = queryset.filter(status='ACCEPTED')
@@ -126,7 +126,7 @@ class ContributionDetailView(generics.RetrieveAPIView):
     - ACCEPTED contributions: visible to all
     - PENDING/DECLINED contributions: visible only to contributor and project host
     """
-    queryset = Contribution.objects.select_related('contributor', 'project', 'decided_by')
+    queryset = Contribution.objects.select_related('contributor_user', 'project', 'decided_by_user')
     serializer_class = ContributionSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
     lookup_field = 'id'
@@ -141,7 +141,7 @@ class ContributionDetailView(generics.RetrieveAPIView):
                     detail="You do not have permission to view this contribution.",
                     status_code=status.HTTP_403_FORBIDDEN
                 )
-            if request.user != instance.contributor and request.user != instance.project.host:
+            if request.user != instance.contributor_user and request.user != instance.project.host_user:
                 return ErrorResponse(
                     detail="You do not have permission to view this contribution.",
                     status_code=status.HTTP_403_FORBIDDEN
@@ -163,9 +163,9 @@ class MyContributionsView(generics.ListAPIView):
 
     def get_queryset(self):
         queryset = Contribution.objects.filter(
-            contributor=self.request.user
+            contributor_user=self.request.user
         ).select_related(
-            'project', 'project__host', 'decided_by'
+            'project', 'project__host_user', 'decided_by_user'
         ).order_by('-created_at')
         
         # Filter by status if provided

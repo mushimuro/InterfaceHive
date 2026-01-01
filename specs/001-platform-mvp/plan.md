@@ -50,7 +50,6 @@ As a **project host**, I want to **publish a detailed contribution request and r
 - As a **visitor**, I want to **browse open projects and view public contributor profiles**, so that **I can evaluate opportunities and recognize top contributors**.
 - As a **user**, I want to **verify my email address before logging in**, so that **the platform maintains email authenticity and reduces spam**.
 - As a **user**, I want to **delete my account and have my data anonymized**, so that **I can exercise my GDPR data rights**.
-- As a **keyboard user**, I want to **navigate the entire platform using only keyboard**, so that **I can use the platform without a mouse**.
 
 ## Technical Approach
 

@@ -9,14 +9,14 @@ class CreditLedgerEntrySerializer(serializers.ModelSerializer):
     
     Shows credit transaction history with related user and project info.
     """
-    from_user_name = serializers.CharField(source='from_user.display_name', read_only=True, allow_null=True)
+    from_user_name = serializers.CharField(source='created_by_user.display_name', read_only=True, allow_null=True)
     project_title = serializers.CharField(source='project.title', read_only=True)
     contribution_id = serializers.UUIDField(source='contribution.id', read_only=True, allow_null=True)
     
     class Meta:
         model = CreditLedgerEntry
         fields = (
-            'id', 'to_user', 'from_user', 'from_user_name', 'project',
+            'id', 'to_user', 'created_by_user', 'from_user_name', 'project',
             'project_title', 'contribution', 'contribution_id', 'amount',
             'entry_type', 'created_at'
         )
