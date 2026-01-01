@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'apps.contributions',
     'apps.credits',
     'apps.moderation',
+    'apps.ai_agent',
 ]
 
 MIDDLEWARE = [
