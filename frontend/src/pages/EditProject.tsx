@@ -43,8 +43,8 @@ const EditProject: React.FC = () => {
     setError(null);
 
     try {
-      await updateProjectMutation.mutateAsync(data);
-      
+      await updateProjectMutation.mutateAsync(data as any);
+
       // Navigate to project detail page
       navigate(`/projects/${id}`);
     } catch (err: any) {

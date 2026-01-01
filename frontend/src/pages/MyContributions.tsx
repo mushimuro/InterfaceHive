@@ -1,59 +1,44 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import apiClient from '../api/client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Card, CardContent } from '../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
-import { Calendar, FileText, CheckCircle, XCircle, Clock, Eye, Heart, MessageCircle, Edit, Trash2 } from 'lucide-react';
+import { FileText, CheckCircle, XCircle, Clock, Eye, Heart, MessageCircle, Edit, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
-
-interface Contribution {
-  id: string;
-  project: string;
-  project_title: string;
-  title?: string;
-  body: string;
-  status: 'PENDING' | 'ACCEPTED' | 'DECLINED';
-  decided_by_name?: string;
-  decided_at?: string;
-  created_at: string;
-}
-
-const fetchMyContributions = async (statusFilter?: string): Promise<Contribution[]> => {
-  const params = statusFilter ? { status: statusFilter } : {};
-  const response = await apiClient.get('/contributions/me/', { params });
-  return response.data.data || response.data.results || [];
-};
+import { useMyContributions } from '../hooks/useContributions';
 
 const MyContributions: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
-  
-  const { data: contributions, isLoading, error } = useQuery<Contribution[], Error>({
-    queryKey: ['my-contributions', statusFilter],
-    queryFn: () => fetchMyContributions(statusFilter),
+  const [page, setPage] = useState(1);
+
+  const { data, isLoading, error } = useMyContributions({
+    status: statusFilter,
+    page,
+    page_size: 10,
   });
 
+  const contributions = data?.data || [];
+
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'ACCEPTED':
+    switch (status.toLowerCase()) {
+      case 'accepted':
         return (
           <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-0">
             <CheckCircle className="h-3 w-3 mr-1" />
             Accepted
           </Badge>
         );
-      case 'DECLINED':
+      case 'declined':
         return (
           <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-0">
             <XCircle className="h-3 w-3 mr-1" />
             Declined
           </Badge>
         );
-      case 'PENDING':
+      case 'pending':
         return (
           <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 border-0">
             <Clock className="h-3 w-3 mr-1" />
@@ -65,17 +50,12 @@ const MyContributions: React.FC = () => {
     }
   };
 
-  const getStatusCounts = () => {
-    if (!contributions) return { pending: 0, accepted: 0, declined: 0, total: 0 };
-    return {
-      pending: contributions.filter(c => c.status === 'PENDING').length,
-      accepted: contributions.filter(c => c.status === 'ACCEPTED').length,
-      declined: contributions.filter(c => c.status === 'DECLINED').length,
-      total: contributions.length,
-    };
+  const stats = {
+    total: data?.count || 0,
+    pending: contributions.filter((c: any) => c.status === 'pending').length,
+    accepted: contributions.filter((c: any) => c.status === 'accepted').length,
+    declined: contributions.filter((c: any) => c.status === 'declined').length,
   };
-
-  const stats = getStatusCounts();
 
   return (
     <div className="flex flex-1 flex-col">
@@ -127,12 +107,18 @@ const MyContributions: React.FC = () => {
             </div>
 
             {/* Tabs for filtering */}
-            <Tabs defaultValue="all" onValueChange={(value) => setStatusFilter(value === 'all' ? undefined : value.toUpperCase())}>
+            <Tabs
+              defaultValue="all"
+              onValueChange={(value) => {
+                setStatusFilter(value === 'all' ? undefined : value.toLowerCase());
+                setPage(1);
+              }}
+            >
               <TabsList className="grid w-full grid-cols-4 mb-6">
-                <TabsTrigger value="all">All ({stats.total})</TabsTrigger>
-                <TabsTrigger value="pending">Pending ({stats.pending})</TabsTrigger>
-                <TabsTrigger value="accepted">Accepted ({stats.accepted})</TabsTrigger>
-                <TabsTrigger value="declined">Declined ({stats.declined})</TabsTrigger>
+                <TabsTrigger value="all">All</TabsTrigger>
+                <TabsTrigger value="pending">Pending</TabsTrigger>
+                <TabsTrigger value="accepted">Accepted</TabsTrigger>
+                <TabsTrigger value="declined">Declined</TabsTrigger>
               </TabsList>
 
               <TabsContent value="all">
@@ -144,7 +130,7 @@ const MyContributions: React.FC = () => {
 
                 {error && <ErrorMessage message="Failed to load contributions." type="error" />}
 
-                {!isLoading && !error && contributions && contributions.length === 0 && (
+                {!isLoading && !error && contributions.length === 0 && (
                   <Card>
                     <CardContent className="text-center py-16">
                       <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-40" />
@@ -159,7 +145,7 @@ const MyContributions: React.FC = () => {
                   </Card>
                 )}
 
-                {!isLoading && !error && contributions && contributions.length > 0 && (
+                {!isLoading && !error && contributions.length > 0 && (
                   <div className="space-y-4">
                     {contributions.map((contribution) => (
                       <Card key={contribution.id} className="hover:shadow-md transition-all">
@@ -192,15 +178,15 @@ const MyContributions: React.FC = () => {
                           <div className="flex items-center gap-4 text-xs text-muted-foreground">
                             <div className="flex items-center gap-1">
                               <Eye className="h-3.5 w-3.5" />
-                              <span>8 views</span>
+                              <span>Views</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <Heart className="h-3.5 w-3.5" />
-                              <span>3 likes</span>
+                              <span>Likes</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <MessageCircle className="h-3.5 w-3.5" />
-                              <span>0 comments</span>
+                              <span>Comments</span>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
@@ -216,19 +202,33 @@ const MyContributions: React.FC = () => {
                         </div>
                       </Card>
                     ))}
+
+                    {/* Pagination */}
+                    {data && data.total_pages > 1 && (
+                      <div className="flex justify-center gap-2 mt-8">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={data.current_page === 1}
+                          onClick={() => setPage(p => p - 1)}
+                        >
+                          Previous
+                        </Button>
+                        <span className="flex items-center px-4 text-sm text-muted-foreground">
+                          Page {data.current_page} of {data.total_pages}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={data.current_page === data.total_pages}
+                          onClick={() => setPage(p => p + 1)}
+                        >
+                          Next
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )}
-              </TabsContent>
-              
-              {/* Other tabs render the same content, filtering is handled by queryKey */}
-              <TabsContent value="pending">
-                {/* Content same as "all" tab */}
-              </TabsContent>
-              <TabsContent value="accepted">
-                {/* Content same as "all" tab */}
-              </TabsContent>
-              <TabsContent value="declined">
-                {/* Content same as "all" tab */}
               </TabsContent>
             </Tabs>
           </div>

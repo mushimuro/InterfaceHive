@@ -5,6 +5,7 @@ import {
   createContribution,
   acceptContribution,
   declineContribution,
+  getMyContributions,
   type Contribution,
   type ContributionListResponse,
   type ContributionCreateData,
@@ -37,7 +38,7 @@ export const useContribution = (contributionId: string) => {
  */
 export const useCreateContribution = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<
     Contribution,
     Error,
@@ -58,7 +59,7 @@ export const useCreateContribution = () => {
  */
 export const useAcceptContribution = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<Contribution, Error, string>({
     mutationFn: acceptContribution,
     onSuccess: (contribution) => {
@@ -78,7 +79,7 @@ export const useAcceptContribution = () => {
  */
 export const useDeclineContribution = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation<Contribution, Error, string>({
     mutationFn: declineContribution,
     onSuccess: (contribution) => {
@@ -91,3 +92,14 @@ export const useDeclineContribution = () => {
   });
 };
 
+
+/**
+ * Hook to fetch user's own contributions
+ */
+export const useMyContributions = (params?: Record<string, any>) => {
+  return useQuery({
+    queryKey: ['my-contributions', params],
+    queryFn: () => getMyContributions(params),
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+};

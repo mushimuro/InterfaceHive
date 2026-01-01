@@ -34,8 +34,8 @@ export const contributionSchema = z.object({
 
 // Contribution decision schema (for host)
 export const contributionDecisionSchema = z.object({
-  decision: z.enum(['ACCEPTED', 'DECLINED'], {
-    errorMap: () => ({ message: 'Please select accept or decline' }),
+  decision: z.enum(['accepted', 'declined'] as const, {
+    message: 'Please select accept or decline'
   }),
   feedback: z.string().max(1000, 'Feedback is too long').optional(),
 });

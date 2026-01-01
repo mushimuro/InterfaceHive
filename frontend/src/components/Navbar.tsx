@@ -12,7 +12,7 @@ import {
 } from './ui/dropdown-menu';
 import CreditBadge from './CreditBadge';
 import { User, LogOut, FileText, Award, Settings, PlusCircle, Layers } from 'lucide-react';
-import { ModeToggle } from './mode-toggle';
+import { ModeToggle } from './ModeToggle';
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();

@@ -100,8 +100,8 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
     
     def get_accepted_contributors(self, obj):
         """Get list of users with accepted contributions."""
-        accepted_contributions = obj.contributions.filter(status='ACCEPTED').select_related('contributor')
-        return UserProfileSerializer([c.contributor for c in accepted_contributions], many=True).data
+        accepted_contributions = obj.contributions.filter(status='accepted').select_related('contributor_user')
+        return UserProfileSerializer([c.contributor_user for c in accepted_contributions], many=True).data
 
 
 class ProjectCreateSerializer(serializers.ModelSerializer):
@@ -193,10 +193,6 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
             tag, _ = ProjectTag.objects.get_or_create(name=tag_name)
             ProjectTagMap.objects.create(project=project, tag=tag)
         
-        # Update search vector
-        project.search_vector = SearchVector('title', 'description', 'desired_outputs')
-        project.save(update_fields=['search_vector'])
-        
         return project
 
 
@@ -283,10 +279,6 @@ class ProjectUpdateSerializer(serializers.ModelSerializer):
             for tag_name in tags_data:
                 tag, _ = ProjectTag.objects.get_or_create(name=tag_name)
                 ProjectTagMap.objects.create(project=instance, tag=tag)
-        
-        # Update search vector if relevant fields changed
-        if any(field in validated_data for field in ['title', 'description', 'desired_outputs']):
-            instance.search_vector = SearchVector('title', 'description', 'desired_outputs')
         
         instance.save()
         return instance

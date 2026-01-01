@@ -56,7 +56,7 @@ class ContributionCreateSerializer(serializers.ModelSerializer):
         if not value:
             raise serializers.ValidationError("Project is required.")
         
-        if value.status != 'OPEN':
+        if value.status != 'open':
             raise serializers.ValidationError("This project is not accepting contributions. Project status must be OPEN.")
         
         return value
@@ -114,7 +114,7 @@ class ContributionDecisionSerializer(serializers.Serializer):
     """
     Serializer for accepting or declining contributions.
     """
-    decision = serializers.ChoiceField(choices=['ACCEPTED', 'DECLINED'], required=True)
+    decision = serializers.ChoiceField(choices=['accepted', 'declined'], required=True)
     feedback = serializers.CharField(required=False, allow_blank=True, max_length=1000)
 
     def validate(self, data):

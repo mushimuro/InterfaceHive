@@ -58,7 +58,7 @@ class CreditService:
         if to_user == from_user:
             raise ValueError("Cannot award credit to yourself")
         
-        if contribution.status != 'ACCEPTED':
+        if contribution.status != 'accepted':
             raise ValueError("Can only award credit for accepted contributions")
         
         if contribution.contributor_user != to_user:
@@ -71,7 +71,7 @@ class CreditService:
         existing_credit = CreditLedgerEntry.objects.filter(
             to_user=to_user,
             project=project,
-            entry_type='AWARD'
+            entry_type='award'
         ).exists()
         
         if existing_credit:
@@ -88,7 +88,7 @@ class CreditService:
                 project=project,
                 contribution=contribution,
                 amount=amount,
-                entry_type='AWARD'
+                entry_type='award'
             )
             
             logger.info(
@@ -123,12 +123,12 @@ class CreditService:
         """
         awards = CreditLedgerEntry.objects.filter(
             to_user=user,
-            entry_type='AWARD'
+            entry_type='award'
         ).count()
         
         reversals = CreditLedgerEntry.objects.filter(
             to_user=user,
-            entry_type='REVERSAL'
+            entry_type='reversal'
         ).count()
         
         return awards - reversals

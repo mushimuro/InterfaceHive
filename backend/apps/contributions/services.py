@@ -41,7 +41,7 @@ class ContributionService:
             PermissionError: If user is not the project host
         """
         # Validation
-        if contribution.status != 'PENDING':
+        if contribution.status != 'pending':
             raise ValueError(
                 f"Cannot accept contribution. Current status: {contribution.status}. "
                 "Only PENDING contributions can be accepted."
@@ -53,7 +53,7 @@ class ContributionService:
             )
         
         # Update contribution status
-        contribution.status = 'ACCEPTED'
+        contribution.status = 'accepted'
         contribution.decided_by_user = decided_by
         contribution.decided_at = timezone.now()
         contribution.save(update_fields=['status', 'decided_by_user', 'decided_at', 'updated_at'])
@@ -111,7 +111,7 @@ class ContributionService:
             PermissionError: If user is not the project host
         """
         # Validation
-        if contribution.status != 'PENDING':
+        if contribution.status != 'pending':
             raise ValueError(
                 f"Cannot decline contribution. Current status: {contribution.status}. "
                 "Only PENDING contributions can be declined."
@@ -123,7 +123,7 @@ class ContributionService:
             )
         
         # Update contribution status
-        contribution.status = 'DECLINED'
+        contribution.status = 'declined'
         contribution.decided_by_user = decided_by
         contribution.decided_at = timezone.now()
         contribution.save(update_fields=['status', 'decided_by_user', 'decided_at', 'updated_at'])

@@ -85,13 +85,26 @@ class Project(models.Model):
         return f"{self.title} (by {self.host_user.display_name})"
     
     def save(self, *args, **kwargs):
-        # Update search vector on save
-        if self.title and self.description:
-            self.search_vector = (
-                SearchVector('title', weight='A', config='english') +
-                SearchVector('description', weight='B', config='english')
-            )
         super().save(*args, **kwargs)
+        
+        # Update search vector after save to avoid "F() expressions can only be used to update" error
+        # Check if we need to update search vector (optimize if update_fields is present)
+        update_fields = kwargs.get('update_fields', None)
+        text_fields = {'title', 'description', 'desired_outputs'}
+        
+        should_update = (
+            update_fields is None or 
+            any(field in update_fields for field in text_fields)
+        )
+        
+        if should_update and self.title and self.description:
+            vector = (
+                SearchVector('title', weight='A', config='english') +
+                SearchVector('description', weight='B', config='english') +
+                SearchVector('desired_outputs', weight='C', config='english')
+            )
+            # Use .update() to handle the expression on the DB side
+            self.__class__.objects.filter(pk=self.pk).update(search_vector=vector)
     
     @property
     def accepted_contributors(self):

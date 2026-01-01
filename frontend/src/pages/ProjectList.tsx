@@ -11,7 +11,7 @@ import { Plus, Search } from 'lucide-react';
 
 const ProjectList: React.FC = () => {
   const [filters, setFilters] = useState<FilterType>({
-    status: 'OPEN',
+    status: 'open',
     page: 1,
     page_size: 20,
     ordering: '-created_at',
@@ -65,7 +65,7 @@ const ProjectList: React.FC = () => {
           {data && !isLoading && (
             <div className="px-4 lg:px-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                {data.results.map((project: any) => (
+                {data.data.map((project: any) => (
                   <ProjectCard key={project.id} project={project} />
                 ))}
               </div>
@@ -96,7 +96,7 @@ const ProjectList: React.FC = () => {
               )}
 
               {/* No Results */}
-              {data.results.length === 0 && (
+              {data.data.length === 0 && (
                 <div className="text-center py-12">
                   <div className="flex flex-col items-center gap-2">
                     <Search className="h-12 w-12 text-muted-foreground/50" />

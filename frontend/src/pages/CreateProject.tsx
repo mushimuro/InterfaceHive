@@ -23,7 +23,7 @@ const CreateProject: React.FC = () => {
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
-      status: 'OPEN',
+      status: 'open',
       tags: [],
     },
   });
@@ -65,11 +65,11 @@ const CreateProject: React.FC = () => {
     if (data.what_it_does) form.setValue('what_it_does', data.what_it_does);
     if (data.inputs_dependencies) form.setValue('inputs_dependencies', data.inputs_dependencies);
     if (data.desired_outputs) form.setValue('desired_outputs', data.desired_outputs);
-    if (data.difficulty) form.setValue('difficulty', data.difficulty as any);
+    if (data.difficulty) form.setValue('difficulty', data.difficulty);
     if (data.estimated_time) form.setValue('estimated_time', data.estimated_time);
     if (data.tags) form.setValue('tags', data.tags);
     if (data.github_url) form.setValue('github_url', data.github_url);
-    if (data.status) form.setValue('status', 'OPEN'); // Default to OPEN if generated
+    if (data.status) form.setValue('status', 'open'); // Default to open if generated
   };
 
   const clearAllFields = () => {
@@ -83,7 +83,7 @@ const CreateProject: React.FC = () => {
       estimated_time: '',
       tags: [],
       github_url: '',
-      status: 'OPEN',
+      status: 'open',
     });
     // Also clear AI inputs
     setAiIdea('');
@@ -99,7 +99,7 @@ const CreateProject: React.FC = () => {
     setError(null);
 
     try {
-      const project = await createProjectMutation.mutateAsync(data);
+      const project = await createProjectMutation.mutateAsync(data as any);
 
       // Navigate to project detail page
       navigate(`/projects/${project.id}`);

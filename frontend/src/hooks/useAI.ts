@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { generateFromRepo, generateFromIdea, type AIProjectData } from '../api/ai';
+import { generateFromRepo, generateFromIdea } from '../api/ai';
 
 export const useGenerateFromRepo = () => {
     return useMutation({

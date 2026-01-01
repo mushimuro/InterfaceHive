@@ -56,7 +56,7 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ filters, onFiltersChang
     const newTags = selectedTags.includes(tag)
       ? selectedTags.filter(t => t !== tag)
       : [...selectedTags, tag];
-    
+
     setSelectedTags(newTags);
     onFiltersChange({
       ...filters,
@@ -74,10 +74,10 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ filters, onFiltersChang
     });
   };
 
-  const hasActiveFilters = 
+  const hasActiveFilters =
     filters.search ||
     filters.difficulty ||
-    filters.status !== 'OPEN' ||
+    filters.status !== 'open' ||
     filters.tags ||
     filters.ordering !== '-created_at';
 
@@ -121,7 +121,7 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ filters, onFiltersChang
         </Select>
 
         <Select
-          value={filters.status || 'OPEN'}
+          value={filters.status || 'open'}
           onValueChange={handleStatusChange}
         >
           <SelectTrigger className="w-full sm:w-[180px]">
@@ -129,9 +129,9 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ filters, onFiltersChang
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="OPEN">Open</SelectItem>
-            <SelectItem value="CLOSED">Closed</SelectItem>
-            <SelectItem value="DRAFT">Draft</SelectItem>
+            <SelectItem value="open">Open</SelectItem>
+            <SelectItem value="closed">Closed</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
           </SelectContent>
         </Select>
 
