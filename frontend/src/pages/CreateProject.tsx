@@ -12,7 +12,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Label } from '../components/ui/label';
-import { Sparkles, Github, Lightbulb } from 'lucide-react';
+import { Sparkles, Github, Lightbulb, Trash2 } from 'lucide-react';
 import { useGenerateFromIdea, useGenerateFromRepo } from '../hooks/useAI';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -71,6 +71,26 @@ const CreateProject: React.FC = () => {
     if (data.github_url) form.setValue('github_url', data.github_url);
     if (data.status) form.setValue('status', 'OPEN'); // Default to OPEN if generated
   };
+
+  const clearAllFields = () => {
+    form.reset({
+      title: '',
+      description: '',
+      what_it_does: '',
+      inputs_dependencies: '',
+      desired_outputs: '',
+      difficulty: undefined,
+      estimated_time: '',
+      tags: [],
+      github_url: '',
+      status: 'OPEN',
+    });
+    // Also clear AI inputs
+    setAiIdea('');
+    setAiRepoUrl('');
+  };
+
+
 
   const isAiLoading = generateFromIdeaMutation.isPending || generateFromRepoMutation.isPending;
   const aiError = generateFromIdeaMutation.error || generateFromRepoMutation.error;
@@ -167,6 +187,15 @@ const CreateProject: React.FC = () => {
                     </>
                   )}
                 </Button>
+                <Button
+                  variant="outline"
+                  onClick={clearAllFields}
+                  disabled={isAiLoading}
+                  className="w-full sm:w-auto ml-2"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Clear All
+                </Button>
               </TabsContent>
 
               <TabsContent value="repo" className="space-y-4 mt-4">
@@ -195,6 +224,15 @@ const CreateProject: React.FC = () => {
                       Analyze & Auto-fill
                     </>
                   )}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={clearAllFields}
+                  disabled={isAiLoading}
+                  className="w-full sm:w-auto ml-2"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Clear All
                 </Button>
               </TabsContent>
             </Tabs>
