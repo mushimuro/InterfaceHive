@@ -24,6 +24,7 @@ import {
 } from '../components/ui/dropdown-menu';
 import { Plus, Clock, Users, Eye, Edit, MessageSquare, Trash2, Search, ChevronDown, CheckCircle, FileEdit } from 'lucide-react';
 import { format } from 'date-fns';
+import Pagination from '../components/Pagination';
 
 const StatusEditButton: React.FC<{ project: Project }> = ({ project }) => {
   const updateMutation = useUpdateProject(project.id);
@@ -316,29 +317,11 @@ const MyProjects: React.FC = () => {
                   ))}
 
                   {/* Pagination */}
-                  {data && data.total_pages > 1 && (
-                    <div className="flex justify-center gap-2 mt-8">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={data.current_page === 1}
-                        onClick={() => setPage(p => p - 1)}
-                      >
-                        Previous
-                      </Button>
-                      <span className="flex items-center px-4 text-sm text-muted-foreground">
-                        Page {data.current_page} of {data.total_pages}
-                      </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={data.current_page === data.total_pages}
-                        onClick={() => setPage(p => p + 1)}
-                      >
-                        Next
-                      </Button>
-                    </div>
-                  )}
+                  <Pagination
+                    currentPage={data.current_page}
+                    totalPages={data.total_pages}
+                    onPageChange={(p) => setPage(p)}
+                  />
                 </div>
               )}
             </Tabs>

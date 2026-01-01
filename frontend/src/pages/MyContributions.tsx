@@ -9,6 +9,7 @@ import { FileText, CheckCircle, XCircle, Clock, Eye, Heart, MessageCircle, Edit,
 import { format } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { useMyContributions } from '../hooks/useContributions';
+import Pagination from '../components/Pagination';
 
 const MyContributions: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
@@ -121,115 +122,101 @@ const MyContributions: React.FC = () => {
                 <TabsTrigger value="declined">Declined</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="all">
-                {isLoading && (
-                  <div className="flex justify-center py-12">
-                    <LoadingSpinner size="lg" text="Loading contributions..." />
-                  </div>
-                )}
+              <TabsContent value="all" className="mt-0">
+                {/* Content handled by the shared rendering below */}
+              </TabsContent>
 
-                {error && <ErrorMessage message="Failed to load contributions." type="error" />}
+              {isLoading && (
+                <div className="flex justify-center py-12">
+                  <LoadingSpinner size="lg" text="Loading contributions..." />
+                </div>
+              )}
 
-                {!isLoading && !error && contributions.length === 0 && (
-                  <Card>
-                    <CardContent className="text-center py-16">
-                      <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-40" />
-                      <h3 className="text-lg font-semibold mb-2">No contributions yet</h3>
-                      <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
-                        Start contributing to projects to earn credits and build your reputation!
-                      </p>
-                      <Button asChild>
-                        <Link to="/projects">Browse Projects</Link>
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
+              {error && <ErrorMessage message="Failed to load contributions." type="error" />}
 
-                {!isLoading && !error && contributions.length > 0 && (
-                  <div className="space-y-4">
-                    {contributions.map((contribution) => (
-                      <Card key={contribution.id} className="hover:shadow-md transition-all">
-                        <div className="border-b p-4">
-                          <div className="flex items-start justify-between gap-4 mb-2">
-                            <div className="flex-1">
-                              <Link to={`/projects/${contribution.project}`}>
-                                <h3 className="text-lg font-medium hover:text-primary transition-colors mb-1">
-                                  {contribution.project_title}
-                                </h3>
-                              </Link>
-                              <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                <div className="flex items-center gap-1">
-                                  <Clock className="h-3 w-3" />
-                                  <span>Submitted {format(new Date(contribution.created_at), 'MMM d, yyyy')}</span>
-                                </div>
+              {!isLoading && !error && contributions.length === 0 && (
+                <Card>
+                  <CardContent className="text-center py-16">
+                    <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-40" />
+                    <h3 className="text-lg font-semibold mb-2">No contributions yet</h3>
+                    <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
+                      Start contributing to projects to earn credits and build your reputation!
+                    </p>
+                    <Button asChild>
+                      <Link to="/projects">Browse Projects</Link>
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              {!isLoading && !error && contributions.length > 0 && (
+                <div className="space-y-4">
+                  {contributions.map((contribution) => (
+                    <Card key={contribution.id} className="hover:shadow-md transition-all">
+                      <div className="border-b p-4">
+                        <div className="flex items-start justify-between gap-4 mb-2">
+                          <div className="flex-1">
+                            <Link to={`/projects/${contribution.project}`}>
+                              <h3 className="text-lg font-medium hover:text-primary transition-colors mb-1">
+                                {contribution.project_title}
+                              </h3>
+                            </Link>
+                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                              <div className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                <span>Submitted {format(new Date(contribution.created_at), 'MMM d, yyyy')}</span>
                               </div>
                             </div>
-                            {getStatusBadge(contribution.status)}
                           </div>
+                          {getStatusBadge(contribution.status)}
                         </div>
-
-                        <div className="p-4">
-                          <p className="text-sm mb-4 line-clamp-2">
-                            {contribution.body}
-                          </p>
-                        </div>
-
-                        <div className="bg-muted/30 border-t px-4 py-3 flex items-center justify-between">
-                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Eye className="h-3.5 w-3.5" />
-                              <span>Views</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Heart className="h-3.5 w-3.5" />
-                              <span>Likes</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <MessageCircle className="h-3.5 w-3.5" />
-                              <span>Comments</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" className="h-8 text-xs">
-                              <Edit className="h-3.5 w-3.5 mr-1" />
-                              Edit
-                            </Button>
-                            <Button variant="ghost" size="sm" className="h-8 text-xs text-destructive hover:text-destructive">
-                              <Trash2 className="h-3.5 w-3.5 mr-1" />
-                              Delete
-                            </Button>
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-
-                    {/* Pagination */}
-                    {data && data.total_pages > 1 && (
-                      <div className="flex justify-center gap-2 mt-8">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={data.current_page === 1}
-                          onClick={() => setPage(p => p - 1)}
-                        >
-                          Previous
-                        </Button>
-                        <span className="flex items-center px-4 text-sm text-muted-foreground">
-                          Page {data.current_page} of {data.total_pages}
-                        </span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={data.current_page === data.total_pages}
-                          onClick={() => setPage(p => p + 1)}
-                        >
-                          Next
-                        </Button>
                       </div>
-                    )}
-                  </div>
-                )}
-              </TabsContent>
+
+                      <div className="p-4">
+                        <p className="text-sm mb-4 line-clamp-2">
+                          {contribution.body}
+                        </p>
+                      </div>
+
+                      <div className="bg-muted/30 border-t px-4 py-3 flex items-center justify-between">
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Eye className="h-3.5 w-3.5" />
+                            <span>Views</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Heart className="h-3.5 w-3.5" />
+                            <span>Likes</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MessageCircle className="h-3.5 w-3.5" />
+                            <span>Comments</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="ghost" size="sm" className="h-8 text-xs">
+                            <Edit className="h-3.5 w-3.5 mr-1" />
+                            Edit
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-8 text-xs text-destructive hover:text-destructive">
+                            <Trash2 className="h-3.5 w-3.5 mr-1" />
+                            Delete
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {/* Pagination (shared across all tabs) */}
+              {data && (
+                <Pagination
+                  currentPage={data.current_page}
+                  totalPages={data.total_pages}
+                  onPageChange={(p) => setPage(p)}
+                />
+              )}
             </Tabs>
           </div>
         </div>
@@ -239,4 +226,3 @@ const MyContributions: React.FC = () => {
 };
 
 export default MyContributions;
-
