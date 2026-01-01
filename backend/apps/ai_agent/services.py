@@ -8,12 +8,35 @@ import os
 
 class GeminiService:
     def __init__(self):
-        api_key = config('GEMINI_API_KEY', default=None)
+        # Attempt to read from frontend/.env first as requested
+        api_key = None
+        try:
+            # Navigate from backend/apps/ai_agent/services.py to frontend/.env
+            # services.py -> ai_agent -> apps -> backend -> root -> frontend
+            current_file = Path(__file__).resolve()
+            env_path = current_file.parents[3] / 'frontend' / '.env'
+            
+            if env_path.exists():
+                with open(env_path, 'r') as f:
+                    for line in f:
+                        if '=' in line:
+                            key, value = line.split('=', 1)
+                            key = key.strip()
+                            if key == 'GEMINI_API_KEY' or key == 'VITE_GEMINI_API_KEY':
+                                api_key = value.strip().strip('"').strip("'")
+                                break
+        except Exception as e:
+            print(f"Warning: Could not read frontend/.env: {e}")
+
+        # Fallback to backend config
         if not api_key:
-            raise ValueError("GEMINI_API_KEY is not set")
+            api_key = config('GEMINI_API_KEY', default=None)
+
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY is not set in frontend/.env or backend environment")
+            
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-2.0-flash-exp') # Using flash model as requested (checking availability, fallback to gemini-pro if needed, but user asked for 2.5 Flash, let's use what's available or closest. 2.5 isn't public yet? User said 2.5 Flash. I will use 'gemini-1.5-flash' or similar as proxy or assume the user has access. Actually, I should use 'gemini-1.5-flash' which is the current flash model. User said 2.5 Flash. I will assume they meant the latest flash. I'll stick to 'gemini-1.5-flash' for now as it is widely available, or 'gemini-2.0-flash-exp' if they have early access. I'll use 'gemini-1.5-flash' to be safe, or make it configurable. Let's use 'gemini-1.5-flash'.)
-        # Correction: User specifically asked for "Google Gemini 2.5 Flash". As an AI, I know 1.5 is common. 2.0 is experimental. 2.5 might be a hallucination or future. I will use 'gemini-1.5-flash' and comment.
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
 
     def _get_prompt_format(self):
         return """
