@@ -59,19 +59,38 @@ class GeminiService:
             raise ValueError("Invalid GitHub URL")
         
         owner, repo = match.groups()
-        
-        # Try fetching README
         readme_content = ""
-        branches = ['main', 'master']
-        for branch in branches:
-            url = f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/README.md"
-            response = requests.get(url)
-            if response.status_code == 200:
-                readme_content = response.text
-                break
+        
+        # Use GitHub API to find the README (handles default branch and file name variations)
+        api_url = f"https://api.github.com/repos/{owner}/{repo}/readme"
+        headers = {'Accept': 'application/vnd.github.v3+json'}
+        
+        # Determine if we have a token (optional, but assumes public repo if not)
+        # We don't have a specific GITHUB_TOKEN env var set up in this plan, 
+        # so we'll try unauthenticated first which works for public repos.
+        
+        response = requests.get(api_url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            download_url = data.get('download_url')
+            if download_url:
+                content_response = requests.get(download_url)
+                if content_response.status_code == 200:
+                    readme_content = content_response.text
         
         if not readme_content:
-            raise ValueError("Could not fetch README.md from main or master branch")
+            # Fallback: try constructing raw URLs for common branches if API fails (e.g. rate limit)
+            branches = ['main', 'master', 'develop']
+            for branch in branches:
+                url = f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/README.md"
+                response = requests.get(url)
+                if response.status_code == 200:
+                    readme_content = response.text
+                    break
+
+        if not readme_content:
+             raise ValueError("Could not fetch README.md. Ensure the repository is public and has a README.")
 
         prompt = f"""
         Analyze this GitHub repository README and extract project details for a contribution request.
