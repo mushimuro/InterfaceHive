@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Navbar from './components/Navbar';
+import { ThemeProvider } from "./components/theme-provider"
 
 // Auth Pages
 import Login from './pages/Login';
@@ -33,42 +34,44 @@ const Dashboard = () => (
 
 function App() {
   return (
-    <AuthProvider>
-      <div className="flex flex-col min-h-screen">
-        <Navbar />
-        <main className="flex-1 flex flex-col">
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Home />} />
-            <Route path="/auth/login" element={<Login />} />
-            <Route path="/auth/register" element={<Register />} />
-            <Route path="/auth/verify-email" element={<VerifyEmail />} />
-            <Route path="/auth/verify-email-sent" element={<VerifyEmailSent />} />
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <AuthProvider>
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <main className="flex-1 flex flex-col">
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Home />} />
+              <Route path="/auth/login" element={<Login />} />
+              <Route path="/auth/register" element={<Register />} />
+              <Route path="/auth/verify-email" element={<VerifyEmail />} />
+              <Route path="/auth/verify-email-sent" element={<VerifyEmailSent />} />
 
-            {/* Project Routes (Public browsing, auth required for create/edit) */}
-            <Route path="/projects" element={<ProjectList />} />
-            <Route path="/projects/:id" element={<ProjectDetail />} />
-            
-            {/* Public User Profiles */}
-            <Route path="/users/:userId" element={<PublicProfile />} />
-            
-            {/* Protected Project Routes */}
-            <Route element={<ProtectedRoute requireVerified />}>
-              <Route path="/projects/create" element={<CreateProject />} />
-              <Route path="/projects/:id/edit" element={<EditProject />} />
-              <Route path="/my-projects" element={<MyProjects />} />
-              <Route path="/my-contributions" element={<MyContributions />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/admin" element={<AdminPanel />} />
-            </Route>
+              {/* Project Routes (Public browsing, auth required for create/edit) */}
+              <Route path="/projects" element={<ProjectList />} />
+              <Route path="/projects/:id" element={<ProjectDetail />} />
 
-            {/* Catch-all redirect */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </main>
-      </div>
-    </AuthProvider>
+              {/* Public User Profiles */}
+              <Route path="/users/:userId" element={<PublicProfile />} />
+
+              {/* Protected Project Routes */}
+              <Route element={<ProtectedRoute requireVerified />}>
+                <Route path="/projects/create" element={<CreateProject />} />
+                <Route path="/projects/:id/edit" element={<EditProject />} />
+                <Route path="/my-projects" element={<MyProjects />} />
+                <Route path="/my-contributions" element={<MyContributions />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/admin" element={<AdminPanel />} />
+              </Route>
+
+              {/* Catch-all redirect */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </main>
+        </div>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
