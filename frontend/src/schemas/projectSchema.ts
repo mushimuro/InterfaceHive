@@ -30,9 +30,7 @@ export const githubUrlSchema = z
   .or(z.literal(''));
 
 // Difficulty level validation
-export const difficultySchema = z.enum(['EASY', 'INTERMEDIATE', 'ADVANCED'], {
-  errorMap: () => ({ message: 'Please select a difficulty level' }),
-});
+export const difficultySchema = z.enum(['EASY', 'INTERMEDIATE', 'ADVANCED'] as [string, ...string[]]);
 
 // Project create/edit schema
 export const projectSchema = z.object({
@@ -45,6 +43,7 @@ export const projectSchema = z.object({
   estimated_time: z.string().max(50, 'Estimated time is too long').optional(),
   github_url: githubUrlSchema,
   tags: z.array(z.string()).max(5, 'Maximum 5 tags allowed').optional(),
+  status: z.enum(['DRAFT', 'OPEN', 'CLOSED']).default('OPEN'),
 });
 
 // Project filter schema

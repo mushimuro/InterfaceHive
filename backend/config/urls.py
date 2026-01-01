@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/v1/contributions/', include('apps.contributions.urls')),
     path('api/v1/credits/', include('apps.credits.urls')),
     path('api/v1/admin/', include('apps.moderation.urls')),
+    path('api/v1/ai/', include('apps.ai_agent.urls')),
 ]
