@@ -20,7 +20,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, display_name: string) => Promise<void>;
+  register: (email: string, password: string, confirm_password: string, display_name: string) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
   isAuthenticated: boolean;
@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Store tokens (backend wraps response in { success, message, data })
       localStorage.setItem('access_token', data.data.access);
       localStorage.setItem('refresh_token', data.data.refresh);
-      
+
       // Set user from login response
       setUser(data.data.user);
 
@@ -92,11 +92,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const register = async (email: string, password: string, display_name: string) => {
+  const register = async (email: string, password: string, confirm_password: string, display_name: string) => {
     try {
       await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/register/`, {
         email,
         password,
+        confirm_password,
         display_name,
       });
 
