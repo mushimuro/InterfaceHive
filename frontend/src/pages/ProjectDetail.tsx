@@ -105,48 +105,51 @@ const ProjectDetail: React.FC = () => {
   };
 
   return (
-    <div className="container max-w-5xl mx-auto py-8 px-4">
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-3">
-              <Badge className={statusColors[project.status as keyof typeof statusColors]}>
-                {project.status}
-              </Badge>
-              {project.difficulty && (
-                <Badge className={difficultyColors[project.difficulty as keyof typeof difficultyColors]}>
-                  {project.difficulty}
-                </Badge>
-              )}
+    <div className="flex flex-1 flex-col">
+      <div className="@container/main flex flex-1 flex-col gap-2">
+        <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+          <div className="px-4 lg:px-6">
+            {/* Header */}
+            <div className="mb-6">
+              <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
+                <div className="flex-1 max-w-3xl">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Badge className={statusColors[project.status as keyof typeof statusColors]}>
+                      {project.status}
+                    </Badge>
+                    {project.difficulty && (
+                      <Badge className={difficultyColors[project.difficulty as keyof typeof difficultyColors]}>
+                        {project.difficulty}
+                      </Badge>
+                    )}
+                  </div>
+                  <h1 className="text-3xl md:text-4xl font-bold mb-2">{project.title}</h1>
+                  <p className="text-muted-foreground">{project.description}</p>
+                </div>
+                
+                {isHost && (
+                  <div className="flex gap-2">
+                    <Button asChild variant="outline" size="sm">
+                      <Link to={`/projects/${id}/edit`}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit
+                      </Link>
+                    </Button>
+                    {project.status === 'OPEN' && (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={handleClose}
+                        disabled={closeProjectMutation.isPending}
+                      >
+                        <XCircle className="mr-2 h-4 w-4" />
+                        Close
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
-            <h1 className="text-4xl font-bold mb-2">{project.title}</h1>
-            <p className="text-muted-foreground">{project.description}</p>
-          </div>
-          
-          {isHost && (
-            <div className="flex gap-2">
-              <Button asChild variant="outline" size="sm">
-                <Link to={`/projects/${id}/edit`}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </Link>
-              </Button>
-              {project.status === 'OPEN' && (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleClose}
-                  disabled={closeProjectMutation.isPending}
-                >
-                  <XCircle className="mr-2 h-4 w-4" />
-                  Close Project
-                </Button>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* Tabs Navigation */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
@@ -161,16 +164,16 @@ const ProjectDetail: React.FC = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6 mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Content */}
-            <div className="md:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-4">
               {/* Desired Outputs */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Desired Outputs</CardTitle>
+                  <CardTitle className="text-lg">Desired Outputs</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="whitespace-pre-wrap">{project.desired_outputs}</p>
+                  <p className="whitespace-pre-wrap text-sm">{project.desired_outputs}</p>
                 </CardContent>
               </Card>
 
@@ -178,10 +181,10 @@ const ProjectDetail: React.FC = () => {
               {project.what_it_does && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>What It Does</CardTitle>
+                    <CardTitle className="text-lg">What It Does</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="whitespace-pre-wrap">{project.what_it_does}</p>
+                    <p className="whitespace-pre-wrap text-sm">{project.what_it_does}</p>
                   </CardContent>
                 </Card>
               )}
@@ -190,30 +193,30 @@ const ProjectDetail: React.FC = () => {
               {project.inputs_dependencies && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Inputs & Dependencies</CardTitle>
+                    <CardTitle className="text-lg">Inputs & Dependencies</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="whitespace-pre-wrap">{project.inputs_dependencies}</p>
+                    <p className="whitespace-pre-wrap text-sm">{project.inputs_dependencies}</p>
                   </CardContent>
                 </Card>
               )}
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
+            <div className="space-y-4">
               {/* Host Info */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Project Host</CardTitle>
+                  <CardTitle className="text-base">Project Host</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                      <User className="h-6 w-6 text-primary" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="h-5 w-5 text-primary" />
                     </div>
-                    <div>
-                      <p className="font-medium">{project.host.display_name}</p>
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{project.host.display_name}</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
                         <Award className="h-3 w-3" />
                         {project.host.total_credits} credits
                       </p>
@@ -225,13 +228,13 @@ const ProjectDetail: React.FC = () => {
               {/* Project Stats */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Project Details</CardTitle>
+                  <CardTitle className="text-base">Project Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {project.estimated_time && (
                     <div className="flex items-center gap-2 text-sm">
                       <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span>Estimated: {project.estimated_time}</span>
+                      <span>{project.estimated_time}</span>
                     </div>
                   )}
                   
@@ -242,7 +245,7 @@ const ProjectDetail: React.FC = () => {
 
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>Posted {new Date(project.created_at).toLocaleDateString()}</span>
+                    <span>{new Date(project.created_at).toLocaleDateString()}</span>
                   </div>
 
                   {project.github_url && (
@@ -262,12 +265,12 @@ const ProjectDetail: React.FC = () => {
               {project.tags && project.tags.length > 0 && (
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">Tags</CardTitle>
+                    <CardTitle className="text-base">Tags</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
                       {project.tags.map((tag) => (
-                        <Badge key={tag} variant="secondary">
+                        <Badge key={tag} variant="secondary" className="text-xs">
                           {tag}
                         </Badge>
                       ))}
@@ -326,10 +329,13 @@ const ProjectDetail: React.FC = () => {
       </Tabs>
 
       {/* Back Button */}
-      <div className="mt-8">
-        <Button asChild variant="outline">
+      <div className="mt-6">
+        <Button asChild variant="ghost" size="sm">
           <Link to="/projects">← Back to Projects</Link>
         </Button>
+      </div>
+          </div>
+        </div>
       </div>
     </div>
   );

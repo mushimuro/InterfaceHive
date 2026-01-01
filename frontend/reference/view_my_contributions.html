@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InterfaceHive - Manage My Contributions</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/inter-ui/3.19.3/inter.min.css">
+  <style>
+    :root {
+      --primary: #F1BF42;        /* Orange - primary accent */
+      --secondary: #497BE3;      /* Blue - links and buttons */
+      --background: #FCFCFC;     /* Off-white - main background */
+      --text: #2F3337;           /* Dark gray - main text */
+      --border: #E3E6E8;         /* Light gray - borders */
+      --highlight: #FFF8DC;      /* Cream - highlight background */
+      --green: #5EBA7D;          /* Green - success/accepted */
+      --red: #E34A4A;            /* Red - rejected/not selected */
+      --text-light: #6A737C;     /* Medium gray - secondary text */
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+    
+    body {
+      background-color: var(--background);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    /* Header Styles */
+    header {
+      background-color: #ffffff;
+      border-bottom: 1px solid var(--border);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      font-size: 18px;
+      color: var(--text);
+      text-decoration: none;
+    }
+    
+    .logo-icon {
+      color: var(--primary);
+      margin-right: 10px;
+    }
+    
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 20px;
+    }
+    
+    nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 14px;
+      padding: 6px 8px;
+      border-radius: 4px;
+    }
+    
+    nav a:hover {
+      background-color: var(--border);
+    }
+    
+    nav a.active {
+      background-color: rgba(241, 191, 66, 0.1);
+      color: var(--text);
+    }
+    
+    .auth-buttons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 4px;
+    }
+    
+    .user-menu:hover {
+      background-color: var(--border);
+    }
+    
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 500;
+    }
+    
+    .btn {
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.2s;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      color: var(--text);
+      border: none;
+    }
+    
+    .btn-primary:hover {
+      background-color: #e0ae34;
+    }
+    
+    .btn-outline {
+      background-color: transparent;
+      color: var(--secondary);
+      border: 1px solid var(--secondary);
+    }
+    
+    .btn-outline:hover {
+      background-color: rgba(73, 123, 227, 0.08);
+    }
+    
+    .btn-secondary {
+      background-color: var(--secondary);
+      color: white;
+      border: none;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #3e6ad0;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      padding: 16px 0;
+      font-size: 14px;
+    }
+    
+    .breadcrumb a {
+      color: var(--secondary);
+      text-decoration: none;
+    }
+    
+    .breadcrumb .separator {
+      margin: 0 8px;
+      color: var(--text-light);
+    }
+    
+    .breadcrumb .current {
+      color: var(--text-light);
+    }
+    
+    /* Page Header */
+    .page-header {
+      margin-bottom: 24px;
+    }
+    
+    .page-title {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .page-description {
+      color: var(--text-light);
+      font-size: 16px;
+    }
+    
+    /* Tabs */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+    }
+    
+    .tab {
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-light);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    
+    .tab.active {
+      color: var(--secondary);
+      border-bottom-color: var(--secondary);
+    }
+    
+    .tab:hover:not(.active) {
+      color: var(--text);
+    }
+    
+    /* Contributions List */
+    .contributions-list {
+      margin-bottom: 40px;
+    }
+    
+    .contribution-card {
+      background-color: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    
+    .contribution-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .contribution-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+    
+    .contribution-title {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    
+    .contribution-title a {
+      color: var(--text);
+      text-decoration: none;
+    }
+    
+    .contribution-title a:hover {
+      color: var(--secondary);
+    }
+    
+    .contribution-meta {
+      font-size: 14px;
+      color: var(--text-light);
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .status-pending {
+      background-color: rgba(241, 191, 66, 0.1);
+      color: #d4a636;
+    }
+    
+    .status-accepted {
+      background-color: rgba(94, 186, 125, 0.1);
+      color: var(--green);
+    }
+    
+    .status-rejected {
+      background-color: rgba(227, 74, 74, 0.1);
+      color: var(--red);
+    }
+    
+    .contribution-body {
+      padding: 16px;
+    }
+    
+    .contribution-body p {
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: var(--text);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    
+    .contribution-footer {
+      padding: 12px 16px;
+      background-color: #f9f9f9;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .footer-stats {
+      display: flex;
+      gap: 16px;
+      font-size: 14px;
+      color: var(--text-light);
+    }
+    
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .footer-actions {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .action-btn {
+      background: none;
+      border: none;
+      font-size: 14px;
+      color: var(--text-light);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .action-btn:hover {
+      color: var(--secondary);
+    }
+    
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-top: 32px;
+    }
+    
+    .page-btn {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background-color: #ffffff;
+      color: var(--text);
+      font-size: 14px;
+      cursor: pointer;
+    }
+    
+    .page-btn:hover:not(.active) {
+      background-color: #f5f7f9;
+    }
+    
+    .page-btn.active {
+      background-color: var(--secondary);
+      color: white;
+      border-color: var(--secondary);
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 48px 0;
+      background-color: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    
+    .empty-icon {
+      margin-bottom: 16px;
+      color: var(--border);
+    }
+    
+    .empty-title {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+    
+    .empty-description {
+      color: var(--text-light);
+      margin-bottom: 24px;
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    /* Footer */
+    footer {
+      background-color: #ffffff;
+      border-top: 1px solid var(--border);
+      padding: 48px 0 24px;
+      margin-top: 40px;
+    }
+    
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 48px;
+    }
+    
+    .footer-about h3 {
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+    
+    .footer-about p {
+      font-size: 14px;
+      color: var(--text-light);
+      margin-bottom: 16px;
+    }
+    
+    .footer-links h4 {
+      font-size: 16px;
+      margin-bottom: 16px;
+    }
+    
+    .footer-links ul {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 12px;
+    }
+    
+    .footer-links a {
+      color: var(--text-light);
+      text-decoration: none;
+      font-size: 14px;
+    }
+    
+    .footer-links a:hover {
+      color: var(--secondary);
+    }
+    
+    .footer-bottom {
+      text-align: center;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 14px;
+      color: var(--text-light);
+    }
+    
+    /* Stats Cards */
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    
+    .stat-card {
+      background-color: #ffffff;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 24px;
+    }
+    
+    .stat-value {
+      font-size: 32px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-light);
+    }
+    
+    /* Responsive */
+    @media (max-width: 900px) {
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      
+      .stats-container {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    @media (max-width: 600px) {
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .stats-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      
+      .tab {
+        padding: 12px 16px;
+      }
+      
+      .contribution-header {
+        flex-direction: column;
+      }
+      
+      .status-badge {
+        margin-top: 8px;
+      }
+      
+      .contribution-footer {
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-container">
+      <a href="#" class="logo">
+        <span class="logo-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 20h.01"></path>
+            <path d="M7 20v-4"></path>
+            <path d="M12 20v-8"></path>
+            <path d="M17 20V8"></path>
+            <path d="M22 4v16"></path>
+          </svg>
+        </span>
+        InterfaceHive
+      </a>
+      
+      <nav>
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li><a href="#">Requests</a></li>
+          <li><a href="#" class="active">Contributions</a></li>
+          <li><a href="#">How It Works</a></li>
+          <li><a href="#">About</a></li>
+        </ul>
+      </nav>
+      
+      <div class="auth-buttons">
+        <div class="user-menu">
+          <div class="avatar">JS</div>
+          <span>jsDevMaster</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="#">Home</a>
+      <span class="separator">›</span>
+      <a href="#">My Account</a>
+      <span class="separator">›</span>
+      <span class="current">My Contributions</span>
+    </div>
+    
+    <div class="page-header">
+      <h1 class="page-title">My Contributions</h1>
+      <p class="page-description">Manage and track all your contributions to the InterfaceHive community</p>
+    </div>
+    
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-value">12</div>
+        <div class="stat-label">Total Contributions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">5</div>
+        <div class="stat-label">Accepted Contributions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">175</div>
+        <div class="stat-label">Credits Earned</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">24</div>
+        <div class="stat-label">Appreciation Points</div>
+      </div>
+    </div>
+    
+    <div class="tabs">
+      <div class="tab active">All (12)</div>
+      <div class="tab">Pending (6)</div>
+      <div class="tab">Accepted (5)</div>
+      <div class="tab">Rejected (1)</div>
+      <div class="tab">Drafts (3)</div>
+    </div>
+    
+    <div class="contributions-list">
+      <div class="contribution-card">
+        <div class="contribution-header">
+          <div>
+            <h3 class="contribution-title"><a href="#">React + D3, Optimized Implementation</a></h3>
+            <div class="contribution-meta">
+              <div class="meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>Submitted today</span>
+              </div>
+              <div class="meta-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
+                </svg>
+                <span>Response to: <a href="#" style="color: var(--secondary); text-decoration: none;">React component for data visualization dashboard</a></span>
+              </div>
+            </div>
+          </div>
+          <div class="status-badge status-pending">Pending Review</div>
+        </div>
+        <div class="contribution-body">
+          <p>I've implemented a high-performance data visualization component for large datasets using React hooks with D3. The solution switches between SVG and Canvas rendering based on dataset size, which dramatically improves performance for large datasets (5,000+ points). I've also added throttled zooming and panning functionality, customizable color schemes, and smooth transitions between data updates.</p>
+        </div>
+        <div class="contribution-footer">
+          <div class="footer-stats">
+            <div class="stat-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <span>8 views</span>
+            </div>
+            <div class="stat-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path>
+              </svg>
+              <span>3 likes</span>
+            </div>
+            <div class="stat-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+              </svg>
+              <span>0 comments</span>
+            </div>
+          </div>
+          <div class="footer-actions">
+            <button class="action-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+              </svg>
+              Edit
+            </button>
+            <button class="action-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 6h18"></path>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+</html>
+

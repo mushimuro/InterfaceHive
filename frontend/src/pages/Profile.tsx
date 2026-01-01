@@ -46,70 +46,73 @@ const Profile: React.FC = () => {
   }
 
   return (
-    <div className="container max-w-5xl mx-auto py-8 px-4">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
-              <User className="h-10 w-10 text-primary" />
+    <div className="flex flex-1 flex-col">
+      <div className="@container/main flex flex-1 flex-col gap-4">
+        <div className="flex flex-col gap-4 py-6 md:gap-6 md:py-8">
+          <div className="px-4 lg:px-6">
+            {/* Header */}
+            <div className="mb-6">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-primary/10 flex items-center justify-center">
+                    <User className="h-8 w-8 md:h-10 md:w-10 text-primary" />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl md:text-3xl font-bold">{profile.display_name}</h1>
+                    <p className="text-muted-foreground text-sm">@{profile.username}</p>
+                  </div>
+                </div>
+                {!isEditing && (
+                  <Button onClick={() => setIsEditing(true)} variant="outline" size="sm">
+                    <Edit className="mr-2 h-4 w-4" />
+                    <span className="hidden sm:inline">Edit Profile</span>
+                  </Button>
+                )}
+              </div>
+
+              {/* Quick Stats */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Total Credits</p>
+                        <p className="text-2xl font-bold">
+                          {isLoadingCredits ? '...' : creditBalance?.total_credits || 0}
+                        </p>
+                      </div>
+                      <Award className="h-8 w-8 text-primary" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Email</p>
+                        <p className="text-sm font-medium truncate">{profile.email}</p>
+                      </div>
+                      <Mail className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Member Since</p>
+                        <p className="text-sm font-medium">
+                          {format(new Date(profile.created_at), 'MMM yyyy')}
+                        </p>
+                      </div>
+                      <Calendar className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
-            <div>
-              <h1 className="text-3xl font-bold">{profile.display_name}</h1>
-              <p className="text-muted-foreground">@{profile.username}</p>
-            </div>
-          </div>
-          {!isEditing && (
-            <Button onClick={() => setIsEditing(true)} variant="outline">
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Profile
-            </Button>
-          )}
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Credits</p>
-                  <p className="text-2xl font-bold">
-                    {isLoadingCredits ? '...' : creditBalance?.total_credits || 0}
-                  </p>
-                </div>
-                <Award className="h-8 w-8 text-primary" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Email</p>
-                  <p className="text-sm font-medium truncate">{profile.email}</p>
-                </div>
-                <Mail className="h-8 w-8 text-muted-foreground" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Member Since</p>
-                  <p className="text-sm font-medium">
-                    {format(new Date(profile.created_at), 'MMM yyyy')}
-                  </p>
-                </div>
-                <Calendar className="h-8 w-8 text-muted-foreground" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
 
       {/* Tabs */}
       <Tabs defaultValue={isEditing ? 'edit' : 'overview'} className="space-y-6">
@@ -118,20 +121,20 @@ const Profile: React.FC = () => {
             Overview
           </TabsTrigger>
           <TabsTrigger value="edit">Edit Profile</TabsTrigger>
-          <TabsTrigger value="credits">Credit History</TabsTrigger>
+          <TabsTrigger value="credits">Credits</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
-        <TabsContent value="overview" className="space-y-6">
+        <TabsContent value="overview" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>About</CardTitle>
             </CardHeader>
             <CardContent>
               {profile.bio ? (
-                <p className="whitespace-pre-wrap">{profile.bio}</p>
+                <p className="whitespace-pre-wrap text-sm">{profile.bio}</p>
               ) : (
-                <p className="text-muted-foreground italic">No bio added yet.</p>
+                <p className="text-muted-foreground italic text-sm">No bio added yet.</p>
               )}
             </CardContent>
           </Card>
@@ -156,15 +159,15 @@ const Profile: React.FC = () => {
               <CardHeader>
                 <CardTitle>Links</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="space-y-3">
                 {profile.github_url && (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">GitHub</p>
+                    <p className="text-xs text-muted-foreground mb-1">GitHub</p>
                     <a
                       href={profile.github_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-primary hover:underline"
+                      className="text-sm text-primary hover:underline"
                     >
                       {profile.github_url}
                     </a>
@@ -172,12 +175,12 @@ const Profile: React.FC = () => {
                 )}
                 {profile.portfolio_url && (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Portfolio</p>
+                    <p className="text-xs text-muted-foreground mb-1">Portfolio</p>
                     <a
                       href={profile.portfolio_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-primary hover:underline"
+                      className="text-sm text-primary hover:underline"
                     >
                       {profile.portfolio_url}
                     </a>
@@ -212,7 +215,7 @@ const Profile: React.FC = () => {
         </TabsContent>
 
         {/* Credits Tab */}
-        <TabsContent value="credits" className="space-y-6">
+        <TabsContent value="credits" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Credit Summary</CardTitle>
@@ -226,19 +229,19 @@ const Profile: React.FC = () => {
               ) : creditBalance ? (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
-                    <p className="text-sm text-muted-foreground">Total</p>
+                    <p className="text-xs text-muted-foreground mb-1">Total</p>
                     <p className="text-2xl font-bold">{creditBalance.total_credits}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Awards</p>
+                    <p className="text-xs text-muted-foreground mb-1">Awards</p>
                     <p className="text-2xl font-bold text-green-600">{creditBalance.awards}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Reversals</p>
+                    <p className="text-xs text-muted-foreground mb-1">Reversals</p>
                     <p className="text-2xl font-bold text-red-600">{creditBalance.reversals}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Adjustments</p>
+                    <p className="text-xs text-muted-foreground mb-1">Adjustments</p>
                     <p className="text-2xl font-bold text-blue-600">{creditBalance.adjustments}</p>
                   </div>
                 </div>
@@ -247,7 +250,7 @@ const Profile: React.FC = () => {
           </Card>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">Transaction History</h3>
+            <h3 className="text-base font-semibold mb-4">Transaction History</h3>
             <CreditLedger
               entries={creditLedger?.data || []}
               isLoading={isLoadingLedger}
@@ -255,6 +258,9 @@ const Profile: React.FC = () => {
           </div>
         </TabsContent>
       </Tabs>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

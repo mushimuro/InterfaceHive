@@ -47,16 +47,16 @@ class ContributionService:
                 "Only PENDING contributions can be accepted."
             )
         
-        if contribution.project.host != decided_by:
+        if contribution.project.host_user != decided_by:
             raise PermissionError(
                 "Only the project host can accept contributions."
             )
         
         # Update contribution status
         contribution.status = 'ACCEPTED'
-        contribution.decided_by = decided_by
+        contribution.decided_by_user = decided_by
         contribution.decided_at = timezone.now()
-        contribution.save(update_fields=['status', 'decided_by', 'decided_at', 'updated_at'])
+        contribution.save(update_fields=['status', 'decided_by_user', 'decided_at', 'updated_at'])
         
         logger.info(
             f"Contribution {contribution.id} accepted by {decided_by.email} "
@@ -67,21 +67,21 @@ class ContributionService:
         credit_entry = None
         try:
             credit_entry = CreditService.award_credit(
-                to_user=contribution.contributor,
+                to_user=contribution.contributor_user,
                 from_user=decided_by,
                 project=contribution.project,
                 contribution=contribution,
                 amount=1
             )
             logger.info(
-                f"Credit awarded to {contribution.contributor.email} "
+                f"Credit awarded to {contribution.contributor_user.email} "
                 f"for contribution {contribution.id}"
             )
         except IntegrityError as e:
             # Credit already exists - log but don't fail the transaction
             # This can happen if a contribution was accepted, then declined, then accepted again
             logger.warning(
-                f"Credit already exists for user {contribution.contributor.email} "
+                f"Credit already exists for user {contribution.contributor_user.email} "
                 f"on project '{contribution.project.title}': {str(e)}"
             )
             # We still return success for the contribution acceptance
@@ -117,16 +117,16 @@ class ContributionService:
                 "Only PENDING contributions can be declined."
             )
         
-        if contribution.project.host != decided_by:
+        if contribution.project.host_user != decided_by:
             raise PermissionError(
                 "Only the project host can decline contributions."
             )
         
         # Update contribution status
         contribution.status = 'DECLINED'
-        contribution.decided_by = decided_by
+        contribution.decided_by_user = decided_by
         contribution.decided_at = timezone.now()
-        contribution.save(update_fields=['status', 'decided_by', 'decided_at', 'updated_at'])
+        contribution.save(update_fields=['status', 'decided_by_user', 'decided_at', 'updated_at'])
         
         logger.info(
             f"Contribution {contribution.id} declined by {decided_by.email} "

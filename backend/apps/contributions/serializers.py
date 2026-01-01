@@ -9,9 +9,9 @@ class ContributionSerializer(serializers.ModelSerializer):
     """
     Serializer for displaying contributions with full contributor and project details.
     """
-    contributor = UserProfileSerializer(read_only=True)
+    contributor = UserProfileSerializer(source='contributor_user', read_only=True)
     project_title = serializers.CharField(source='project.title', read_only=True)
-    decided_by_name = serializers.CharField(source='decided_by.display_name', read_only=True, allow_null=True)
+    decided_by_name = serializers.CharField(source='decided_by_user.display_name', read_only=True, allow_null=True)
     links = serializers.JSONField(source='links_json', required=False, allow_null=True)
     attachments = serializers.JSONField(source='attachments_json', required=False, allow_null=True)
 
@@ -19,10 +19,10 @@ class ContributionSerializer(serializers.ModelSerializer):
         model = Contribution
         fields = (
             'id', 'project', 'project_title', 'contributor', 'title', 'body',
-            'links', 'attachments', 'status', 'decided_by', 'decided_by_name',
+            'links', 'attachments', 'status', 'decided_by_user', 'decided_by_name',
             'decided_at', 'created_at', 'updated_at'
         )
-        read_only_fields = ('id', 'contributor', 'status', 'decided_by', 'decided_at', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'contributor', 'status', 'decided_by_user', 'decided_at', 'created_at', 'updated_at')
 
 
 class ContributionCreateSerializer(serializers.ModelSerializer):
@@ -72,13 +72,13 @@ class ContributionCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("You must be authenticated to submit a contribution.")
         
         # Check if user is the project host
-        if project.host == request.user:
+        if project.host_user == request.user:
             raise serializers.ValidationError("You cannot submit a contribution to your own project.")
         
         # Check if user has already submitted a contribution to this project
         existing_contribution = Contribution.objects.filter(
             project=project,
-            contributor=request.user
+            contributor_user=request.user
         ).exists()
         
         if existing_contribution:
@@ -102,7 +102,7 @@ class ContributionCreateSerializer(serializers.ModelSerializer):
         attachments = validated_data.pop('attachments', [])
         
         contribution = Contribution.objects.create(
-            contributor=self.context['request'].user,
+            contributor_user=self.context['request'].user,
             links_json=links,
             attachments_json=attachments,
             **validated_data
@@ -130,7 +130,7 @@ class ContributionDecisionSerializer(serializers.Serializer):
         if contribution.status != 'PENDING':
             raise serializers.ValidationError(f"This contribution has already been {contribution.status.lower()}.")
         
-        if contribution.project.host != request.user:
+        if contribution.project.host_user != request.user:
             raise serializers.ValidationError("Only the project host can accept or decline contributions.")
         
         return data

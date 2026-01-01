@@ -61,10 +61,10 @@ class CreditService:
         if contribution.status != 'ACCEPTED':
             raise ValueError("Can only award credit for accepted contributions")
         
-        if contribution.contributor != to_user:
+        if contribution.contributor_user != to_user:
             raise ValueError("Credit recipient must be the contributor")
         
-        if project.host != from_user:
+        if project.host_user != from_user:
             raise ValueError("Credit issuer must be the project host")
         
         # Check if credit already exists (before attempting insert)
@@ -84,7 +84,7 @@ class CreditService:
             # Create credit ledger entry with unique constraint enforcement
             credit_entry = CreditLedgerEntry.objects.create(
                 to_user=to_user,
-                from_user=from_user,
+                created_by_user=from_user,
                 project=project,
                 contribution=contribution,
                 amount=amount,
@@ -148,6 +148,6 @@ class CreditService:
         return CreditLedgerEntry.objects.filter(
             to_user=user
         ).select_related(
-            'from_user', 'project', 'contribution'
+            'created_by_user', 'project', 'contribution'
         ).order_by('-created_at')[:limit]
 

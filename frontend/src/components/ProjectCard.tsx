@@ -11,73 +11,73 @@ interface ProjectCardProps {
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   const difficultyColors = {
-    EASY: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-    INTERMEDIATE: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-    ADVANCED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
+    EASY: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-0',
+    INTERMEDIATE: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 border-0',
+    ADVANCED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border-0',
   };
 
   return (
-    <Link to={`/projects/${project.id}`}>
-      <Card className="h-full hover:shadow-lg transition-all duration-200 cursor-pointer hover:border-primary/50">
-        <CardHeader>
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <CardTitle className="text-xl line-clamp-2 flex-1">
+    <Link to={`/projects/${project.id}`} className="block group">
+      <Card className="h-full transition-all duration-200 hover:shadow-md hover:border-primary/50 bg-card">
+        <CardHeader className="space-y-2">
+          <div className="flex items-start justify-between gap-2">
+            <CardTitle className="text-lg line-clamp-2 flex-1 group-hover:text-primary transition-colors">
               {project.title}
             </CardTitle>
             {project.difficulty && (
-              <Badge className={difficultyColors[project.difficulty]}>
+              <Badge className={difficultyColors[project.difficulty]} variant="secondary">
                 {project.difficulty}
               </Badge>
             )}
           </div>
-          <CardDescription className="line-clamp-3">
+          <CardDescription className="line-clamp-2 text-sm">
             {project.description}
           </CardDescription>
         </CardHeader>
 
-        <CardContent>
-          <div className="space-y-3">
-            {/* Tags */}
-            {project.tags && project.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1">
-                {project.tags.slice(0, 4).map((tag) => (
-                  <Badge key={tag} variant="secondary" className="text-xs">
-                    {tag}
-                  </Badge>
-                ))}
-                {project.tags.length > 4 && (
-                  <Badge variant="secondary" className="text-xs">
-                    +{project.tags.length - 4}
-                  </Badge>
-                )}
+        <CardContent className="space-y-4">
+          {/* Tags */}
+          {project.tags && project.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {project.tags.slice(0, 3).map((tag) => (
+                <Badge key={tag} variant="outline" className="text-xs font-normal">
+                  {tag}
+                </Badge>
+              ))}
+              {project.tags.length > 3 && (
+                <Badge variant="outline" className="text-xs font-normal">
+                  +{project.tags.length - 3}
+                </Badge>
+              )}
+            </div>
+          )}
+
+          {/* Metadata */}
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            {project.estimated_time && (
+              <div className="flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5" />
+                <span>{project.estimated_time}</span>
               </div>
             )}
-
-            {/* Metadata */}
-            <div className="flex items-center justify-between text-sm text-muted-foreground pt-2">
-              <div className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                <span className="text-xs">{project.estimated_time || 'Not specified'}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Award className="h-3 w-3" />
-                <span className="text-xs">{project.contribution_count} contributions</span>
-              </div>
+            <div className="flex items-center gap-1.5">
+              <Award className="h-3.5 w-3.5" />
+              <span>{project.contribution_count}</span>
             </div>
+          </div>
 
-            {/* Host */}
-            <div className="flex items-center gap-2 pt-2 border-t">
-              <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-                <User className="h-3 w-3 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground truncate">
-                  {project.host.display_name}
-                </p>
-              </div>
-              <Badge variant="outline" className="text-xs">
+          {/* Host */}
+          <div className="flex items-center gap-2 pt-2 border-t">
+            <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
+              <User className="h-3.5 w-3.5 text-muted-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium truncate">
+                {project.host.display_name}
+              </p>
+              <p className="text-xs text-muted-foreground">
                 {project.host.total_credits} credits
-              </Badge>
+              </p>
             </div>
           </div>
         </CardContent>
