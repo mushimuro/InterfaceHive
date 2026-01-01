@@ -99,10 +99,10 @@ const CreateProject: React.FC = () => {
     setError(null);
 
     try {
-      const project = await createProjectMutation.mutateAsync(data as any);
+      await createProjectMutation.mutateAsync(data as any);
 
-      // Navigate to project detail page
-      navigate(`/projects/${project.id}`);
+      // Navigate to My Projects page
+      navigate('/my-projects');
     } catch (err: any) {
       setError(
         err.response?.data?.detail ||
