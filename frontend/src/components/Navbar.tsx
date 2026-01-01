@@ -12,6 +12,7 @@ import {
 } from './ui/dropdown-menu';
 import CreditBadge from './CreditBadge';
 import { User, LogOut, FileText, Award, Settings, PlusCircle, Layers } from 'lucide-react';
+import { ModeToggle } from './ModeToggle';
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -39,9 +40,9 @@ const Navbar: React.FC = () => {
 
           {/* Navigation Links */}
           <div className="flex items-center gap-2">
-            <Button 
-              variant={isActive('/projects') ? 'secondary' : 'ghost'} 
-              size="sm" 
+            <Button
+              variant={isActive('/projects') ? 'secondary' : 'ghost'}
+              size="sm"
               asChild
             >
               <Link to="/projects">Projects</Link>
@@ -58,20 +59,22 @@ const Navbar: React.FC = () => {
 
             {user ? (
               <>
-                <Button 
-                  variant={isActive('/my-projects') ? 'secondary' : 'ghost'} 
-                  size="sm" 
+                <Button
+                  variant={isActive('/my-projects') ? 'secondary' : 'ghost'}
+                  size="sm"
                   asChild
                 >
                   <Link to="/my-projects">My Projects</Link>
                 </Button>
-                <Button 
-                  variant={isActive('/my-contributions') ? 'secondary' : 'ghost'} 
-                  size="sm" 
+                <Button
+                  variant={isActive('/my-contributions') ? 'secondary' : 'ghost'}
+                  size="sm"
                   asChild
                 >
                   <Link to="/my-contributions">My Contributions</Link>
                 </Button>
+
+                <ModeToggle />
 
                 {/* User Menu */}
                 <DropdownMenu>
@@ -126,6 +129,7 @@ const Navbar: React.FC = () => {
               </>
             ) : (
               <div className="flex items-center gap-2 ml-2">
+                <ModeToggle />
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/auth/login">Login</Link>
                 </Button>

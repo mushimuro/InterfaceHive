@@ -8,12 +8,13 @@ import ProjectFilters from '../components/ProjectFilters';
 import { ProjectSkeletonGrid } from '../components/ProjectSkeleton';
 import ErrorMessage from '../components/ErrorMessage';
 import { Plus, Search } from 'lucide-react';
+import Pagination from '../components/Pagination';
 
 const ProjectList: React.FC = () => {
   const [filters, setFilters] = useState<FilterType>({
-    status: 'OPEN',
+    status: 'open',
     page: 1,
-    page_size: 20,
+    page_size: 10,
     ordering: '-created_at',
   });
 
@@ -65,43 +66,25 @@ const ProjectList: React.FC = () => {
           {data && !isLoading && (
             <div className="px-4 lg:px-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                {data.results.map((project: any) => (
+                {data.data.map((project: any) => (
                   <ProjectCard key={project.id} project={project} />
                 ))}
               </div>
 
               {/* Pagination */}
-              {data.total_pages > 1 && (
-                <div className="flex justify-center gap-2 mt-8">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={data.current_page === 1}
-                    onClick={() => setFilters({ ...filters, page: (filters.page || 1) - 1 })}
-                  >
-                    Previous
-                  </Button>
-                  <span className="flex items-center px-4 text-sm text-muted-foreground">
-                    Page {data.current_page} of {data.total_pages}
-                  </span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={data.current_page === data.total_pages}
-                    onClick={() => setFilters({ ...filters, page: (filters.page || 1) + 1 })}
-                  >
-                    Next
-                  </Button>
-                </div>
-              )}
+              <Pagination
+                currentPage={data.current_page}
+                totalPages={data.total_pages}
+                onPageChange={(p) => setFilters({ ...filters, page: p })}
+              />
 
               {/* No Results */}
-              {data.results.length === 0 && (
+              {data.data.length === 0 && (
                 <div className="text-center py-12">
                   <div className="flex flex-col items-center gap-2">
                     <Search className="h-12 w-12 text-muted-foreground/50" />
                     <p className="text-muted-foreground text-lg font-medium">
-                      No projects found
+                      There is no project available
                     </p>
                     <p className="text-muted-foreground text-sm">
                       Try adjusting your search filters.

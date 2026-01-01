@@ -38,21 +38,21 @@ const ContributionList: React.FC<ContributionListProps> = ({
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'ACCEPTED':
+      case 'accepted':
         return (
           <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
             <CheckCircle className="h-3 w-3 mr-1" />
             Accepted
           </Badge>
         );
-      case 'DECLINED':
+      case 'declined':
         return (
           <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
             <XCircle className="h-3 w-3 mr-1" />
             Declined
           </Badge>
         );
-      case 'PENDING':
+      case 'pending':
         return (
           <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
             <Clock className="h-3 w-3 mr-1" />
@@ -144,14 +144,14 @@ const ContributionList: React.FC<ContributionListProps> = ({
             {/* Decision Info */}
             {contribution.decided_by_name && contribution.decided_at && (
               <div className="text-xs text-muted-foreground pt-2 border-t">
-                {contribution.status === 'ACCEPTED' ? 'Accepted' : 'Declined'} by{' '}
+                {contribution.status === 'accepted' ? 'Accepted' : 'Declined'} by{' '}
                 {contribution.decided_by_name} on{' '}
                 {format(new Date(contribution.decided_at), 'MMM d, yyyy')}
               </div>
             )}
 
             {/* Host Actions */}
-            {isHost && contribution.status === 'PENDING' && onAccept && onDecline && (
+            {isHost && contribution.status === 'pending' && onAccept && onDecline && (
               <div className="flex gap-2 pt-4 border-t">
                 <Button
                   onClick={() => onAccept(contribution.id)}

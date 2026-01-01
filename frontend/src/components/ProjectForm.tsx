@@ -126,17 +126,18 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         <div className="space-y-2">
           <Label htmlFor="difficulty">Difficulty Level (Optional)</Label>
           <Select
-            value={difficulty}
-            onValueChange={(value) => setValue('difficulty', value as any)}
+            value={difficulty || ''}
+            onValueChange={(value) => setValue('difficulty', (value === 'none' ? '' : value) as any)}
             disabled={isLoading}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select difficulty" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="EASY">Easy</SelectItem>
-              <SelectItem value="INTERMEDIATE">Intermediate</SelectItem>
-              <SelectItem value="ADVANCED">Advanced</SelectItem>
+              <SelectItem value="none">None (Optional)</SelectItem>
+              <SelectItem value="easy">Easy</SelectItem>
+              <SelectItem value="intermediate">Intermediate</SelectItem>
+              <SelectItem value="advanced">Advanced</SelectItem>
             </SelectContent>
           </Select>
           {errors.difficulty && (
@@ -207,8 +208,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="DRAFT">Draft (not visible to others)</SelectItem>
-            <SelectItem value="OPEN">Open (accepting contributions)</SelectItem>
+            <SelectItem value="draft">Draft (not visible to others)</SelectItem>
+            <SelectItem value="open">Open (accepting contributions)</SelectItem>
           </SelectContent>
         </Select>
         {errors.status && (

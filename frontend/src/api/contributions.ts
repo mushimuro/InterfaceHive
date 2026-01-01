@@ -14,7 +14,7 @@ export interface Contribution {
   body: string;
   links?: string[];
   attachments?: string[];
-  status: 'PENDING' | 'ACCEPTED' | 'DECLINED';
+  status: 'pending' | 'accepted' | 'declined';
   decided_by?: string;
   decided_by_name?: string;
   decided_at?: string;
@@ -31,12 +31,15 @@ export interface ContributionCreateData {
 }
 
 export interface ContributionListResponse {
+  success: boolean;
   status_code: number;
   message: string;
-  data: Contribution[];
   count: number;
+  total_pages: number;
+  current_page: number;
   next: string | null;
   previous: string | null;
+  data: Contribution[];
 }
 
 /**
@@ -88,3 +91,10 @@ export const declineContribution = async (contributionId: string): Promise<Contr
   return response.data.data;
 };
 
+/**
+ * Get current user's contributions
+ */
+export const getMyContributions = async (params?: Record<string, any>): Promise<ContributionListResponse> => {
+  const response = await apiClient.get('/contributions/me/', { params });
+  return response.data;
+};

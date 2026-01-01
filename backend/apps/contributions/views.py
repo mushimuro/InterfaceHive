@@ -42,11 +42,11 @@ class ProjectContributionListView(generics.ListAPIView):
             try:
                 project = Project.objects.get(id=project_id)
                 if project.host_user != request_user:
-                    queryset = queryset.filter(status='ACCEPTED')
+                    queryset = queryset.filter(status='accepted')
             except Project.DoesNotExist:
-                queryset = queryset.filter(status='ACCEPTED')
+                queryset = queryset.filter(status='accepted')
         else:
-            queryset = queryset.filter(status='ACCEPTED')
+            queryset = queryset.filter(status='accepted')
         
         return queryset
 
@@ -135,7 +135,7 @@ class ContributionDetailView(generics.RetrieveAPIView):
         instance = self.get_object()
         
         # Check visibility permissions
-        if instance.status != 'ACCEPTED':
+        if instance.status != 'accepted':
             if not request.user.is_authenticated:
                 return ErrorResponse(
                     detail="You do not have permission to view this contribution.",
@@ -170,8 +170,8 @@ class MyContributionsView(generics.ListAPIView):
         
         # Filter by status if provided
         status_filter = self.request.query_params.get('status')
-        if status_filter and status_filter.upper() in ['PENDING', 'ACCEPTED', 'DECLINED']:
-            queryset = queryset.filter(status=status_filter.upper())
+        if status_filter and status_filter.lower() in ['pending', 'accepted', 'declined']:
+            queryset = queryset.filter(status=status_filter.lower())
         
         return queryset
 
@@ -197,7 +197,7 @@ class ContributionAcceptView(views.APIView):
 
     def post(self, request, contribution_id):
         try:
-            contribution = Contribution.objects.select_related('project', 'contributor').get(id=contribution_id)
+            contribution = Contribution.objects.select_related('project', 'contributor_user').get(id=contribution_id)
         except Contribution.DoesNotExist:
             return ErrorResponse(
                 detail="Contribution not found.",
@@ -206,7 +206,7 @@ class ContributionAcceptView(views.APIView):
         
         # Validate decision
         serializer = ContributionDecisionSerializer(
-            data={'decision': 'ACCEPTED'},
+            data={'decision': 'accepted'},
             context={'contribution': contribution, 'request': request}
         )
         
@@ -261,7 +261,7 @@ class ContributionDeclineView(views.APIView):
 
     def post(self, request, contribution_id):
         try:
-            contribution = Contribution.objects.select_related('project', 'contributor').get(id=contribution_id)
+            contribution = Contribution.objects.select_related('project', 'contributor_user').get(id=contribution_id)
         except Contribution.DoesNotExist:
             return ErrorResponse(
                 detail="Contribution not found.",
@@ -270,7 +270,7 @@ class ContributionDeclineView(views.APIView):
         
         # Validate decision
         serializer = ContributionDecisionSerializer(
-            data={'decision': 'DECLINED'},
+            data={'decision': 'declined'},
             context={'contribution': contribution, 'request': request}
         )
         

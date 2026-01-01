@@ -69,7 +69,7 @@ class ProjectListCreateView(generics.ListCreateAPIView):
         - Status and difficulty filtering via Django Filter
         """
         queryset = Project.objects.select_related('host_user').prefetch_related(
-            'tags_maps__tag'
+            'tag_maps__tag'
         )
         
         # Filter by tags if provided
@@ -78,18 +78,36 @@ class ProjectListCreateView(generics.ListCreateAPIView):
             tag_names = [tag.strip().lower() for tag in tags_param.split(',') if tag.strip()]
             if tag_names:
                 queryset = queryset.filter(
-                    tags_maps__tag__name__in=tag_names
+                    tag_maps__tag__name__in=tag_names
                 ).distinct()
         
-        # Full-text search using PostgreSQL search vector
+        # Full-text search + Substring matching
         search_query = self.request.query_params.get('search')
         if search_query:
-            search_query_obj = SearchQuery(search_query)
-            queryset = queryset.filter(
-                search_vector=search_query_obj
-            ).annotate(
-                rank=SearchRank('search_vector', search_query_obj)
-            ).order_by('-rank')
+            # 1. Full-Text Search (Prefix matching for ranking)
+            words = [f"{word}:*" for word in search_query.split() if word]
+            fts_query = None
+            if words:
+                raw_query = " & ".join(words)
+                fts_query = SearchQuery(raw_query, search_type='raw')
+            
+            # 2. Substring matching (Standard Django icontains)
+            substring_filter = (
+                Q(title__icontains=search_query) |
+                Q(description__icontains=search_query) |
+                Q(desired_outputs__icontains=search_query)
+            )
+            
+            # Combine them: Match if either FTS matches OR substring filter matches
+            if fts_query:
+                queryset = queryset.filter(
+                    Q(search_vector=fts_query) | substring_filter
+                ).annotate(
+                    # Annotate rank; matches that only satisfy substring_filter get rank 0
+                    rank=SearchRank('search_vector', fts_query)
+                ).order_by('-rank')
+            else:
+                queryset = queryset.filter(substring_filter)
         
         return queryset
     
@@ -126,8 +144,8 @@ class ProjectDetailView(generics.RetrieveUpdateDestroyAPIView):
     Delete project (host only, soft delete).
     """
     queryset = Project.objects.select_related('host_user').prefetch_related(
-        'tags_maps__tag',
-        'contributions__contributor'
+        'tag_maps__tag',
+        'contributions__contributor_user'
     )
     permission_classes = [IsHostOrReadOnly]
     lookup_field = 'id'
@@ -176,7 +194,7 @@ class ProjectDetailView(generics.RetrieveUpdateDestroyAPIView):
         )
     
     def destroy(self, request, *args, **kwargs):
-        """Soft delete project (set status to CLOSED)."""
+        """Delete project."""
         instance = self.get_object()
         
         # Check permission
@@ -187,13 +205,19 @@ class ProjectDetailView(generics.RetrieveUpdateDestroyAPIView):
                 status_code=status.HTTP_403_FORBIDDEN
             )
         
-        # Soft delete: close the project instead of hard delete
-        instance.status = 'CLOSED'
-        instance.save()
-        
-        return success_response(
-            message='Project closed successfully'
-        )
+        try:
+            # Perform hard delete
+            instance.delete()
+            return success_response(
+                message='Project deleted successfully'
+            )
+        except ValueError:
+            # Fallback for projects with credit ledger entries (audit trail protection)
+            instance.status = 'CLOSED'
+            instance.save()
+            return success_response(
+                message='Project closed instead of deleted because credits have already been issued. Audit history must be preserved.'
+            )
 
 
 class MyProjectsView(generics.ListAPIView):
@@ -216,7 +240,7 @@ class MyProjectsView(generics.ListAPIView):
         """Get projects created by current user."""
         return Project.objects.filter(
             host_user=self.request.user
-        ).select_related('host_user').prefetch_related('tags_maps__tag')
+        ).select_related('host_user').prefetch_related('tag_maps__tag')
 
 
 class ProjectTagListView(generics.ListAPIView):

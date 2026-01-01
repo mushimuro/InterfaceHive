@@ -80,7 +80,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {errors.root?.serverError && (
-            <ErrorMessage message={errors.root.serverError.message} type="error" />
+            <ErrorMessage message={errors.root.serverError.message || 'An unexpected error occurred'} type="error" />
           )}
 
           {/* Display Name */}

@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowRight, Code2, Users, Award, Sparkles, Github, Rocket } from 'lucide-react';
+import { ArrowRight, Code2, Users, Award, Sparkles, Rocket } from 'lucide-react';
 
 const Home: React.FC = () => {
   const { user } = useAuth();
@@ -24,7 +24,7 @@ const Home: React.FC = () => {
               <span className="text-primary">Together</span>
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl">
-              InterfaceHive connects developers to collaborate on open-source projects. 
+              InterfaceHive connects developers to collaborate on open-source projects.
               Contribute your skills, earn credits, and grow your portfolio.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mt-4">
@@ -73,7 +73,7 @@ const Home: React.FC = () => {
             A platform designed for developers who want to collaborate and grow
           </p>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           <Card className="relative overflow-hidden border-2">
             <CardHeader>
@@ -82,7 +82,7 @@ const Home: React.FC = () => {
               </div>
               <CardTitle className="text-xl">Find Projects</CardTitle>
               <CardDescription className="text-base">
-                Discover open-source projects that match your skills and interests. 
+                Discover open-source projects that match your skills and interests.
                 Filter by technology, difficulty, and estimated time.
               </CardDescription>
             </CardHeader>
@@ -95,7 +95,7 @@ const Home: React.FC = () => {
               </div>
               <CardTitle className="text-xl">Collaborate</CardTitle>
               <CardDescription className="text-base">
-                Work with other developers on real projects. 
+                Work with other developers on real projects.
                 Submit contributions, get feedback, and improve your skills.
               </CardDescription>
             </CardHeader>
@@ -108,7 +108,7 @@ const Home: React.FC = () => {
               </div>
               <CardTitle className="text-xl">Earn Credits</CardTitle>
               <CardDescription className="text-base">
-                Build your reputation by earning credits for accepted contributions. 
+                Build your reputation by earning credits for accepted contributions.
                 Showcase your achievements and expertise.
               </CardDescription>
             </CardHeader>

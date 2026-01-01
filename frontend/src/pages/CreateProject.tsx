@@ -12,7 +12,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Label } from '../components/ui/label';
-import { Sparkles, Github, Lightbulb } from 'lucide-react';
+import { Sparkles, Github, Lightbulb, Trash2 } from 'lucide-react';
 import { useGenerateFromIdea, useGenerateFromRepo } from '../hooks/useAI';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -23,7 +23,7 @@ const CreateProject: React.FC = () => {
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectSchema),
     defaultValues: {
-      status: 'OPEN',
+      status: 'open',
       tags: [],
     },
   });
@@ -65,12 +65,32 @@ const CreateProject: React.FC = () => {
     if (data.what_it_does) form.setValue('what_it_does', data.what_it_does);
     if (data.inputs_dependencies) form.setValue('inputs_dependencies', data.inputs_dependencies);
     if (data.desired_outputs) form.setValue('desired_outputs', data.desired_outputs);
-    if (data.difficulty) form.setValue('difficulty', data.difficulty as any);
+    if (data.difficulty) form.setValue('difficulty', data.difficulty);
     if (data.estimated_time) form.setValue('estimated_time', data.estimated_time);
     if (data.tags) form.setValue('tags', data.tags);
     if (data.github_url) form.setValue('github_url', data.github_url);
-    if (data.status) form.setValue('status', 'OPEN'); // Default to OPEN if generated
+    if (data.status) form.setValue('status', 'open'); // Default to open if generated
   };
+
+  const clearAllFields = () => {
+    form.reset({
+      title: '',
+      description: '',
+      what_it_does: '',
+      inputs_dependencies: '',
+      desired_outputs: '',
+      difficulty: undefined,
+      estimated_time: '',
+      tags: [],
+      github_url: '',
+      status: 'open',
+    });
+    // Also clear AI inputs
+    setAiIdea('');
+    setAiRepoUrl('');
+  };
+
+
 
   const isAiLoading = generateFromIdeaMutation.isPending || generateFromRepoMutation.isPending;
   const aiError = generateFromIdeaMutation.error || generateFromRepoMutation.error;
@@ -79,10 +99,10 @@ const CreateProject: React.FC = () => {
     setError(null);
 
     try {
-      const project = await createProjectMutation.mutateAsync(data);
+      await createProjectMutation.mutateAsync(data as any);
 
-      // Navigate to project detail page
-      navigate(`/projects/${project.id}`);
+      // Navigate to My Projects page
+      navigate('/my-projects');
     } catch (err: any) {
       setError(
         err.response?.data?.detail ||
@@ -167,6 +187,15 @@ const CreateProject: React.FC = () => {
                     </>
                   )}
                 </Button>
+                <Button
+                  variant="outline"
+                  onClick={clearAllFields}
+                  disabled={isAiLoading}
+                  className="w-full sm:w-auto ml-2"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Clear All
+                </Button>
               </TabsContent>
 
               <TabsContent value="repo" className="space-y-4 mt-4">
@@ -195,6 +224,15 @@ const CreateProject: React.FC = () => {
                       Analyze & Auto-fill
                     </>
                   )}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={clearAllFields}
+                  disabled={isAiLoading}
+                  className="w-full sm:w-auto ml-2"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Clear All
                 </Button>
               </TabsContent>
             </Tabs>

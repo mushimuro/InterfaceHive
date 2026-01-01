@@ -7,8 +7,8 @@ export interface Project {
   what_it_does?: string;
   inputs_dependencies?: string;
   desired_outputs: string;
-  status: 'DRAFT' | 'OPEN' | 'CLOSED';
-  difficulty?: 'EASY' | 'INTERMEDIATE' | 'ADVANCED';
+  status: 'draft' | 'open' | 'closed';
+  difficulty?: 'easy' | 'intermediate' | 'advanced';
   estimated_time?: string;
   github_url?: string;
   host: {
@@ -34,17 +34,17 @@ export interface ProjectFormData {
   what_it_does?: string;
   inputs_dependencies?: string;
   desired_outputs: string;
-  difficulty?: 'EASY' | 'INTERMEDIATE' | 'ADVANCED';
+  difficulty?: 'easy' | 'intermediate' | 'advanced';
   estimated_time?: string;
   github_url?: string;
   tags?: string[];
-  status?: 'DRAFT' | 'OPEN';
+  status?: 'draft' | 'open' | 'closed';
 }
 
 export interface ProjectFilters {
   search?: string;
-  status?: 'OPEN' | 'CLOSED' | 'DRAFT';
-  difficulty?: 'EASY' | 'INTERMEDIATE' | 'ADVANCED';
+  status?: 'open' | 'closed' | 'draft';
+  difficulty?: 'easy' | 'intermediate' | 'advanced';
   tags?: string;
   ordering?: string;
   page?: number;
@@ -56,7 +56,7 @@ export interface ProjectFilters {
  */
 export const getProjects = async (filters?: ProjectFilters) => {
   const params = new URLSearchParams();
-  
+
   if (filters) {
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
@@ -64,9 +64,9 @@ export const getProjects = async (filters?: ProjectFilters) => {
       }
     });
   }
-  
+
   const response = await apiClient.get(`/projects/?${params.toString()}`);
-  return response.data.data;
+  return response.data;
 };
 
 /**
@@ -114,17 +114,17 @@ export const deleteProject = async (id: string) => {
  */
 export const getMyProjects = async (filters?: Pick<ProjectFilters, 'status' | 'page' | 'page_size'>) => {
   const params = new URLSearchParams();
-  
+
   if (filters) {
     Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
+      if (value !== undefined && value !== null) {
         params.append(key, String(value));
       }
     });
   }
-  
+
   const response = await apiClient.get(`/projects/my-projects/?${params.toString()}`);
-  return response.data.data;
+  return response.data;
 };
 
 /**

@@ -8,12 +8,35 @@ import os
 
 class GeminiService:
     def __init__(self):
-        api_key = config('GEMINI_API_KEY', default=None)
+        # Attempt to read from frontend/.env first as requested
+        api_key = None
+        try:
+            # Navigate from backend/apps/ai_agent/services.py to frontend/.env
+            # services.py -> ai_agent -> apps -> backend -> root -> frontend
+            current_file = Path(__file__).resolve()
+            env_path = current_file.parents[3] / 'frontend' / '.env'
+            
+            if env_path.exists():
+                with open(env_path, 'r') as f:
+                    for line in f:
+                        if '=' in line:
+                            key, value = line.split('=', 1)
+                            key = key.strip()
+                            if key == 'GEMINI_API_KEY' or key == 'VITE_GEMINI_API_KEY':
+                                api_key = value.strip().strip('"').strip("'")
+                                break
+        except Exception as e:
+            print(f"Warning: Could not read frontend/.env: {e}")
+
+        # Fallback to backend config
         if not api_key:
-            raise ValueError("GEMINI_API_KEY is not set")
+            api_key = config('GEMINI_API_KEY', default=None)
+
+        if not api_key:
+            raise ValueError("GEMINI_API_KEY is not set in frontend/.env or backend environment")
+            
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-2.0-flash-exp') # Using flash model as requested (checking availability, fallback to gemini-pro if needed, but user asked for 2.5 Flash, let's use what's available or closest. 2.5 isn't public yet? User said 2.5 Flash. I will use 'gemini-1.5-flash' or similar as proxy or assume the user has access. Actually, I should use 'gemini-1.5-flash' which is the current flash model. User said 2.5 Flash. I will assume they meant the latest flash. I'll stick to 'gemini-1.5-flash' for now as it is widely available, or 'gemini-2.0-flash-exp' if they have early access. I'll use 'gemini-1.5-flash' to be safe, or make it configurable. Let's use 'gemini-1.5-flash'.)
-        # Correction: User specifically asked for "Google Gemini 2.5 Flash". As an AI, I know 1.5 is common. 2.0 is experimental. 2.5 might be a hallucination or future. I will use 'gemini-1.5-flash' and comment.
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
 
     def _get_prompt_format(self):
         return """
@@ -36,19 +59,38 @@ class GeminiService:
             raise ValueError("Invalid GitHub URL")
         
         owner, repo = match.groups()
-        
-        # Try fetching README
         readme_content = ""
-        branches = ['main', 'master']
-        for branch in branches:
-            url = f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/README.md"
-            response = requests.get(url)
-            if response.status_code == 200:
-                readme_content = response.text
-                break
+        
+        # Use GitHub API to find the README (handles default branch and file name variations)
+        api_url = f"https://api.github.com/repos/{owner}/{repo}/readme"
+        headers = {'Accept': 'application/vnd.github.v3+json'}
+        
+        # Determine if we have a token (optional, but assumes public repo if not)
+        # We don't have a specific GITHUB_TOKEN env var set up in this plan, 
+        # so we'll try unauthenticated first which works for public repos.
+        
+        response = requests.get(api_url, headers=headers)
+        
+        if response.status_code == 200:
+            data = response.json()
+            download_url = data.get('download_url')
+            if download_url:
+                content_response = requests.get(download_url)
+                if content_response.status_code == 200:
+                    readme_content = content_response.text
         
         if not readme_content:
-            raise ValueError("Could not fetch README.md from main or master branch")
+            # Fallback: try constructing raw URLs for common branches if API fails (e.g. rate limit)
+            branches = ['main', 'master', 'develop']
+            for branch in branches:
+                url = f"https://raw.githubusercontent.com/{owner}/{repo}/{branch}/README.md"
+                response = requests.get(url)
+                if response.status_code == 200:
+                    readme_content = response.text
+                    break
+
+        if not readme_content:
+             raise ValueError("Could not fetch README.md. Ensure the repository is public and has a README.")
 
         prompt = f"""
         Analyze this GitHub repository README and extract project details for a contribution request.
