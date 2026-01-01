@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useMyProjects, useDeleteProject } from '../hooks/useProjects';
+import { useMyProjects, useDeleteProject, useUpdateProject } from '../hooks/useProjects';
 import type { Project } from '../api/projects';
 import { Card, CardContent } from '../components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
@@ -16,8 +16,61 @@ import {
 } from '../components/ui/select';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
-import { Plus, Clock, Users, Eye, Edit, MessageSquare, Trash2, Search } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../components/ui/dropdown-menu';
+import { Plus, Clock, Users, Eye, Edit, MessageSquare, Trash2, Search, ChevronDown, CheckCircle, FileEdit } from 'lucide-react';
 import { format } from 'date-fns';
+
+const StatusEditButton: React.FC<{ project: Project }> = ({ project }) => {
+  const updateMutation = useUpdateProject(project.id);
+
+  const handleStatusChange = async (newStatus: 'open' | 'closed' | 'draft') => {
+    try {
+      await updateMutation.mutateAsync({ status: newStatus });
+    } catch (err) {
+      console.error('Failed to update status:', err);
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'open': return <CheckCircle className="mr-2 h-4 w-4 text-blue-500" />;
+      case 'closed': return <CheckCircle className="mr-2 h-4 w-4 text-green-500" />;
+      case 'draft': return <FileEdit className="mr-2 h-4 w-4 text-gray-500" />;
+      default: return null;
+    }
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" disabled={updateMutation.isPending}>
+          <FileEdit className="mr-1.5 h-3.5 w-3.5" />
+          {updateMutation.isPending ? 'Updating...' : 'Edit Status'}
+          <ChevronDown className="ml-1.5 h-3 w-3 opacity-50" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => handleStatusChange('open')} disabled={project.status === 'open'}>
+          {getStatusIcon('open')}
+          Active
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleStatusChange('closed')} disabled={project.status === 'closed'}>
+          {getStatusIcon('closed')}
+          Completed
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleStatusChange('draft')} disabled={project.status === 'draft'}>
+          {getStatusIcon('draft')}
+          Draft
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
 
 const MyProjects: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
@@ -233,6 +286,7 @@ const MyProjects: React.FC = () => {
                           )}
 
                           <div className="flex flex-wrap gap-2">
+                            <StatusEditButton project={project} />
                             <Button variant="outline" size="sm" asChild>
                               <Link to={`/projects/${project.id}/edit`}>
                                 <Edit className="mr-1.5 h-3.5 w-3.5" />
