@@ -91,7 +91,7 @@ class IsContributorOrHost(permissions.BasePermission):
             # Can only modify if still pending
             if request.method in permissions.SAFE_METHODS:
                 return True
-            return obj.status == 'PENDING'
+            return obj.status == 'pending'
         
         # Other users cannot access
         return False

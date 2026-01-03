@@ -61,7 +61,7 @@ class ModerationService:
         
         # Update project status
         original_status = project.status
-        project.status = 'CLOSED'
+        project.status = 'closed'
         project.save(update_fields=['status'])
         
         # Log the action
@@ -95,7 +95,7 @@ class ModerationService:
         
         # Update contribution status
         original_status = contribution.status
-        contribution.status = 'DECLINED'
+        contribution.status = 'declined'
         contribution.decided_by = moderator
         contribution.decided_at = timezone.now()
         contribution.save(update_fields=['status', 'decided_by', 'decided_at'])

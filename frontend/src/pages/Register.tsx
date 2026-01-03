@@ -29,7 +29,7 @@ const Register: React.FC = () => {
     setError(null);
 
     try {
-      await registerUser(data.email, data.password, data.display_name);
+      await registerUser(data.email, data.password, data.confirm_password, data.display_name);
       // Navigation handled by AuthContext
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please try again.');
@@ -56,7 +56,7 @@ const Register: React.FC = () => {
           </div>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
             {error && <ErrorMessage message={error} type="error" />}
-            
+
             <div className="flex flex-col gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>

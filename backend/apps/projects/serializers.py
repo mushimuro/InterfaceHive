@@ -241,9 +241,9 @@ class ProjectUpdateSerializer(serializers.ModelSerializer):
         return value
     
     def validate_status(self, value):
-        """Validate status transitions."""
-        if self.instance and self.instance.status == 'CLOSED' and value != 'CLOSED':
-            raise serializers.ValidationError('Cannot reopen a closed project')
+        # Projects cannot be reopened once CLOSED via API (must be reopened by admin/host if desired)
+        if self.instance and self.instance.status == 'closed' and value != 'closed':
+            raise serializers.ValidationError("This project is closed and its status cannot be changed.")
         return value
     
     def validate_tags(self, value):

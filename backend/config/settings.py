@@ -28,6 +28,9 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv(
 # Application definition
 
 INSTALLED_APPS = [
+    # ASGI server (must be before django.contrib.staticfiles)
+    'daphne',
+    
     # Django core apps
     'django.contrib.admin',
     'django.contrib.auth',
@@ -52,11 +55,13 @@ INSTALLED_APPS = [
     'apps.credits',
     'apps.moderation',
     'apps.ai_agent',
+    'channels',
+    'apps.chat',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # CORS - must be before everything else
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # CORS - must be before CommonMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -84,6 +89,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
 
 
 # Database
@@ -246,7 +252,7 @@ REDIS_URL = config('REDIS_URL', default='redis://localhost:6379/0')
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'BACKEND': 'django_redis.cache.RedisCache',
         'LOCATION': REDIS_URL,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
@@ -254,6 +260,19 @@ CACHES = {
         'KEY_PREFIX': 'interfacehive',
         'TIMEOUT': 300,  # 5 minutes default
     }
+}
+
+# ==============================================================================
+# CHANNEL LAYERS (Redis)
+# ==============================================================================
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [REDIS_URL],
+        },
+    },
 }
 
 # ==============================================================================

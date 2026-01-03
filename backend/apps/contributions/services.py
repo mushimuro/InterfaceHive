@@ -41,13 +41,19 @@ class ContributionService:
             PermissionError: If user is not the project host
         """
         # Validation
-        if contribution.status != 'pending':
-            raise ValueError(
-                f"Cannot accept contribution. Current status: {contribution.status}. "
-                "Only PENDING contributions can be accepted."
-            )
+        if contribution.status.lower() != 'pending':
+            if contribution.status.lower() == 'accepted':
+                # Already accepted, return success (idempotent)
+                return {
+                    'contribution': contribution,
+                    'credit_entry': None, # We don't try to award credit again
+                    'credit_awarded': False
+                }
+            msg = f"Cannot accept contribution. Current status: {contribution.status}. Only PENDING contributions can be accepted."
+            logger.error(f"Validation failed in accept_contribution: {msg}")
+            raise ValueError(msg)
         
-        if contribution.project.host_user != decided_by:
+        if contribution.project.host_user_id != decided_by.id:
             raise PermissionError(
                 "Only the project host can accept contributions."
             )
@@ -111,13 +117,15 @@ class ContributionService:
             PermissionError: If user is not the project host
         """
         # Validation
-        if contribution.status != 'pending':
-            raise ValueError(
-                f"Cannot decline contribution. Current status: {contribution.status}. "
-                "Only PENDING contributions can be declined."
-            )
+        if contribution.status.lower() != 'pending':
+            if contribution.status.lower() == 'declined':
+                # Already declined, return success (idempotent)
+                return contribution
+            msg = f"Cannot decline contribution. Current status: {contribution.status}. Only PENDING contributions can be declined."
+            logger.error(f"Validation failed in decline_contribution: {msg}")
+            raise ValueError(msg)
         
-        if contribution.project.host_user != decided_by:
+        if contribution.project.host_user_id != decided_by.id:
             raise PermissionError(
                 "Only the project host can decline contributions."
             )
