@@ -94,7 +94,7 @@ class CreditLedgerEntry(models.Model):
         
         Only allows initial creation, not updates.
         """
-        if self.pk is not None:
+        if not self._state.adding:
             raise ValueError(
                 "CreditLedgerEntry is append-only. Updates not allowed. "
                 "Use entry_type='reversal' to reverse credits."

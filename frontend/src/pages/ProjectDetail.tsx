@@ -12,7 +12,8 @@ import ErrorMessage from '../components/ErrorMessage';
 import ContributionForm from '../components/ContributionForm';
 import ContributionList from '../components/ContributionList';
 import AcceptedContributors from '../components/AcceptedContributors';
-import { Calendar, Clock, Github, User, Award, Edit, XCircle } from 'lucide-react';
+import ChatRoom from '../components/ChatRoom';
+import { Calendar, Clock, Github, User, Award, Edit, XCircle, MessageSquare } from 'lucide-react';
 
 const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -28,7 +29,9 @@ const ProjectDetail: React.FC = () => {
   const declineContributionMutation = useDeclineContribution();
 
   const isHost = user && project && project.host.id === user.id;
+  const isAcceptedContributor = contributionsData?.data?.some(c => c.contributor.id === user?.id && c.status === 'accepted');
   const hasContributed = contributionsData?.data?.some(c => c.contributor.id === user?.id);
+  const canChat = isHost || isAcceptedContributor;
 
   const handleClose = async () => {
     if (window.confirm('Are you sure you want to close this project? It will no longer accept contributions.')) {
@@ -158,8 +161,14 @@ const ProjectDetail: React.FC = () => {
                 <TabsTrigger value="contributions">
                   Contributions ({contributionsData?.count || 0})
                 </TabsTrigger>
-                {project.status === 'open' && !isHost && (
+                {project.status === 'open' && !isHost && !isAcceptedContributor && (
                   <TabsTrigger value="submit">Submit Work</TabsTrigger>
+                )}
+                {canChat && (
+                  <TabsTrigger value="chat">
+                    <MessageSquare className="mr-2 h-4 w-4 inline" />
+                    Chat
+                  </TabsTrigger>
                 )}
               </TabsList>
 
@@ -307,7 +316,7 @@ const ProjectDetail: React.FC = () => {
               </TabsContent>
 
               {/* Submit Tab */}
-              {project.status === 'open' && !isHost && (
+              {project.status === 'open' && !isHost && !isAcceptedContributor && (
                 <TabsContent value="submit" className="mt-6">
                   <ContributionForm
                     projectTitle={project.title}
@@ -326,6 +335,13 @@ const ProjectDetail: React.FC = () => {
                   )}
                 </TabsContent>
               )}
+
+              {/* Chat Tab */}
+              {canChat && (
+                <TabsContent value="chat" className="mt-6">
+                  <ChatRoom projectId={id!} />
+                </TabsContent>
+              )}
             </Tabs>
 
             {/* Back Button */}
@@ -337,7 +353,7 @@ const ProjectDetail: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

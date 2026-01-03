@@ -55,17 +55,23 @@ class CreditService:
         if amount <= 0:
             raise ValueError("Credit amount must be positive")
         
-        if to_user == from_user:
+        to_user_id = to_user.id if hasattr(to_user, 'id') else to_user
+        from_user_id = from_user.id if hasattr(from_user, 'id') else from_user
+        
+        if to_user_id == from_user_id:
+            logger.error(f"Credit award failed: to_user ({to_user_id}) == from_user ({from_user_id})")
             raise ValueError("Cannot award credit to yourself")
         
-        if contribution.status != 'accepted':
+        # Ensure contribution is accepted (case-insensitive)
+        current_status = str(contribution.status).lower()
+        if current_status != 'accepted':
+            logger.error(f"Credit award failed: contribution {contribution.id} status is {current_status}, expected accepted")
             raise ValueError("Can only award credit for accepted contributions")
         
-        if contribution.contributor_user != to_user:
-            raise ValueError("Credit recipient must be the contributor")
-        
-        if project.host_user != from_user:
-            raise ValueError("Credit issuer must be the project host")
+        # Ownership check: issuer must be project host
+        if str(project.host_user_id) != str(from_user_id):
+            logger.error(f"Credit award failed: project host ({project.host_user_id}) != issuer ({from_user_id})")
+            raise ValueError("Only the project host can award credits")
         
         # Check if credit already exists (before attempting insert)
         existing_credit = CreditLedgerEntry.objects.filter(

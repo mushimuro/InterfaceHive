@@ -211,9 +211,8 @@ class ProjectDetailView(generics.RetrieveUpdateDestroyAPIView):
             return success_response(
                 message='Project deleted successfully'
             )
-        except ValueError:
-            # Fallback for projects with credit ledger entries (audit trail protection)
-            instance.status = 'CLOSED'
+        except Exception as e:
+            instance.status = 'closed'
             instance.save()
             return success_response(
                 message='Project closed instead of deleted because credits have already been issued. Audit history must be preserved.'
@@ -226,7 +225,7 @@ class MyProjectsView(generics.ListAPIView):
     List projects created by the authenticated user.
     
     Query Parameters:
-    - status: Filter by status (OPEN, CLOSED, DRAFT)
+    - status: Filter by status (OPEN, closed, DRAFT)
     """
     serializer_class = ProjectListSerializer
     permission_classes = [IsAuthenticatedAndVerified]
@@ -262,7 +261,7 @@ class CloseProjectView(APIView):
     POST /api/v1/projects/<id>/close/
     Close a project (host only).
     
-    Sets status to CLOSED and prevents new contributions.
+    Sets status to closed and prevents new contributions.
     """
     permission_classes = [IsAuthenticatedAndVerified]
     
@@ -285,16 +284,16 @@ class CloseProjectView(APIView):
                 status_code=status.HTTP_403_FORBIDDEN
             )
         
-        # Check if already closed
-        if project.status == 'CLOSED':
+        # 2. Check if project is already closed
+        if project.status == 'closed':
             return error_response(
                 error='already_closed',
                 detail='Project is already closed',
                 status_code=status.HTTP_400_BAD_REQUEST
             )
         
-        # Close project
-        project.status = 'CLOSED'
+        # 4. Success - fall back to soft delete
+        project.status = 'closed'
         project.save()
         
         return success_response(

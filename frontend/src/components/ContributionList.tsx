@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -21,6 +21,8 @@ const ContributionList: React.FC<ContributionListProps> = ({
   onDecline,
   isProcessing = false,
 }) => {
+  const [localProcessingId, setLocalProcessingId] = useState<string | null>(null);
+
   if (!contributions || contributions.length === 0) {
     return (
       <Card>
@@ -154,8 +156,11 @@ const ContributionList: React.FC<ContributionListProps> = ({
             {isHost && contribution.status === 'pending' && onAccept && onDecline && (
               <div className="flex gap-2 pt-4 border-t">
                 <Button
-                  onClick={() => onAccept(contribution.id)}
-                  disabled={isProcessing}
+                  onClick={() => {
+                    setLocalProcessingId(contribution.id);
+                    onAccept(contribution.id);
+                  }}
+                  disabled={isProcessing || localProcessingId === contribution.id}
                   className="flex-1"
                   size="sm"
                 >
@@ -163,8 +168,11 @@ const ContributionList: React.FC<ContributionListProps> = ({
                   Accept
                 </Button>
                 <Button
-                  onClick={() => onDecline(contribution.id)}
-                  disabled={isProcessing}
+                  onClick={() => {
+                    setLocalProcessingId(contribution.id);
+                    onDecline(contribution.id);
+                  }}
+                  disabled={isProcessing || localProcessingId === contribution.id}
                   variant="destructive"
                   className="flex-1"
                   size="sm"

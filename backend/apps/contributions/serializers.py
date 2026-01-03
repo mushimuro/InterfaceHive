@@ -127,10 +127,13 @@ class ContributionDecisionSerializer(serializers.Serializer):
         if not contribution:
             raise serializers.ValidationError("Contribution not found.")
         
-        if contribution.status != 'PENDING':
+        if contribution.status != 'pending':
+            # Allow idempotent requests (e.g. if the decision matches the current status)
+            if contribution.status == data.get('decision'):
+                return data
             raise serializers.ValidationError(f"This contribution has already been {contribution.status.lower()}.")
         
-        if contribution.project.host_user != request.user:
+        if contribution.project.host_user_id != request.user.id:
             raise serializers.ValidationError("Only the project host can accept or decline contributions.")
         
         return data

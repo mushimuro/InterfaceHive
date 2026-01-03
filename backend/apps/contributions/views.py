@@ -1,4 +1,5 @@
 from rest_framework import generics, status, views
+import logging
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django.db import transaction, IntegrityError
@@ -17,6 +18,8 @@ from apps.projects.models import Project
 from apps.users.permissions import IsAuthenticatedAndVerified, IsHostOrReadOnly
 from core.pagination import CustomPageNumberPagination
 from core.responses import SuccessResponse, ErrorResponse
+
+logger = logging.getLogger(__name__)
 
 
 class ProjectContributionListView(generics.ListAPIView):
@@ -204,13 +207,14 @@ class ContributionAcceptView(views.APIView):
                 status_code=status.HTTP_404_NOT_FOUND
             )
         
-        # Validate decision
+        # Validate decision using serializer
         serializer = ContributionDecisionSerializer(
             data={'decision': 'accepted'},
             context={'contribution': contribution, 'request': request}
         )
         
         if not serializer.is_valid():
+            logger.warning(f"Validation failed for contribution {contribution_id}: {serializer.errors}")
             return ErrorResponse(
                 detail=serializer.errors,
                 status_code=status.HTTP_400_BAD_REQUEST
@@ -230,25 +234,23 @@ class ContributionAcceptView(views.APIView):
                 'credit_awarded': result['credit_awarded']
             }
             
+            message = "Contribution accepted."
             if result['credit_awarded']:
-                message = "Contribution accepted and credit awarded successfully."
-            else:
-                message = "Contribution accepted. Credit was already awarded for this project."
+                message += " Credit awarded successfully."
             
             return SuccessResponse(
                 data=response_data,
                 message=message
             )
         except ValueError as e:
-            return ErrorResponse(
-                detail=str(e),
-                status_code=status.HTTP_400_BAD_REQUEST
-            )
+            logger.error(f"ValueError accepting contribution {contribution_id}: {str(e)}")
+            return ErrorResponse(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
         except PermissionError as e:
-            return ErrorResponse(
-                detail=str(e),
-                status_code=status.HTTP_403_FORBIDDEN
-            )
+            logger.error(f"PermissionError accepting contribution {contribution_id}: {str(e)}")
+            return ErrorResponse(detail=str(e), status_code=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            logger.exception(f"Unexpected error accepting contribution {contribution_id}")
+            return ErrorResponse(detail="An unexpected error occurred.", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class ContributionDeclineView(views.APIView):
@@ -261,20 +263,21 @@ class ContributionDeclineView(views.APIView):
 
     def post(self, request, contribution_id):
         try:
-            contribution = Contribution.objects.select_related('project', 'contributor_user').get(id=contribution_id)
+             contribution = Contribution.objects.select_related('project', 'contributor_user').get(id=contribution_id)
         except Contribution.DoesNotExist:
             return ErrorResponse(
                 detail="Contribution not found.",
                 status_code=status.HTTP_404_NOT_FOUND
             )
         
-        # Validate decision
+        # Validate decision using serializer
         serializer = ContributionDecisionSerializer(
             data={'decision': 'declined'},
             context={'contribution': contribution, 'request': request}
         )
         
         if not serializer.is_valid():
+            logger.warning(f"Validation failed for contribution {contribution_id}: {serializer.errors}")
             return ErrorResponse(
                 detail=serializer.errors,
                 status_code=status.HTTP_400_BAD_REQUEST
@@ -296,12 +299,11 @@ class ContributionDeclineView(views.APIView):
                 message="Contribution declined."
             )
         except ValueError as e:
-            return ErrorResponse(
-                detail=str(e),
-                status_code=status.HTTP_400_BAD_REQUEST
-            )
+            logger.error(f"ValueError declining contribution {contribution_id}: {str(e)}")
+            return ErrorResponse(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
         except PermissionError as e:
-            return ErrorResponse(
-                detail=str(e),
-                status_code=status.HTTP_403_FORBIDDEN
-            )
+            logger.error(f"PermissionError declining contribution {contribution_id}: {str(e)}")
+            return ErrorResponse(detail=str(e), status_code=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            logger.exception(f"Unexpected error declining contribution {contribution_id}")
+            return ErrorResponse(detail="An unexpected error occurred.", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
