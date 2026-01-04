@@ -113,10 +113,19 @@ class User(AbstractUser):
         """
         Calculate total credits from ledger (computed property).
         
-        Returns count of AWARD entries for this user.
+        Returns sum of amounts for this user (Awards + Adjustments - Reversals).
         """
         from apps.credits.models import CreditLedgerEntry
-        return CreditLedgerEntry.objects.filter(
-            to_user=self,
-            entry_type='award'
-        ).count()
+        from django.db.models import Sum, Q
+        
+        stats = CreditLedgerEntry.objects.filter(to_user=self).aggregate(
+            awards=Sum('amount', filter=Q(entry_type='award')),
+            reversals=Sum('amount', filter=Q(entry_type='reversal')),
+            adjustments=Sum('amount', filter=Q(entry_type='adjustment'))
+        )
+        
+        awards = stats['awards'] or 0
+        reversals = stats['reversals'] or 0
+        adjustments = stats['adjustments'] or 0
+        
+        return awards - reversals + adjustments

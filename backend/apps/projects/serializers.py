@@ -299,7 +299,7 @@ class ProjectResourceSerializer(serializers.ModelSerializer):
             'category',
             'created_at',
         ]
-        read_only_fields = ['id', 'user', 'created_at']
+        read_only_fields = ['id', 'project', 'user', 'created_at']
 
 
 class ProjectNoteSerializer(serializers.ModelSerializer):
@@ -316,5 +316,5 @@ class ProjectNoteSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
         ]
-        read_only_fields = ['id', 'user', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'project', 'user', 'created_at', 'updated_at']
 

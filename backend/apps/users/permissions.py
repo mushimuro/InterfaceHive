@@ -87,7 +87,7 @@ class IsContributorOrHost(permissions.BasePermission):
             return True
         
         # Contribution author can read and modify (if pending)
-        if obj.contributor == request.user:
+        if obj.contributor_user == request.user:
             # Can only modify if still pending
             if request.method in permissions.SAFE_METHODS:
                 return True
@@ -172,7 +172,7 @@ class IsProjectMember(permissions.BasePermission):
             
         # Check if accepted contributor
         return project.contributions.filter(
-            contributor=request.user,
+            contributor_user=request.user,
             status='accepted'
         ).exists()
 
@@ -187,7 +187,7 @@ class IsProjectMember(permissions.BasePermission):
             
         # Check if accepted contributor
         return project.contributions.filter(
-            contributor=request.user,
+            contributor_user=request.user,
             status='accepted'
         ).exists()
 
