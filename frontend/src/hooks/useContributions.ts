@@ -138,6 +138,11 @@ export const useDeleteContribution = () => {
     onSuccess: () => {
       // Invalidate my contributions list
       queryClient.invalidateQueries({ queryKey: ['my-contributions'] });
+      // Invalidate all project contributions as we don't know the project ID here without looking it up
+      // or we can pass it to the mutation
+      queryClient.invalidateQueries({ queryKey: ['contributions', 'project'] });
+      // Invalidate projects to update stats
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
     },
   });
 };

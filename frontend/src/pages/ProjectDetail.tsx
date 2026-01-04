@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useProject, useCloseProject } from '../hooks/useProjects';
-import { useProjectContributions, useCreateContribution, useAcceptContribution, useDeclineContribution } from '../hooks/useContributions';
+import { useProjectContributions, useCreateContribution, useAcceptContribution, useDeclineContribution, useUpdateContribution, useDeleteContribution } from '../hooks/useContributions';
 import { useAuth } from '../contexts/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -20,12 +20,16 @@ const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<string>('overview');
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'overview';
+  const [activeTab, setActiveTab] = useState<string>(initialTab);
 
   const { data: project, isLoading, error } = useProject(id!);
   const { data: contributionsData, isLoading: isLoadingContributions } = useProjectContributions(id!);
   const closeProjectMutation = useCloseProject();
   const createContributionMutation = useCreateContribution();
+  const updateContributionMutation = useUpdateContribution();
+  const deleteContributionMutation = useDeleteContribution();
   const acceptContributionMutation = useAcceptContribution();
   const declineContributionMutation = useDeclineContribution();
 
@@ -33,7 +37,8 @@ const ProjectDetail: React.FC = () => {
   const isAcceptedContributor =
     contributionsData?.data?.some(c => c.contributor.id === user?.id && c.status === 'accepted') ||
     project?.accepted_contributors?.some(contributor => contributor.id === user?.id);
-  const hasContributed = contributionsData?.data?.some(c => c.contributor.id === user?.id);
+  const userContribution = contributionsData?.data?.find(c => c.contributor.id === user?.id);
+  const hasContributed = !!userContribution;
   const canChat = isHost || isAcceptedContributor;
 
   const handleClose = async () => {
@@ -49,13 +54,29 @@ const ProjectDetail: React.FC = () => {
 
   const handleContributionSubmit = async (data: any) => {
     try {
-      await createContributionMutation.mutateAsync({
-        projectId: id!,
-        data,
-      });
-      // Stay on the same tab to show the "under review" message
+      if (userContribution) {
+        await updateContributionMutation.mutateAsync({
+          contributionId: userContribution.id,
+          data,
+        });
+      } else {
+        await createContributionMutation.mutateAsync({
+          projectId: id!,
+          data,
+        });
+      }
     } catch (error: any) {
       console.error('Failed to submit contribution:', error);
+    }
+  };
+
+  const handleContributionDelete = async () => {
+    if (userContribution && window.confirm('Are you sure you want to withdraw your application?')) {
+      try {
+        await deleteContributionMutation.mutateAsync(userContribution.id);
+      } catch (error) {
+        console.error('Failed to delete contribution:', error);
+      }
     }
   };
 
@@ -361,14 +382,22 @@ const ProjectDetail: React.FC = () => {
                   <ContributionForm
                     projectTitle={project.title}
                     onSubmit={handleContributionSubmit}
-                    isLoading={createContributionMutation.isPending}
+                    isLoading={createContributionMutation.isPending || updateContributionMutation.isPending}
                     isHost={!!isHost}
                     hasExistingContribution={!!hasContributed}
+                    existingContribution={userContribution}
+                    onDelete={handleContributionDelete}
+                    isDeleting={deleteContributionMutation.isPending}
                   />
-                  {createContributionMutation.isError && (
+                  {(createContributionMutation.isError || updateContributionMutation.isError || deleteContributionMutation.isError) && (
                     <div className="mt-4">
                       <ErrorMessage
-                        message={createContributionMutation.error?.message || 'Failed to submit contribution'}
+                        message={
+                          createContributionMutation.error?.message ||
+                          updateContributionMutation.error?.message ||
+                          deleteContributionMutation.error?.message ||
+                          'An error occurred'
+                        }
                         type="error"
                       />
                     </div>
@@ -400,9 +429,8 @@ const ProjectDetail: React.FC = () => {
           </div>
         </div>
       </div>
-    </div >
+    </div>
   );
 };
 
 export default ProjectDetail;
-

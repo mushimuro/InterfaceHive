@@ -7,14 +7,14 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { FileText, CheckCircle, XCircle, Clock, Edit, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useMyContributions, useUpdateContribution, useDeleteContribution } from '../hooks/useContributions';
 import Pagination from '../components/Pagination';
 
 const MyContributions: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [page, setPage] = useState(1);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const { data, isLoading, error } = useMyContributions({
     status: statusFilter,
@@ -55,18 +55,16 @@ const MyContributions: React.FC = () => {
     }
   };
 
-  const handleEdit = (contributionId: string) => {
-    // TODO: Implement edit modal or navigate to edit page
-    console.log('Edit contribution:', contributionId);
-    setEditingId(contributionId);
+  const handleEdit = (projectId: string) => {
+    navigate(`/projects/${projectId}?tab=submit`);
   };
 
   const handleDelete = async (contributionId: string) => {
-    if (window.confirm('Are you sure you want to delete this contribution? This action cannot be undone.')) {
+    if (window.confirm('Are you sure you want to withdraw this contribution? This action cannot be undone.')) {
       try {
         await deleteMutation.mutateAsync(contributionId);
       } catch (error) {
-        console.error('Failed to delete contribution:', error);
+        console.error('Failed to withdraw contribution:', error);
       }
     }
   };
@@ -199,7 +197,7 @@ const MyContributions: React.FC = () => {
                               variant="ghost"
                               size="sm"
                               className="h-8 text-xs"
-                              onClick={() => handleEdit(contribution.id)}
+                              onClick={() => handleEdit(contribution.project)}
                               disabled={updateMutation.isPending}
                             >
                               <Edit className="h-3.5 w-3.5 mr-1" />
@@ -213,7 +211,7 @@ const MyContributions: React.FC = () => {
                               disabled={deleteMutation.isPending}
                             >
                               <Trash2 className="h-3.5 w-3.5 mr-1" />
-                              Delete
+                              Withdraw
                             </Button>
                           </div>
                         </div>
