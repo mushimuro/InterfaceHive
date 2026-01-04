@@ -1,3 +1,4 @@
+from django.db.models import Sum, Q
 from rest_framework import generics, views, status
 from rest_framework.permissions import IsAuthenticated
 from apps.credits.models import CreditLedgerEntry
@@ -24,36 +25,25 @@ class UserCreditBalanceView(views.APIView):
     def get(self, request):
         user = request.user
         
-        # Get credit counts by type
-        awards = CreditLedgerEntry.objects.filter(
-            to_user=user,
-            entry_type='AWARD'
-        ).count()
+        # Calculate balance using the service
+        total_credits = CreditService.get_user_credit_balance(user)
         
-        reversals = CreditLedgerEntry.objects.filter(
-            to_user=user,
-            entry_type='REVERSAL'
-        ).count()
-        
-        adjustments = CreditLedgerEntry.objects.filter(
-            to_user=user,
-            entry_type='ADJUSTMENT'
-        ).count()
-        
-        total_credits = awards - reversals + adjustments
+        # Get individual component sums
+        ledger_stats = CreditLedgerEntry.objects.filter(to_user=user).aggregate(
+            awards=Sum('amount', filter=Q(entry_type='award')),
+            reversals=Sum('amount', filter=Q(entry_type='reversal')),
+            adjustments=Sum('amount', filter=Q(entry_type='adjustment'))
+        )
         
         data = {
             'user_id': str(user.id),
             'total_credits': total_credits,
-            'awards': awards,
-            'reversals': reversals,
-            'adjustments': adjustments
+            'awards': ledger_stats['awards'] or 0,
+            'reversals': ledger_stats['reversals'] or 0,
+            'adjustments': ledger_stats['adjustments'] or 0
         }
         
-        serializer = CreditBalanceSerializer(data=data)
-        serializer.is_valid()  # No validation needed, just formatting
-        
-        return SuccessResponse(data=serializer.data)
+        return SuccessResponse(data=data)
 
 
 class UserCreditLedgerView(generics.ListAPIView):

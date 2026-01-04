@@ -5,6 +5,7 @@ Handles credit award logic with atomic transactions.
 Ensures data integrity for contribution acceptance + credit award operations.
 """
 from django.db import transaction, IntegrityError
+from django.db.models import Q, Sum
 from django.utils import timezone
 from apps.credits.models import CreditLedgerEntry
 from apps.users.models import User
@@ -119,7 +120,7 @@ class CreditService:
         """
         Calculate the total credit balance for a user.
         
-        Counts all AWARD entries minus any REVERSAL entries.
+        Sums all award and adjustment entries minus any reversal entries.
         
         Args:
             user: User to calculate balance for
@@ -127,17 +128,18 @@ class CreditService:
         Returns:
             int: Total credit balance
         """
-        awards = CreditLedgerEntry.objects.filter(
-            to_user=user,
-            entry_type='award'
-        ).count()
+        # We handle awards, reversals, and adjustments
+        ledger_stats = CreditLedgerEntry.objects.filter(to_user=user).aggregate(
+            total_awards=Sum('amount', filter=Q(entry_type='award')),
+            total_reversals=Sum('amount', filter=Q(entry_type='reversal')),
+            total_adjustments=Sum('amount', filter=Q(entry_type='adjustment'))
+        )
         
-        reversals = CreditLedgerEntry.objects.filter(
-            to_user=user,
-            entry_type='reversal'
-        ).count()
+        awards = ledger_stats['total_awards'] or 0
+        reversals = ledger_stats['total_reversals'] or 0
+        adjustments = ledger_stats['total_adjustments'] or 0
         
-        return awards - reversals
+        return awards - reversals + adjustments
     
     @staticmethod
     def get_user_ledger(user: User, limit: int = 50):
