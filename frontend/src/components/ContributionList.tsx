@@ -58,7 +58,7 @@ const ContributionList: React.FC<ContributionListProps> = ({
         return (
           <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
             <Clock className="h-3 w-3 mr-1" />
-            Pending Review
+            Pending Request
           </Badge>
         );
       default:

@@ -31,9 +31,16 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ projectId }) => {
     const [nextCursor, setNextCursor] = useState<string | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const socketRef = useRef<WebSocket | null>(null);
-    const scrollRef = useRef<HTMLDivElement>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
     const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const reconnectDelayRef = useRef(1000);
+    const isUnmountedRef = useRef(false);
+
+    const scrollToBottom = useCallback(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, []);
 
     const fetchHistory = useCallback(async (cursor?: string) => {
         try {
@@ -45,11 +52,16 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ projectId }) => {
             });
 
             const newMessages = response.data.results || response.data.data || [];
-            if (cursor) {
-                setMessages(prev => [...prev, ...newMessages]);
-            } else {
-                setMessages(newMessages);
-            }
+            setMessages(prev => {
+                const existingIds = new Set(prev.map(m => m.id));
+                const filteredNew = newMessages.filter((m: Message) => !existingIds.has(m.id));
+                if (cursor) {
+                    return [...prev, ...filteredNew];
+                } else {
+                    // Merge live messages (prepended) with history (after)
+                    return [...prev, ...filteredNew];
+                }
+            });
             setNextCursor(response.data.next || null);
         } catch (error) {
             console.error('Failed to fetch chat history:', error);
@@ -80,12 +92,14 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ projectId }) => {
         };
 
         socket.onmessage = (event) => {
-            console.log('Chat WebSocket message received:', event.data);
             try {
                 const data = JSON.parse(event.data);
                 if (data.type === 'chat_message' || data.id) {
                     const msg = data.type === 'chat_message' ? data.message : data;
-                    setMessages(prev => [msg, ...prev]);
+                    setMessages(prev => {
+                        if (prev.some(m => m.id === msg.id)) return prev;
+                        return [msg, ...prev];
+                    });
                 }
             } catch (err) {
                 console.error('Failed to parse chat message:', err);
@@ -93,13 +107,17 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ projectId }) => {
         };
 
         socket.onclose = (event) => {
+            if (isUnmountedRef.current) return;
+
             console.log('Chat WebSocket closed', event.code);
             setIsConnected(false);
 
             if (event.code !== 4001 && event.code !== 4003) {
                 const delay = reconnectDelayRef.current;
                 reconnectDelayRef.current = Math.min(delay * 2, 30000) + Math.random() * 1000;
-                reconnectTimeoutRef.current = setTimeout(connectWebSocket, delay);
+                reconnectTimeoutRef.current = setTimeout(() => {
+                    if (!isUnmountedRef.current) connectWebSocket();
+                }, delay);
             }
         };
 
@@ -110,21 +128,26 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ projectId }) => {
     }, [projectId]);
 
     useEffect(() => {
+        isUnmountedRef.current = false;
         fetchHistory();
         connectWebSocket();
 
         return () => {
-            if (socketRef.current) socketRef.current.close();
+            isUnmountedRef.current = true;
+            if (socketRef.current) {
+                const socket = socketRef.current;
+                socketRef.current = null;
+                socket.close();
+            }
             if (reconnectTimeoutRef.current) clearTimeout(reconnectTimeoutRef.current);
         };
     }, [fetchHistory, connectWebSocket]);
 
     useEffect(() => {
-        if (scrollRef.current) {
-            // We want to stay at the bottom if we're already there, or if a new message comes in
-            // But since messages are newest first in the array for easier prepending, we just reverse or handle accordingly.
-        }
-    }, [messages]);
+        // Only scroll to bottom if the newest message is from the current user
+        // or if we are already near the bottom (optional refinement)
+        scrollToBottom();
+    }, [messages, scrollToBottom]);
 
     const handleSend = (e: React.FormEvent) => {
         e.preventDefault();
@@ -148,8 +171,23 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ projectId }) => {
             </CardHeader>
             <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
                 <ScrollArea className="flex-1 p-4">
-                    <div className="flex flex-col-reverse gap-4">
-                        {messages.map((msg) => (
+                    <div className="flex flex-col gap-4">
+                        {nextCursor && !isLoadingHistory && (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => fetchHistory(nextCursor)}
+                                className="self-center text-xs"
+                            >
+                                Load older messages
+                            </Button>
+                        )}
+                        {isLoadingHistory && (
+                            <div className="flex justify-center p-4">
+                                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                            </div>
+                        )}
+                        {[...messages].reverse().map((msg) => (
                             <div key={msg.id} className={`flex gap-3 ${msg.user.id === user?.id ? 'flex-row-reverse' : ''}`}>
                                 <Avatar className="h-8 w-8">
                                     <AvatarFallback>{msg.user.display_name[0]}</AvatarFallback>
@@ -170,21 +208,7 @@ const ChatRoom: React.FC<ChatRoomProps> = ({ projectId }) => {
                                 </div>
                             </div>
                         ))}
-                        {nextCursor && (
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => fetchHistory(nextCursor)}
-                                className="self-center text-xs"
-                            >
-                                Load older messages
-                            </Button>
-                        )}
-                        {isLoadingHistory && (
-                            <div className="flex justify-center p-4">
-                                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                            </div>
-                        )}
+                        <div ref={messagesEndRef} />
                     </div>
                 </ScrollArea>
                 <div className="p-4 border-t">

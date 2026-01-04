@@ -136,3 +136,58 @@ class IsAdminUser(permissions.BasePermission):
             (request.user.is_staff or request.user.is_admin)
         )
 
+
+class IsProjectMember(permissions.BasePermission):
+    """
+    Permission class that requires user to be a project member.
+    
+    A user is a member if they are:
+    1. The project host
+    2. An accepted contributor
+    
+    Checks are performed against a project ID in the URL.
+    """
+    
+    message = "Only project members can access this resource."
+    
+    def has_permission(self, request, view):
+        """Check if user is a member of the project specified in the URL."""
+        if not (request.user and request.user.is_authenticated):
+            return False
+            
+        project_id = view.kwargs.get('project_id')
+        if not project_id:
+            # If checking object permission instead
+            return True
+            
+        from apps.projects.models import Project
+        try:
+            project = Project.objects.get(id=project_id)
+        except Project.DoesNotExist:
+            return False
+            
+        # Check if host
+        if project.host_user == request.user:
+            return True
+            
+        # Check if accepted contributor
+        return project.contributions.filter(
+            contributor=request.user,
+            status='accepted'
+        ).exists()
+
+    def has_object_permission(self, request, view, obj):
+        """Check if user is a member of the project directly from the object."""
+        # Handle both Resource and Note objects
+        project = getattr(obj, 'project', obj)
+        
+        # Check if host
+        if project.host_user == request.user:
+            return True
+            
+        # Check if accepted contributor
+        return project.contributions.filter(
+            contributor=request.user,
+            status='accepted'
+        ).exists()
+

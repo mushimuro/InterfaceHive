@@ -98,3 +98,21 @@ export const getMyContributions = async (params?: Record<string, any>): Promise<
   const response = await apiClient.get('/contributions/me/', { params });
   return response.data;
 };
+
+/**
+ * Update a contribution (contributor only, pending status only)
+ */
+export const updateContribution = async (
+  contributionId: string,
+  data: Partial<Omit<ContributionCreateData, 'project'>>
+): Promise<Contribution> => {
+  const response = await apiClient.patch(`/contributions/${contributionId}/`, data);
+  return response.data.data;
+};
+
+/**
+ * Delete a contribution (contributor only, pending status only)
+ */
+export const deleteContribution = async (contributionId: string): Promise<void> => {
+  await apiClient.delete(`/contributions/${contributionId}/`);
+};

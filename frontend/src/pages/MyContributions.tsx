@@ -5,21 +5,25 @@ import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
-import { FileText, CheckCircle, XCircle, Clock, Eye, Heart, MessageCircle, Edit, Trash2 } from 'lucide-react';
+import { FileText, CheckCircle, XCircle, Clock, Edit, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { Link } from 'react-router-dom';
-import { useMyContributions } from '../hooks/useContributions';
+import { Link, useNavigate } from 'react-router-dom';
+import { useMyContributions, useUpdateContribution, useDeleteContribution } from '../hooks/useContributions';
 import Pagination from '../components/Pagination';
 
 const MyContributions: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [page, setPage] = useState(1);
+  const navigate = useNavigate();
 
   const { data, isLoading, error } = useMyContributions({
     status: statusFilter,
     page,
     page_size: 10,
   });
+
+  const updateMutation = useUpdateContribution();
+  const deleteMutation = useDeleteContribution();
 
   const contributions = data?.data || [];
 
@@ -48,6 +52,20 @@ const MyContributions: React.FC = () => {
         );
       default:
         return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const handleEdit = (projectId: string) => {
+    navigate(`/projects/${projectId}?tab=submit`);
+  };
+
+  const handleDelete = async (contributionId: string) => {
+    if (window.confirm('Are you sure you want to withdraw this contribution? This action cannot be undone.')) {
+      try {
+        await deleteMutation.mutateAsync(contributionId);
+      } catch (error) {
+        console.error('Failed to withdraw contribution:', error);
+      }
     }
   };
 
@@ -172,38 +190,32 @@ const MyContributions: React.FC = () => {
                         </div>
                       </div>
 
-                      <div className="p-4">
-                        <p className="text-sm mb-4 line-clamp-2">
-                          {contribution.body}
-                        </p>
-                      </div>
-
-                      <div className="bg-muted/30 border-t px-4 py-3 flex items-center justify-between">
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <Eye className="h-3.5 w-3.5" />
-                            <span>Views</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Heart className="h-3.5 w-3.5" />
-                            <span>Likes</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <MessageCircle className="h-3.5 w-3.5" />
-                            <span>Comments</span>
+                      {contribution.status === 'pending' && (
+                        <div className="bg-muted/30 border-t px-4 py-3 flex items-center justify-end">
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 text-xs"
+                              onClick={() => handleEdit(contribution.project)}
+                              disabled={updateMutation.isPending}
+                            >
+                              <Edit className="h-3.5 w-3.5 mr-1" />
+                              Edit
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 text-xs text-destructive hover:text-destructive"
+                              onClick={() => handleDelete(contribution.id)}
+                              disabled={deleteMutation.isPending}
+                            >
+                              <Trash2 className="h-3.5 w-3.5 mr-1" />
+                              Withdraw
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Button variant="ghost" size="sm" className="h-8 text-xs">
-                            <Edit className="h-3.5 w-3.5 mr-1" />
-                            Edit
-                          </Button>
-                          <Button variant="ghost" size="sm" className="h-8 text-xs text-destructive hover:text-destructive">
-                            <Trash2 className="h-3.5 w-3.5 mr-1" />
-                            Delete
-                          </Button>
-                        </div>
-                      </div>
+                      )}
                     </Card>
                   ))}
                 </div>

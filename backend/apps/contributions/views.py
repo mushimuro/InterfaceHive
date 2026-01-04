@@ -21,6 +21,7 @@ from core.responses import SuccessResponse, ErrorResponse
 
 logger = logging.getLogger(__name__)
 
+from django.db.models import Q
 
 class ProjectContributionListView(generics.ListAPIView):
     """
@@ -28,6 +29,7 @@ class ProjectContributionListView(generics.ListAPIView):
     
     - Public users and contributors see only ACCEPTED contributions
     - Project host sees all contributions (PENDING, ACCEPTED, DECLINED)
+    - Authenticated users ALSO see their own contributions regardless of status
     """
     serializer_class = ContributionSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -39,13 +41,13 @@ class ProjectContributionListView(generics.ListAPIView):
             'contributor_user', 'project', 'decided_by_user'
         ).order_by('-created_at')
         
-        # Visibility logic: host sees all, others see only ACCEPTED
+        # Visibility logic: host sees all, others see only ACCEPTED + their own
         request_user = self.request.user
         if request_user.is_authenticated:
             try:
                 project = Project.objects.get(id=project_id)
                 if project.host_user != request_user:
-                    queryset = queryset.filter(status='accepted')
+                    queryset = queryset.filter(Q(status='accepted') | Q(contributor_user=request_user))
             except Project.DoesNotExist:
                 queryset = queryset.filter(status='accepted')
         else:
@@ -121,13 +123,17 @@ class ContributionCreateView(generics.CreateAPIView):
             raise
 
 
-class ContributionDetailView(generics.RetrieveAPIView):
+class ContributionDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
-    Retrieve a single contribution by ID.
+    Retrieve, update or delete a contribution.
     
     Visibility:
     - ACCEPTED contributions: visible to all
     - PENDING/DECLINED contributions: visible only to contributor and project host
+    
+    Mutation (Update/Delete):
+    - Only contributor can update/delete
+    - Only while status is PENDING
     """
     queryset = Contribution.objects.select_related('contributor_user', 'project', 'decided_by_user')
     serializer_class = ContributionSerializer
@@ -152,6 +158,49 @@ class ContributionDetailView(generics.RetrieveAPIView):
         
         serializer = self.get_serializer(instance)
         return SuccessResponse(data=serializer.data)
+
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        if instance.contributor_user != self.request.user:
+            raise PermissionError("Only the contributor can update this request.")
+        if instance.status != 'pending':
+            raise ValueError(f"Cannot update a request that has already been {instance.status}.")
+        serializer.save()
+
+    def update(self, request, *args, **kwargs):
+        try:
+            partial = kwargs.pop('partial', False)
+            instance = self.get_object()
+            
+            # Additional check before serializer validation
+            if instance.contributor_user != request.user:
+                return ErrorResponse(detail="Only the contributor can update this request.", status_code=status.HTTP_403_FORBIDDEN)
+            if instance.status != 'pending':
+                return ErrorResponse(detail=f"Cannot update a request that has already been {instance.status}.", status_code=status.HTTP_400_BAD_REQUEST)
+
+            serializer = self.get_serializer(instance, data=request.data, partial=partial)
+            serializer.is_valid(raise_exception=True)
+            self.perform_update(serializer)
+            return SuccessResponse(data=serializer.data, message="Contribution updated successfully.")
+        except Exception as e:
+            return ErrorResponse(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
+
+    def perform_destroy(self, instance):
+        if instance.contributor_user != self.request.user:
+            raise PermissionError("Only the contributor can delete this request.")
+        if instance.status != 'pending':
+            raise ValueError(f"Cannot delete a request that has already been {instance.status}.")
+        instance.delete()
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            self.perform_destroy(instance)
+            return SuccessResponse(message="Contribution deleted successfully.", status_code=status.HTTP_204_NO_CONTENT)
+        except PermissionError as e:
+            return ErrorResponse(detail=str(e), status_code=status.HTTP_403_FORBIDDEN)
+        except Exception as e:
+            return ErrorResponse(detail=str(e), status_code=status.HTTP_400_BAD_REQUEST)
 
 
 class MyContributionsView(generics.ListAPIView):
