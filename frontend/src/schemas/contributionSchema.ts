@@ -12,11 +12,10 @@ export const contributionTitleSchema = z
   .max(200, 'Title is too long (max 200 characters)')
   .optional();
 
-// Contribution body validation
 export const contributionBodySchema = z
   .string()
-  .min(50, 'Contribution description must be at least 50 characters')
-  .max(5000, 'Contribution description is too long (max 5000 characters)');
+  .min(5, 'Reason for applying must be at least 5 characters')
+  .max(5000, 'Reason for applying is too long (max 5000 characters)');
 
 // URL validation for links
 export const urlSchema = z
@@ -26,7 +25,7 @@ export const urlSchema = z
 
 // Contribution submission schema
 export const contributionSchema = z.object({
-  title: contributionTitleSchema,
+  title: contributionTitleSchema.optional(),
   body: contributionBodySchema,
   links: z.array(urlSchema).max(10, 'Maximum 10 links allowed').optional(),
   attachments: z.array(urlSchema).max(5, 'Maximum 5 attachments allowed').optional(),

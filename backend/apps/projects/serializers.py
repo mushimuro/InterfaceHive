@@ -5,7 +5,7 @@ Handles project creation, updates, listing, and tag management.
 """
 from rest_framework import serializers
 from django.contrib.postgres.search import SearchVector
-from apps.projects.models import Project, ProjectTag, ProjectTagMap
+from apps.projects.models import Project, ProjectTag, ProjectTagMap, ProjectResource, ProjectNote
 from apps.users.serializers import UserProfileSerializer
 
 
@@ -134,16 +134,16 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
     
     def validate_title(self, value):
         """Validate title length."""
-        if len(value) < 10:
-            raise serializers.ValidationError('Title must be at least 10 characters')
+        if len(value) < 5:
+            raise serializers.ValidationError('Title must be at least 5 characters')
         if len(value) > 200:
             raise serializers.ValidationError('Title is too long (max 200 characters)')
         return value
     
     def validate_description(self, value):
         """Validate description length."""
-        if len(value) < 50:
-            raise serializers.ValidationError('Description must be at least 50 characters')
+        if len(value) < 20:
+            raise serializers.ValidationError('Description must be at least 20 characters')
         if len(value) > 5000:
             raise serializers.ValidationError('Description is too long (max 5000 characters)')
         return value
@@ -226,16 +226,16 @@ class ProjectUpdateSerializer(serializers.ModelSerializer):
     
     def validate_title(self, value):
         """Validate title length."""
-        if len(value) < 10:
-            raise serializers.ValidationError('Title must be at least 10 characters')
+        if len(value) < 5:
+            raise serializers.ValidationError('Title must be at least 5 characters')
         if len(value) > 200:
             raise serializers.ValidationError('Title is too long (max 200 characters)')
         return value
     
     def validate_description(self, value):
         """Validate description length."""
-        if len(value) < 50:
-            raise serializers.ValidationError('Description must be at least 50 characters')
+        if len(value) < 20:
+            raise serializers.ValidationError('Description must be at least 20 characters')
         if len(value) > 5000:
             raise serializers.ValidationError('Description is too long (max 5000 characters)')
         return value
@@ -282,4 +282,39 @@ class ProjectUpdateSerializer(serializers.ModelSerializer):
         
         instance.save()
         return instance
+
+
+class ProjectResourceSerializer(serializers.ModelSerializer):
+    """Serializer for private project resources."""
+    user = UserProfileSerializer(read_only=True)
+
+    class Meta:
+        model = ProjectResource
+        fields = [
+            'id',
+            'project',
+            'user',
+            'title',
+            'url',
+            'category',
+            'created_at',
+        ]
+        read_only_fields = ['id', 'user', 'created_at']
+
+
+class ProjectNoteSerializer(serializers.ModelSerializer):
+    """Serializer for private project notes."""
+    user = UserProfileSerializer(read_only=True)
+
+    class Meta:
+        model = ProjectNote
+        fields = [
+            'id',
+            'project',
+            'user',
+            'content',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'user', 'created_at', 'updated_at']
 

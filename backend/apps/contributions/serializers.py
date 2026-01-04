@@ -84,12 +84,12 @@ class ContributionCreateSerializer(serializers.ModelSerializer):
         if existing_contribution:
             raise serializers.ValidationError("You have already submitted a contribution to this project.")
         
-        # Validate body length (min 20, max 5000 characters)
+        # Validate body length (min 5 chars)
         body = data.get('body', '')
-        if len(body) < 20:
-            raise serializers.ValidationError({"body": "Contribution body must be at least 20 characters."})
+        if len(body) < 5:
+            raise serializers.ValidationError({"body": "Reason for applying must be at least 5 characters."})
         if len(body) > 5000:
-            raise serializers.ValidationError({"body": "Contribution body must not exceed 5000 characters."})
+            raise serializers.ValidationError({"body": "Reason for applying must not exceed 5000 characters."})
         
         return data
 

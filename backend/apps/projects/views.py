@@ -11,15 +11,17 @@ from django.contrib.postgres.search import SearchQuery, SearchRank
 from django.db.models import Q, Count
 from django_filters.rest_framework import DjangoFilterBackend
 
-from apps.projects.models import Project, ProjectTag
+from apps.projects.models import Project, ProjectTag, ProjectResource, ProjectNote
 from apps.projects.serializers import (
     ProjectListSerializer,
     ProjectDetailSerializer,
     ProjectCreateSerializer,
     ProjectUpdateSerializer,
-    ProjectTagSerializer
+    ProjectTagSerializer,
+    ProjectResourceSerializer,
+    ProjectNoteSerializer
 )
-from apps.users.permissions import IsAuthenticatedAndVerified, IsHostOrReadOnly
+from apps.users.permissions import IsAuthenticatedAndVerified, IsHostOrReadOnly, IsProjectMember
 from core.pagination import ProjectPagination
 from core.responses import success_response, error_response, created_response, no_content_response
 
@@ -95,7 +97,8 @@ class ProjectListCreateView(generics.ListCreateAPIView):
             substring_filter = (
                 Q(title__icontains=search_query) |
                 Q(description__icontains=search_query) |
-                Q(desired_outputs__icontains=search_query)
+                Q(desired_outputs__icontains=search_query) |
+                Q(tag_maps__tag__name__icontains=search_query)
             )
             
             # Combine them: Match if either FTS matches OR substring filter matches
@@ -300,3 +303,89 @@ class CloseProjectView(APIView):
             data={'id': str(project.id), 'status': project.status},
             message='Project closed successfully'
         )
+
+
+class ProjectResourceListCreateView(generics.ListCreateAPIView):
+    """
+    GET /api/v1/projects/<project_id>/resources/
+    POST /api/v1/projects/<project_id>/resources/
+    
+    Access restricted to project members.
+    """
+    serializer_class = ProjectResourceSerializer
+    permission_classes = [IsProjectMember]
+    
+    def get_queryset(self):
+        return ProjectResource.objects.filter(project_id=self.kwargs['project_id'])
+    
+    def perform_create(self, serializer):
+        serializer.save(
+            project_id=self.kwargs['project_id'],
+            user=self.request.user
+        )
+
+
+class ProjectResourceDestroyView(generics.DestroyAPIView):
+    """
+    DELETE /api/v1/projects/resources/<id>/
+    
+    Host can delete any. Contributor can delete their own.
+    """
+    queryset = ProjectResource.objects.all()
+    serializer_class = ProjectResourceSerializer
+    permission_classes = [IsProjectMember]
+    lookup_field = 'id'
+    
+    def perform_destroy(self, instance):
+        # Additional check: only host or owner
+        if instance.project.host_user == self.request.user or instance.user == self.request.user:
+            instance.delete()
+        else:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("You can only delete your own resources or those in your project.")
+
+
+class ProjectNoteListCreateView(generics.ListCreateAPIView):
+    """
+    GET /api/v1/projects/<project_id>/notes/
+    POST /api/v1/projects/<project_id>/notes/
+    
+    Access restricted to project members.
+    """
+    serializer_class = ProjectNoteSerializer
+    permission_classes = [IsProjectMember]
+    
+    def get_queryset(self):
+        return ProjectNote.objects.filter(project_id=self.kwargs['project_id'])
+    
+    def perform_create(self, serializer):
+        serializer.save(
+            project_id=self.kwargs['project_id'],
+            user=self.request.user
+        )
+
+
+class ProjectNoteUpdateDestroyView(generics.UpdateAPIView, generics.DestroyAPIView):
+    """
+    PATCH /api/v1/projects/notes/<id>/
+    DELETE /api/v1/projects/notes/<id>/
+    
+    Host can delete any. Contributor can edit/delete their own.
+    """
+    queryset = ProjectNote.objects.all()
+    serializer_class = ProjectNoteSerializer
+    permission_classes = [IsProjectMember]
+    lookup_field = 'id'
+    
+    def perform_update(self, serializer):
+        if serializer.instance.user != self.request.user:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("You can only edit your own notes.")
+        serializer.save()
+        
+    def perform_destroy(self, instance):
+        if instance.project.host_user == self.request.user or instance.user == self.request.user:
+            instance.delete()
+        else:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("You can only delete your own notes.")

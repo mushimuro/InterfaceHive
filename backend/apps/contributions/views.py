@@ -21,6 +21,7 @@ from core.responses import SuccessResponse, ErrorResponse
 
 logger = logging.getLogger(__name__)
 
+from django.db.models import Q
 
 class ProjectContributionListView(generics.ListAPIView):
     """
@@ -28,6 +29,7 @@ class ProjectContributionListView(generics.ListAPIView):
     
     - Public users and contributors see only ACCEPTED contributions
     - Project host sees all contributions (PENDING, ACCEPTED, DECLINED)
+    - Authenticated users ALSO see their own contributions regardless of status
     """
     serializer_class = ContributionSerializer
     permission_classes = (IsAuthenticatedOrReadOnly,)
@@ -39,13 +41,13 @@ class ProjectContributionListView(generics.ListAPIView):
             'contributor_user', 'project', 'decided_by_user'
         ).order_by('-created_at')
         
-        # Visibility logic: host sees all, others see only ACCEPTED
+        # Visibility logic: host sees all, others see only ACCEPTED + their own
         request_user = self.request.user
         if request_user.is_authenticated:
             try:
                 project = Project.objects.get(id=project_id)
                 if project.host_user != request_user:
-                    queryset = queryset.filter(status='accepted')
+                    queryset = queryset.filter(Q(status='accepted') | Q(contributor_user=request_user))
             except Project.DoesNotExist:
                 queryset = queryset.filter(status='accepted')
         else:

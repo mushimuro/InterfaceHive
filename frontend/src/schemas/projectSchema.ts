@@ -9,13 +9,13 @@ import { z } from 'zod';
 // Project title validation
 export const projectTitleSchema = z
   .string()
-  .min(10, 'Title must be at least 10 characters')
+  .min(5, 'Title must be at least 5 characters')
   .max(200, 'Title is too long (max 200 characters)');
 
 // Project description validation
 export const projectDescriptionSchema = z
   .string()
-  .min(50, 'Description must be at least 50 characters')
+  .min(20, 'Description must be at least 20 characters')
   .max(5000, 'Description is too long (max 5000 characters)');
 
 // GitHub URL validation

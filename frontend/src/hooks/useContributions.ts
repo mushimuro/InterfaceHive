@@ -6,6 +6,8 @@ import {
   acceptContribution,
   declineContribution,
   getMyContributions,
+  updateContribution,
+  deleteContribution,
   type Contribution,
   type ContributionListResponse,
   type ContributionCreateData,
@@ -49,7 +51,7 @@ export const useCreateContribution = () => {
       // Invalidate project contributions list
       queryClient.invalidateQueries({ queryKey: ['contributions', 'project', variables.projectId] });
       // Invalidate project detail to update contribution count
-      queryClient.invalidateQueries({ queryKey: ['project', variables.projectId] });
+      queryClient.invalidateQueries({ queryKey: ['projects', variables.projectId] });
     },
   });
 };
@@ -66,8 +68,8 @@ export const useAcceptContribution = () => {
       // Invalidate contribution queries
       queryClient.invalidateQueries({ queryKey: ['contribution', contribution.id] });
       queryClient.invalidateQueries({ queryKey: ['contributions', 'project', contribution.project] });
-      // Invalidate project to update stats
-      queryClient.invalidateQueries({ queryKey: ['project', contribution.project] });
+      // Invalidate project to update stats and accepted contributors
+      queryClient.invalidateQueries({ queryKey: ['projects', contribution.project] });
       // Invalidate user credits if applicable
       queryClient.invalidateQueries({ queryKey: ['user', contribution.contributor.id] });
     },
@@ -87,7 +89,7 @@ export const useDeclineContribution = () => {
       queryClient.invalidateQueries({ queryKey: ['contribution', contribution.id] });
       queryClient.invalidateQueries({ queryKey: ['contributions', 'project', contribution.project] });
       // Invalidate project to update stats
-      queryClient.invalidateQueries({ queryKey: ['project', contribution.project] });
+      queryClient.invalidateQueries({ queryKey: ['projects', contribution.project] });
     },
   });
 };
@@ -101,5 +103,41 @@ export const useMyContributions = (params?: Record<string, any>) => {
     queryKey: ['my-contributions', params],
     queryFn: () => getMyContributions(params),
     staleTime: 2 * 60 * 1000, // 2 minutes
+  });
+};
+
+/**
+ * Update a contribution (contributor only, pending status only)
+ */
+export const useUpdateContribution = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    Contribution,
+    Error,
+    { contributionId: string; data: Partial<Omit<ContributionCreateData, 'project'>> }
+  >({
+    mutationFn: ({ contributionId, data }) => updateContribution(contributionId, data),
+    onSuccess: (contribution) => {
+      // Invalidate contribution queries
+      queryClient.invalidateQueries({ queryKey: ['contribution', contribution.id] });
+      queryClient.invalidateQueries({ queryKey: ['my-contributions'] });
+      queryClient.invalidateQueries({ queryKey: ['contributions', 'project', contribution.project] });
+    },
+  });
+};
+
+/**
+ * Delete a contribution (contributor only, pending status only)
+ */
+export const useDeleteContribution = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, Error, string>({
+    mutationFn: deleteContribution,
+    onSuccess: () => {
+      // Invalidate my contributions list
+      queryClient.invalidateQueries({ queryKey: ['my-contributions'] });
+    },
   });
 };

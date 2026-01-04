@@ -195,3 +195,75 @@ class ProjectTagMap(models.Model):
     
     def __str__(self):
         return f"{self.project.title} → {self.tag.name}"
+
+
+class ProjectResource(models.Model):
+    """
+    Private resources shared among project members.
+    Only visible to host and accepted contributors.
+    """
+    CATEGORY_CHOICES = [
+        ('github', 'GitHub Repository'),
+        ('figma', 'Figma Design'),
+        ('diagram', 'Diagram/Architecture'),
+        ('docs', 'Documentation'),
+        ('other', 'Other Resource'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name='resources'
+    )
+    user = models.ForeignKey(
+        'users.User',
+        on_delete=models.CASCADE,
+        related_name='shared_resources'
+    )
+    title = models.CharField(max_length=200)
+    url = models.URLField(max_length=1000)
+    category = models.CharField(
+        max_length=20,
+        choices=CATEGORY_CHOICES,
+        default='other'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'project_resources'
+        verbose_name = 'Project Resource'
+        verbose_name_plural = 'Project Resources'
+        ordering = ['category', '-created_at']
+
+    def __str__(self):
+        return f"{self.title} ({self.get_category_display()})"
+
+
+class ProjectNote(models.Model):
+    """
+    Shared notes and technical thoughts among project members.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name='notes'
+    )
+    user = models.ForeignKey(
+        'users.User',
+        on_delete=models.CASCADE,
+        related_name='project_notes'
+    )
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'project_notes'
+        verbose_name = 'Project Note'
+        verbose_name_plural = 'Project Notes'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Note by {self.user.display_name} on {self.project.title}"

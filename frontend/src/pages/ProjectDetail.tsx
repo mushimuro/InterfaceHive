@@ -12,6 +12,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import ContributionForm from '../components/ContributionForm';
 import ContributionList from '../components/ContributionList';
 import AcceptedContributors from '../components/AcceptedContributors';
+import ProjectImplementation from '../components/ProjectImplementation';
 import ChatRoom from '../components/ChatRoom';
 import { Calendar, Clock, Github, User, Award, Edit, XCircle, MessageSquare } from 'lucide-react';
 
@@ -29,7 +30,9 @@ const ProjectDetail: React.FC = () => {
   const declineContributionMutation = useDeclineContribution();
 
   const isHost = user && project && project.host.id === user.id;
-  const isAcceptedContributor = contributionsData?.data?.some(c => c.contributor.id === user?.id && c.status === 'accepted');
+  const isAcceptedContributor =
+    contributionsData?.data?.some(c => c.contributor.id === user?.id && c.status === 'accepted') ||
+    project?.accepted_contributors?.some(contributor => contributor.id === user?.id);
   const hasContributed = contributionsData?.data?.some(c => c.contributor.id === user?.id);
   const canChat = isHost || isAcceptedContributor;
 
@@ -50,7 +53,7 @@ const ProjectDetail: React.FC = () => {
         projectId: id!,
         data,
       });
-      setActiveTab('contributions'); // Switch to contributions tab
+      // Stay on the same tab to show the "under review" message
     } catch (error: any) {
       console.error('Failed to submit contribution:', error);
     }
@@ -156,13 +159,19 @@ const ProjectDetail: React.FC = () => {
 
             {/* Tabs Navigation */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className={`grid h-10 w-full ${canChat ? 'grid-cols-4' : (project.status === 'open' && !isHost && !isAcceptedContributor) ? 'grid-cols-3' : 'grid-cols-2'
+                }`}>
                 <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="contributions">
-                  Contributions ({contributionsData?.count || 0})
+                  Contributors ({(contributionsData?.data?.filter(c => c.status === 'accepted').length || 0) + 1})
                 </TabsTrigger>
                 {project.status === 'open' && !isHost && !isAcceptedContributor && (
-                  <TabsTrigger value="submit">Submit Work</TabsTrigger>
+                  <TabsTrigger value="submit">Request to Join</TabsTrigger>
+                )}
+                {canChat && (
+                  <TabsTrigger value="implementation">
+                    Implementation
+                  </TabsTrigger>
                 )}
                 {canChat && (
                   <TabsTrigger value="chat">
@@ -290,28 +299,59 @@ const ProjectDetail: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Accepted Contributors Section removed from overview as it is now in Contributors tab */}
+              </TabsContent>
+
+              {/* Contributors Tab */}
+              <TabsContent value="contributions" className="mt-6 space-y-6">
+                {/* Host Section */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Project Host</h3>
+                  <div className="flex items-center gap-3 p-4 border rounded-lg bg-muted/30">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                      <User className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium">{project.host.display_name}</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Award className="h-3 w-3" />
+                        {project.host.total_credits} credits
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Accepted Contributors Section */}
                 {project.accepted_contributors && project.accepted_contributors.length > 0 && (
-                  <div className="mt-6">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Accepted Contributors</h3>
                     <AcceptedContributors contributors={project.accepted_contributors} />
                   </div>
                 )}
-              </TabsContent>
 
-              {/* Contributions Tab */}
-              <TabsContent value="contributions" className="mt-6">
-                {isLoadingContributions ? (
-                  <div className="flex items-center justify-center py-12">
-                    <LoadingSpinner size="lg" text="Loading contributions..." />
+                {/* Pending Requests Section - Visible to All */}
+                {(contributionsData?.data || []).filter(c => c.status === 'pending').length > 0 && (
+                  <div className="pt-6 border-t">
+                    <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                      Pending Requests
+                      <Badge variant="secondary" className="rounded-full px-2 py-0.5">
+                        {(contributionsData?.data || []).filter(c => c.status === 'pending').length}
+                      </Badge>
+                    </h3>
+                    {isLoadingContributions ? (
+                      <div className="flex items-center justify-center py-8">
+                        <LoadingSpinner size="md" text="Loading requests..." />
+                      </div>
+                    ) : (
+                      <ContributionList
+                        contributions={contributionsData?.data?.filter(c => c.status === 'pending') || []}
+                        isHost={!!isHost}
+                        onAccept={isHost ? handleAcceptContribution : undefined}
+                        onDecline={isHost ? handleDeclineContribution : undefined}
+                        isProcessing={acceptContributionMutation.isPending || declineContributionMutation.isPending}
+                      />
+                    )}
                   </div>
-                ) : (
-                  <ContributionList
-                    contributions={contributionsData?.data || []}
-                    isHost={!!isHost}
-                    onAccept={isHost ? handleAcceptContribution : undefined}
-                    onDecline={isHost ? handleDeclineContribution : undefined}
-                    isProcessing={acceptContributionMutation.isPending || declineContributionMutation.isPending}
-                  />
                 )}
               </TabsContent>
 
@@ -333,6 +373,13 @@ const ProjectDetail: React.FC = () => {
                       />
                     </div>
                   )}
+                </TabsContent>
+              )}
+
+              {/* Implementation Tab */}
+              {canChat && (
+                <TabsContent value="implementation" className="mt-6">
+                  <ProjectImplementation projectId={id!} isHost={!!isHost} />
                 </TabsContent>
               )}
 

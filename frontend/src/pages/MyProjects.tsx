@@ -22,7 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '../components/ui/dropdown-menu';
-import { Plus, Clock, Users, Eye, Edit, MessageSquare, Trash2, Search, ChevronDown, CheckCircle, FileEdit } from 'lucide-react';
+import { Plus, Clock, Users, Eye, Edit, Trash2, Search, ChevronDown, CheckCircle, FileEdit } from 'lucide-react';
 import { format } from 'date-fns';
 import Pagination from '../components/Pagination';
 
@@ -58,11 +58,11 @@ const StatusEditButton: React.FC<{ project: Project }> = ({ project }) => {
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => handleStatusChange('open')} disabled={project.status === 'open'}>
           {getStatusIcon('open')}
-          Active
+          Open
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleStatusChange('closed')} disabled={project.status === 'closed'}>
           {getStatusIcon('closed')}
-          Completed
+          Closed
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleStatusChange('draft')} disabled={project.status === 'draft'}>
           {getStatusIcon('draft')}
@@ -102,9 +102,9 @@ const MyProjects: React.FC = () => {
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
       case 'open':
-        return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-0">Active</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border-0">Open</Badge>;
       case 'closed':
-        return <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-0">Completed</Badge>;
+        return <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 border-0">Closed</Badge>;
       case 'draft':
         return <Badge className="bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400 border-0">Draft</Badge>;
       default:
@@ -128,7 +128,7 @@ const MyProjects: React.FC = () => {
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold mb-2">My Requests</h1>
                 <p className="text-sm text-muted-foreground">
-                  Manage all the contribution requests you've created. Track responses, award credits, and update your project needs.
+                  Manage all the contribution requests you've created and update your project needs.
                 </p>
               </div>
               <Button asChild size="sm">
@@ -154,8 +154,8 @@ const MyProjects: React.FC = () => {
             >
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="all">All Requests</TabsTrigger>
-                <TabsTrigger value="open">Active</TabsTrigger>
-                <TabsTrigger value="closed">Completed</TabsTrigger>
+                <TabsTrigger value="open">Open</TabsTrigger>
+                <TabsTrigger value="closed">Closed</TabsTrigger>
                 <TabsTrigger value="draft">Drafts</TabsTrigger>
               </TabsList>
 
@@ -170,8 +170,6 @@ const MyProjects: React.FC = () => {
                     <SelectContent>
                       <SelectItem value="newest">Newest First</SelectItem>
                       <SelectItem value="oldest">Oldest First</SelectItem>
-                      <SelectItem value="most_responses">Most Responses</SelectItem>
-                      <SelectItem value="least_responses">Least Responses</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -232,17 +230,6 @@ const MyProjects: React.FC = () => {
                   {filteredProjects.map((project: Project) => (
                     <Card key={project.id} className="hover:shadow-md transition-all">
                       <div className="flex flex-col md:flex-row gap-4 p-5">
-                        {/* Stats Sidebar */}
-                        <div className="flex md:flex-col items-center justify-around md:justify-start gap-4 md:gap-0 md:min-w-[80px] text-center">
-                          <div className="mb-0 md:mb-3">
-                            <div className="text-2xl font-bold">{project.contribution_count}</div>
-                            <div className="text-xs text-muted-foreground">Responses</div>
-                          </div>
-                          <div>
-                            <div className="text-2xl font-bold text-green-600">--</div>
-                            <div className="text-xs text-muted-foreground">Credits</div>
-                          </div>
-                        </div>
 
                         {/* Content */}
                         <div className="flex-1">
@@ -292,12 +279,6 @@ const MyProjects: React.FC = () => {
                               <Link to={`/projects/${project.id}/edit`}>
                                 <Edit className="mr-1.5 h-3.5 w-3.5" />
                                 Edit
-                              </Link>
-                            </Button>
-                            <Button variant="outline" size="sm" asChild>
-                              <Link to={`/projects/${project.id}`}>
-                                <MessageSquare className="mr-1.5 h-3.5 w-3.5" />
-                                View Responses
                               </Link>
                             </Button>
                             <Button
