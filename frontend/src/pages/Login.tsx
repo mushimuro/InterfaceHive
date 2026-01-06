@@ -7,7 +7,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Layers } from 'lucide-react';
 import ErrorMessage from '../components/ErrorMessage';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -40,17 +39,11 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-      <div className="flex w-full max-w-sm flex-col gap-6">
-        <a href="/" className="flex items-center gap-2 self-center font-medium">
-          <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-            <Layers className="size-4" />
-          </div>
-          InterfaceHive
-        </a>
-        <div className="flex flex-col gap-6">
+    <div className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center justify-center p-6 md:p-10 relative">
+      <div className="flex w-full max-w-sm flex-col gap-6 relative z-10">
+        <div className="glass-card p-8 rounded-xl shadow-2xl flex flex-col gap-6">
           <div className="flex flex-col gap-2 text-center">
-            <h1 className="text-2xl font-bold">Login to your account</h1>
+            <h1 className="text-3xl font-bold text-gradient">Welcome Back</h1>
             <p className="text-muted-foreground text-sm">
               Enter your email below to login to your account
             </p>
@@ -66,6 +59,7 @@ const Login: React.FC = () => {
                   type="email"
                   placeholder="m@example.com"
                   required
+                  className="bg-background/50 border-white/10"
                   {...register('email')}
                   disabled={isLoading}
                 />
@@ -78,7 +72,7 @@ const Login: React.FC = () => {
                   <Label htmlFor="password">Password</Label>
                   <Link
                     to="/auth/forgot-password"
-                    className="ml-auto text-sm text-muted-foreground hover:text-primary"
+                    className="ml-auto text-sm text-accent-hive hover:underline"
                   >
                     Forgot password?
                   </Link>
@@ -87,6 +81,7 @@ const Login: React.FC = () => {
                   id="password"
                   type="password"
                   required
+                  className="bg-background/50 border-white/10"
                   {...register('password')}
                   disabled={isLoading}
                 />
@@ -94,12 +89,14 @@ const Login: React.FC = () => {
                   <p className="text-sm text-red-500">{errors.password.message}</p>
                 )}
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <button type="submit" className="premium-button w-full h-11" disabled={isLoading}>
                 {isLoading ? <LoadingSpinner size="sm" /> : 'Login'}
-              </Button>
+              </button>
+
               <Button
                 type="button"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                variant="outline"
+                className="w-full border-dashed"
                 onClick={() => {
                   setValue('email', 'test@example.com');
                   setValue('password', 'Test1234!');
@@ -110,9 +107,9 @@ const Login: React.FC = () => {
               </Button>
             </div>
           </form>
-          <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
+          <div className="text-balance text-center text-xs text-muted-foreground">
             Don&apos;t have an account?{' '}
-            <Link to="/auth/register">Sign up</Link>
+            <Link to="/auth/register" className="text-accent-hive hover:underline">Sign up</Link>
           </div>
         </div>
       </div>

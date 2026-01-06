@@ -1,38 +1,51 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useLayoutEffect, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { verifyEmail, resendVerification } from '../api/auth';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle, ShieldCheck, Mail, ArrowRight } from 'lucide-react';
+import { gsap } from 'gsap';
 
 const VerifyEmail: React.FC = () => {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState('');
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      gsap.from(".verify-card", {
+        opacity: 0,
+        scale: 0.9,
+        duration: 0.8,
+        ease: "power3.out"
+      });
+    }, containerRef);
+    return () => ctx.revert();
+  }, []);
 
   useEffect(() => {
     const verify = async () => {
       if (!token) {
         setStatus('error');
-        setMessage('No verification token provided');
+        setMessage('PROTOCOL_ERROR: No verification token detected.');
         return;
       }
 
       try {
         const response = await verifyEmail(token);
         setStatus('success');
-        setMessage(response.message || 'Email verified successfully!');
+        setMessage(response.message || 'Identity verified successfully.');
         setEmail(response.data?.email || '');
       } catch (error: any) {
         setStatus('error');
         setMessage(
           error.response?.data?.detail ||
-          'Verification failed. The token may be invalid or expired.'
+          'VERIFICATION_FAILED: The link has potentially decayed or is unauthorized.'
         );
       }
     };
@@ -42,94 +55,86 @@ const VerifyEmail: React.FC = () => {
 
   const handleResend = async () => {
     if (!email) return;
-
     try {
       await resendVerification(email);
-      setMessage('Verification email resent. Please check your inbox.');
+      setMessage('Identity packet resent. Check your encrypted inbox.');
     } catch (error: any) {
-      setMessage(error.response?.data?.detail || 'Failed to resend verification email');
+      setMessage(error.response?.data?.detail || 'SYST_FAIL: Unable to resend packet.');
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          {status === 'loading' && (
-            <div className="flex justify-center mb-4">
-              <LoadingSpinner size="lg" />
-            </div>
-          )}
-          {status === 'success' && (
-            <div className="flex justify-center mb-4">
-              <CheckCircle className="h-16 w-16 text-green-500" />
-            </div>
-          )}
-          {status === 'error' && (
-            <div className="flex justify-center mb-4">
-              <XCircle className="h-16 w-16 text-red-500" />
-            </div>
-          )}
-          
-          <CardTitle className="text-2xl font-bold">
-            {status === 'loading' && 'Verifying Email'}
-            {status === 'success' && 'Email Verified!'}
-            {status === 'error' && 'Verification Failed'}
-          </CardTitle>
-          <CardDescription>
-            {status === 'loading' && 'Please wait while we verify your email address...'}
-            {status === 'success' && 'Your email has been successfully verified'}
-            {status === 'error' && 'We couldn\'t verify your email address'}
-          </CardDescription>
-        </CardHeader>
+    <div className="flex items-center justify-center min-h-[80vh] px-4" ref={containerRef}>
+      <div className="verify-card glass-card w-full max-w-md p-10 rounded-[40px] text-center relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-accent-hive/5 rounded-full blur-3xl -mr-16 -mt-16" />
 
-        <CardContent className="space-y-4">
-          {message && (
-            <ErrorMessage
-              message={message}
-              type={status === 'success' ? 'success' : 'error'}
-            />
-          )}
+        <div className="relative z-10 space-y-8">
+          <div className="flex justify-center">
+            {status === 'loading' && (
+              <div className="p-6 rounded-full bg-accent-hive/5 border border-accent-hive/10 flex items-center justify-center">
+                <LoadingSpinner size="lg" />
+              </div>
+            )}
+            {status === 'success' && (
+              <div className="p-6 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center shadow-lg shadow-green-500/20">
+                <ShieldCheck className="h-16 w-16 text-green-400" />
+              </div>
+            )}
+            {status === 'error' && (
+              <div className="p-6 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center shadow-lg shadow-red-500/20">
+                <XCircle className="h-16 w-16 text-red-400" />
+              </div>
+            )}
+          </div>
 
-          {status === 'success' && (
-            <p className="text-center text-muted-foreground">
-              You can now log in to your account and start collaborating on projects.
+          <div className="space-y-2">
+            <h1 className="text-3xl font-black tracking-tighter text-white uppercase">
+              {status === 'loading' && 'Authenticating'}
+              {status === 'success' && 'Identity Verified'}
+              {status === 'error' && 'Auth Terminated'}
+            </h1>
+            <p className="text-muted-foreground text-sm font-light">
+              {status === 'loading' && 'Processing neural handshake protocol...'}
+              {status === 'success' && 'Your uplink is now secure and authenticated.'}
+              {status === 'error' && 'We were unable to verify your analyst credentials.'}
             </p>
-          )}
+          </div>
 
-          {status === 'error' && (
-            <p className="text-center text-muted-foreground">
-              The verification link may have expired or is invalid. 
-              {email && ' You can request a new verification email.'}
-            </p>
-          )}
-        </CardContent>
+          <div className="py-2">
+            {message && (
+              <ErrorMessage
+                message={message}
+                type={status === 'success' ? 'success' : 'error'}
+              />
+            )}
+          </div>
 
-        <CardFooter className="flex flex-col space-y-2">
-          {status === 'success' && (
-            <Button asChild className="w-full">
-              <Link to="/auth/login">Go to Login</Link>
-            </Button>
-          )}
+          <div className="grid gap-4">
+            {status === 'success' && (
+              <Link to="/auth/login" className="premium-button w-full h-12 rounded-2xl flex items-center justify-center gap-2">
+                Access Dashboard
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            )}
 
-          {status === 'error' && email && (
-            <Button
-              onClick={handleResend}
-              variant="outline"
-              className="w-full"
-            >
-              Resend Verification Email
-            </Button>
-          )}
+            {status === 'error' && email && (
+              <button
+                onClick={handleResend}
+                className="premium-button w-full h-12 rounded-2xl flex items-center justify-center gap-2 bg-gradient-to-r from-amber-600 to-amber-700"
+              >
+                <Mail className="h-4 w-4" />
+                Resend Identity Packet
+              </button>
+            )}
 
-          <Button asChild variant="outline" className="w-full">
-            <Link to="/">Back to Home</Link>
-          </Button>
-        </CardFooter>
-      </Card>
+            <Link to="/" className="glass-card h-12 rounded-2xl flex items-center justify-center text-sm font-bold border-white/10 hover:bg-white/5 transition-all">
+              Return to Collective
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
 export default VerifyEmail;
-

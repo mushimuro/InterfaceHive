@@ -32,6 +32,13 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Global Hive Tokens */
+    --accent-hive: 38 92% 50%;
+    --accent-hive-dark: 35 92% 44%;
+    --accent-hive-light: 45 93% 47%;
+    --glass-bg: 0 0% 100% / 0.7;
+    --glass-border: 214.3 31.8% 91.4% / 0.5;
   }
 
   .dark {
@@ -62,6 +69,52 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --glass-bg: 222.2 84% 4.9% / 0.7;
+    --glass-border: 217.2 32.6% 17.5% / 0.5;
+  }
+}
+
+@layer components {
+  .bg-hive {
+    @apply relative overflow-hidden;
+    background-color: hsl(var(--background));
+  }
+
+  .bg-hive-pattern {
+    @apply pointer-events-none absolute inset-0 opacity-10 dark:opacity-[0.05];
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 50px, hsl(var(--accent-hive)) 50px, hsl(var(--accent-hive)) 51px),
+      repeating-linear-gradient(60deg, transparent, transparent 50px, hsl(var(--accent-hive)) 50px, hsl(var(--accent-hive)) 51px),
+      repeating-linear-gradient(120deg, transparent, transparent 50px, hsl(var(--accent-hive)) 50px, hsl(var(--accent-hive)) 51px);
+  }
+
+  .bg-hive-glow {
+    @apply pointer-events-none absolute inset-0;
+    background: radial-gradient(circle at 50% 50%, hsla(var(--accent-hive), 0.08) 0%, transparent 70%);
+  }
+
+  .glass-card {
+    @apply backdrop-blur-md border shadow-sm transition-all duration-300;
+    background-color: hsla(var(--glass-bg));
+    border-color: hsla(var(--glass-border));
+  }
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, hsl(var(--foreground)) 0%, hsl(var(--accent-hive)) 100%);
+  }
+
+  .premium-button {
+    @apply relative inline-flex items-center justify-center px-6 py-2 font-semibold transition-all duration-300 rounded-md overflow-hidden;
+    background: linear-gradient(135deg, hsl(var(--accent-hive)) 0%, hsl(var(--accent-hive-dark)) 100%);
+    color: #0a0a0a !important;
+    box-shadow: 0 4px 20px hsla(var(--accent-hive), 0.3);
+  }
+
+  .premium-button:hover {
+    @apply transform -translate-y-0.5 shadow-lg;
+    box-shadow: 0 6px 25px hsla(var(--accent-hive), 0.4);
   }
 }
 
@@ -69,6 +122,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -78,12 +132,5 @@
 @layer utilities {
   .text-balance {
     text-wrap: balance;
-  }
-}
-
-/* Container queries support */
-@supports (container-type: inline-size) {
-  .@container\/main {
-    container-type: inline-size;
   }
 }

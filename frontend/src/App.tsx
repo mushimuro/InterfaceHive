@@ -36,9 +36,11 @@ function App() {
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <AuthProvider>
-        <div className="flex flex-col min-h-screen">
+        <div className="flex flex-col min-h-screen bg-hive relative">
+          <div className="bg-hive-pattern" />
+          <div className="bg-hive-glow" />
           <Navbar />
-          <main className="flex-1 flex flex-col">
+          <main className="flex-1 flex flex-col relative z-10">
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Home />} />
