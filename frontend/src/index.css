@@ -91,13 +91,13 @@
 
   .bg-hive-glow {
     @apply pointer-events-none absolute inset-0;
-    background: radial-gradient(circle at 50% 50%, hsla(var(--accent-hive), 0.08) 0%, transparent 70%);
+    background: radial-gradient(circle at 50% 50%, hsl(var(--accent-hive) / 0.08) 0%, transparent 70%);
   }
 
   .glass-card {
     @apply backdrop-blur-md border shadow-sm transition-all duration-300;
-    background-color: hsla(var(--glass-bg));
-    border-color: hsla(var(--glass-border));
+    background-color: hsl(var(--glass-bg));
+    border-color: hsl(var(--glass-border));
   }
 
   .text-gradient {

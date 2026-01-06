@@ -91,14 +91,21 @@ const MyProjects: React.FC = () => {
   useLayoutEffect(() => {
     if (data && !isLoading) {
       const ctx = gsap.context(() => {
-        gsap.from(".mg-header-anim", { opacity: 0, y: -20, duration: 0.8, ease: "power3.out" });
+        gsap.from(".mg-header-anim", {
+          opacity: 0,
+          y: -20,
+          duration: 0.8,
+          ease: "power3.out",
+          clearProps: "all"
+        });
         gsap.from(".project-row-anim", {
           opacity: 0,
           x: -20,
           duration: 0.5,
           stagger: 0.08,
           ease: "power3.out",
-          delay: 0.2
+          delay: 0.2,
+          clearProps: "all"
         });
       }, containerRef);
       return () => ctx.revert();
