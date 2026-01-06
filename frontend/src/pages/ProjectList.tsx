@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useProjects } from '../hooks/useProjects';
 import type { ProjectFilters as FilterType } from '../api/projects';
-import { Button } from '../components/ui/button';
 import ProjectCard from '../components/ProjectCard';
 import ProjectFilters from '../components/ProjectFilters';
 import { ProjectSkeletonGrid } from '../components/ProjectSkeleton';
 import ErrorMessage from '../components/ErrorMessage';
 import { Plus, Search } from 'lucide-react';
 import Pagination from '../components/Pagination';
+import { gsap } from 'gsap';
+import { useLayoutEffect, useRef } from 'react';
 
 const ProjectList: React.FC = () => {
   const [filters, setFilters] = useState<FilterType>({
@@ -19,30 +20,49 @@ const ProjectList: React.FC = () => {
   });
 
   const { data, isLoading, error } = useProjects(filters);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (data && !isLoading) {
+      const ctx = gsap.context(() => {
+        gsap.from(".project-card-item", {
+          opacity: 0,
+          y: 30,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: "power3.out",
+          clearProps: "all"
+        });
+      }, containerRef);
+      return () => ctx.revert();
+    }
+  }, [data, isLoading]);
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div className="flex flex-1 flex-col" ref={containerRef}>
       <div className="@container/main flex flex-1 flex-col gap-2">
         <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
           {/* Header */}
           <div className="px-4 lg:px-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">Discover Projects</h1>
-                <p className="text-muted-foreground">
-                  Find projects that match your skills and start contributing
+                <h1 className="text-4xl md:text-5xl font-extrabold mb-3 tracking-tight">
+                  Discover <span className="text-gradient">Projects</span>
+                </h1>
+                <p className="text-muted-foreground text-lg max-w-2xl">
+                  Find unique project opportunities, collaborate with experts, and earn rewards for your contributions.
                 </p>
               </div>
-              <Button asChild size="sm">
-                <Link to="/projects/create">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Project
-                </Link>
-              </Button>
+              <Link to="/projects/create" className="premium-button">
+                <Plus className="mr-2 h-5 w-5" />
+                Create Project
+              </Link>
             </div>
 
             {/* Filters */}
-            <ProjectFilters filters={filters} onFiltersChange={setFilters} />
+            <div className="glass-card p-4 rounded-xl mb-8">
+              <ProjectFilters filters={filters} onFiltersChange={setFilters} />
+            </div>
           </div>
 
           {/* Loading State */}

@@ -4,10 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import { registerSchema, type RegisterFormData } from '../schemas/authSchema';
 import { useAuth } from '../contexts/AuthContext';
-import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
-import { Layers } from 'lucide-react';
 import ErrorMessage from '../components/ErrorMessage';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -39,17 +37,11 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-      <div className="flex w-full max-w-sm flex-col gap-6">
-        <a href="/" className="flex items-center gap-2 self-center font-medium">
-          <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-            <Layers className="size-4" />
-          </div>
-          InterfaceHive
-        </a>
-        <div className="flex flex-col gap-6">
+    <div className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center justify-center p-6 md:p-10 relative">
+      <div className="flex w-full max-w-sm flex-col gap-6 relative z-10">
+        <div className="glass-card p-8 rounded-xl shadow-2xl flex flex-col gap-6">
           <div className="flex flex-col gap-2 text-center">
-            <h1 className="text-2xl font-bold">Create an account</h1>
+            <h1 className="text-3xl font-bold text-gradient">Create Account</h1>
             <p className="text-muted-foreground text-sm">
               Enter your information to create an account
             </p>
@@ -65,6 +57,7 @@ const Register: React.FC = () => {
                   type="email"
                   placeholder="m@example.com"
                   required
+                  className="bg-background/50 border-white/10"
                   {...register('email')}
                   disabled={isLoading}
                 />
@@ -79,6 +72,7 @@ const Register: React.FC = () => {
                   type="text"
                   placeholder="John Doe"
                   required
+                  className="bg-background/50 border-white/10"
                   {...register('display_name')}
                   disabled={isLoading}
                 />
@@ -92,6 +86,7 @@ const Register: React.FC = () => {
                   id="password"
                   type="password"
                   required
+                  className="bg-background/50 border-white/10"
                   {...register('password')}
                   disabled={isLoading}
                 />
@@ -105,6 +100,7 @@ const Register: React.FC = () => {
                   id="confirm_password"
                   type="password"
                   required
+                  className="bg-background/50 border-white/10"
                   {...register('confirm_password')}
                   disabled={isLoading}
                 />
@@ -112,14 +108,14 @@ const Register: React.FC = () => {
                   <p className="text-sm text-red-500">{errors.confirm_password.message}</p>
                 )}
               </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <button type="submit" className="premium-button w-full h-11" disabled={isLoading}>
                 {isLoading ? <LoadingSpinner size="sm" /> : 'Create Account'}
-              </Button>
+              </button>
             </div>
           </form>
-          <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
+          <div className="text-balance text-center text-xs text-muted-foreground">
             Already have an account?{' '}
-            <Link to="/auth/login">Sign in</Link>
+            <Link to="/auth/login" className="text-accent-hive hover:underline">Sign in</Link>
           </div>
         </div>
       </div>

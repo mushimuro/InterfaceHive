@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="InterfaceHive - Where projects find their contributors. Connect, contribute, and build reputation in a trusted marketplace.">
+    <title>InterfaceHive - Where Projects Find Their Contributors</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- GSAP + ScrollTrigger -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <!-- Lottie -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-content">
+            <div class="lottie-container" id="lottie-hero"></div>
+
+            <h1 class="hero-headline">Where Projects Find Their Contributors</h1>
+
+            <p class="hero-subheadline">
+                InterfaceHive connects project hosts with talented contributors.
+                Publish calls, receive submissions, and build reputation through our credit system.
+            </p>
+
+            <div class="hero-ctas">
+                <button class="btn btn-primary" aria-label="Get started with InterfaceHive for free">
+                    Get Started Free
+                    <span class="btn-glow"></span>
+                </button>
+                <button class="btn btn-secondary" aria-label="Browse available projects">
+                    Browse Projects
+                </button>
+            </div>
+        </div>
+
+        <div class="hero-gradient"></div>
+        <div class="hexagon-pattern"></div>
+    </section>
+
+    <!-- Feature Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="features-grid">
+                <!-- Feature 1 -->
+                <article class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 2L28 9V23L16 30L4 23V9L16 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 16L28 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 16V30" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 16L4 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Publish Calls</h3>
+                    <p class="feature-description">
+                        Create contribution requests with detailed requirements.
+                        Reach contributors actively looking to help.
+                    </p>
+                </article>
+
+                <!-- Feature 2 -->
+                <article class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="16" cy="16" r="10" stroke="currentColor" stroke-width="2"/>
+                            <path d="M16 11V16L19 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 6V2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M16 30V26" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M6 16H2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M30 16H26" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Credit System</h3>
+                    <p class="feature-description">
+                        Earn credits for accepted contributions.
+                        Build your reputation as a trusted contributor.
+                    </p>
+                </article>
+
+                <!-- Feature 3 -->
+                <article class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M28 20V28H4V20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 13L13 18L24 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="24" cy="8" r="3" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Real-time Chat</h3>
+                    <p class="feature-description">
+                        Communicate directly with hosts and contributors.
+                        Discuss requirements and provide feedback.
+                    </p>
+                </article>
+
+                <!-- Feature 4 -->
+                <article class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M16 2L20 10L29 11.5L22.5 18L24 27L16 22.5L8 27L9.5 18L3 11.5L12 10L16 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Quality Reviews</h3>
+                    <p class="feature-description">
+                        Structured review process ensures high-quality submissions
+                        and fair evaluations.
+                    </p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-headline">How It Works</h2>
+                <p class="section-subheadline">
+                    A simple, transparent process that connects hosts with contributors
+                </p>
+            </div>
+
+            <!-- Workflow Steps -->
+            <div class="workflow">
+                <div class="workflow-step" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Create a Call</h3>
+                        <p class="step-description">Hosts publish detailed contribution requests with requirements, deadlines, and credit rewards.</p>
+                    </div>
+                    <div class="step-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <rect x="8" y="6" width="32" height="36" rx="4" stroke="currentColor" stroke-width="2"/>
+                            <path d="M16 16H32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M16 24H28" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M16 32H24" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="workflow-connector">
+                    <svg width="40" height="40" viewBox="0 0 40 40">
+                        <path d="M10 20H30M30 20L22 12M30 20L22 28" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+
+                <div class="workflow-step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Submit Work</h3>
+                        <p class="step-description">Contributors browse calls, submit their work, and communicate directly with hosts.</p>
+                    </div>
+                    <div class="step-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <path d="M24 8L24 32" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M16 24L24 32L32 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 40H40" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="workflow-connector">
+                    <svg width="40" height="40" viewBox="0 0 40 40">
+                        <path d="M10 20H30M30 20L22 12M30 20L22 28" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+
+                <div class="workflow-step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Earn Credits</h3>
+                        <p class="step-description">Accepted contributions earn credits, building your reputation in the marketplace.</p>
+                    </div>
+                    <div class="step-icon">
+                        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                            <circle cx="24" cy="24" r="16" stroke="currentColor" stroke-width="2"/>
+                            <path d="M24 14V24L30 28" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <circle cx="24" cy="24" r="4" fill="currentColor"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" data-count="500">0</div>
+                    <div class="stat-label">Active Projects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" data-count="2000">0</div>
+                    <div class="stat-label">Contributors</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" data-count="10000">0</div>
+                    <div class="stat-label">Credits Awarded</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" data-count="95">0</div>
+                    <div class="stat-suffix">%</div>
+                    <div class="stat-label">Satisfaction Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Decorative Honeycomb Pattern -->
+        <div class="honeycomb-decoration">
+            <svg class="honeycomb-svg" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+                <defs>
+                    <pattern id="honeycomb" width="56" height="100" patternUnits="userSpaceOnUse" patternTransform="scale(0.5)">
+                        <path d="M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100" fill="none" stroke="rgba(245, 158, 11, 0.1)" stroke-width="1"/>
+                        <path d="M28 0L28 34L0 50L0 16L28 0" fill="rgba(245, 158, 11, 0.03)"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#honeycomb)"/>
+            </svg>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta" id="cta">
+        <div class="cta-background"></div>
+        <div class="cta-content">
+            <h2 class="cta-headline">Ready to Join the Hive?</h2>
+            <p class="cta-subheadline">
+                Start contributing today or publish your first call for contributors.
+            </p>
+            <button class="btn btn-primary btn-large" aria-label="Create your InterfaceHive account">
+                Create Account
+                <span class="btn-glow"></span>
+            </button>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="footer-text">&copy; 2026 InterfaceHive. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>

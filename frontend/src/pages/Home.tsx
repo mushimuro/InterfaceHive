@@ -1,158 +1,405 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Card, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowRight, Code2, Users, Award, Sparkles, Rocket } from 'lucide-react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import '../styles/Landing.css';
+
+// Register GSAP plugins
+gsap.registerPlugin(ScrollTrigger);
+
+// Lottie fallback SVG component (Animated Hexagon)
+// Moved outside to prevent re-creation on every render
+const LottieFallback = () => (
+  <svg width="200" height="200" viewBox="0 0 200 200" style={{ filter: 'drop-shadow(0 0 20px rgba(245, 158, 11, 0.3))' }}>
+    <polygon
+      points="100,20 170,60 170,140 100,180 30,140 30,60"
+      fill="none"
+      stroke="#f59e0b"
+      strokeWidth="3"
+      opacity="0.8"
+    >
+      <animate attributeName="stroke-width" values="3;5;3" dur="2s" repeatCount="indefinite" />
+      <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" />
+    </polygon>
+    <polygon
+      points="100,50 150,80 150,140 100,170 50,140 50,80"
+      fill="rgba(245, 158, 11, 0.1)"
+      stroke="#fbbf24"
+      strokeWidth="2"
+      opacity="0.6"
+    >
+      <animate attributeName="opacity" values="0.6;0.9;0.6" dur="3s" repeatCount="indefinite" />
+    </polygon>
+  </svg>
+);
 
 const Home: React.FC = () => {
   const { user } = useAuth();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const ctx = gsap.context(() => {
+      // Hero Intro Sequence
+      const heroTl = gsap.timeline({ defaults: { ease: "power2.out" } });
+      heroTl
+        .from(".lottie-container", { opacity: 0, scale: 0.8, duration: 0.8, delay: 0.2 })
+        .from(".hero-headline", { opacity: 0, y: 30, duration: 1, ease: "power3.out" }, "-=0.4")
+        .from(".hero-subheadline", { opacity: 0, y: 20, duration: 1, ease: "power3.out" }, "-=0.6")
+        .from(".hero-ctas", { opacity: 0, y: 20, duration: 1, ease: "power3.out" }, "-=0.6");
+
+      // Hero Floating Animation
+      gsap.to(".lottie-container", {
+        y: -15,
+        duration: 2.5,
+        ease: "power1.inOut",
+        repeat: -1,
+        yoyo: true
+      });
+
+      // Parallax Hero Gradient
+      gsap.to(".hero-gradient", {
+        scrollTrigger: {
+          trigger: ".landing-hero",
+          start: "top top",
+          end: "bottom top",
+          scrub: 1
+        },
+        y: 200,
+        opacity: 0.3
+      });
+
+      // Feature Cards reveal
+      gsap.to(".feature-card", {
+        scrollTrigger: {
+          trigger: ".landing-features",
+          start: "top 80%",
+          toggleActions: "play none none none"
+        },
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        stagger: 0.15,
+        ease: "power3.out"
+      });
+
+      // How It Works reveal
+      gsap.to(".section-header", {
+        scrollTrigger: {
+          trigger: ".how-it-works",
+          start: "top 80%",
+          toggleActions: "play none none none"
+        },
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        ease: "power3.out"
+      });
+
+      gsap.to(".workflow-step", {
+        scrollTrigger: {
+          trigger: ".workflow",
+          start: "top 80%",
+          toggleActions: "play none none none"
+        },
+        opacity: 1,
+        y: 0,
+        duration: 0.8,
+        stagger: 0.2,
+        ease: "power3.out"
+      });
+
+      gsap.to(".workflow-connector", {
+        scrollTrigger: {
+          trigger: ".workflow",
+          start: "top 80%",
+          toggleActions: "play none none none"
+        },
+        opacity: 0.5,
+        duration: 0.5,
+        stagger: 0.2,
+        delay: 0.3
+      });
+
+      // Stats Counters
+      const statElements = document.querySelectorAll('.stat-value');
+      gsap.to(".stat-card", {
+        scrollTrigger: {
+          trigger: ".stats-grid",
+          start: "top 85%",
+          toggleActions: "play none none none",
+          onEnter: () => {
+            statElements.forEach(el => {
+              const stat = el as HTMLElement;
+              const target = parseInt(stat.getAttribute('data-count') || '0', 10);
+              gsap.to(stat, {
+                innerText: target,
+                duration: 2,
+                ease: "power2.out",
+                snap: { innerText: 1 },
+                onUpdate: function () {
+                  const current = Math.round(Number(this.targets()[0].innerText));
+                  stat.textContent = current.toLocaleString();
+                }
+              });
+            });
+          }
+        },
+        opacity: 1,
+        y: 0,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: "power3.out"
+      });
+
+      // CTA Reveal
+      gsap.to(".cta-content", {
+        scrollTrigger: {
+          trigger: ".landing-cta",
+          start: "top 75%",
+          toggleActions: "play none none none"
+        },
+        opacity: 1,
+        scale: 1,
+        duration: 1.2,
+        ease: "back.out(1.4)"
+      });
+
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <div className="flex flex-1 flex-col">
+    <div ref={containerRef} className="landing-page text-foreground bg-background">
       {/* Hero Section */}
-      <section className="bg-muted/50 border-b">
-        <div className="container mx-auto px-4 py-16 md:py-24">
-          <div className="flex flex-col items-center text-center gap-6 max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
-              <Sparkles className="h-4 w-4" />
-              <span>Platform for Collaborative Development</span>
-            </div>
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-              Build Amazing Projects
-              <br />
-              <span className="text-primary">Together</span>
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl">
-              InterfaceHive connects developers to collaborate on open-source projects.
-              Contribute your skills, earn credits, and grow your portfolio.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 mt-4">
-              {user ? (
-                <>
-                  <Button asChild size="lg" className="text-base">
-                    <Link to="/projects">
-                      <Code2 className="mr-2 h-5 w-5" />
-                      Browse Projects
-                    </Link>
-                  </Button>
-                  <Button asChild size="lg" variant="outline" className="text-base">
-                    <Link to="/projects/create">
-                      <Rocket className="mr-2 h-5 w-5" />
-                      Create Project
-                    </Link>
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button asChild size="lg" className="text-base">
-                    <Link to="/auth/register">
-                      Get Started
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </Link>
-                  </Button>
-                  <Button asChild size="lg" variant="outline" className="text-base">
-                    <Link to="/projects">
-                      Browse Projects
-                    </Link>
-                  </Button>
-                </>
-              )}
-            </div>
+      <section className="landing-hero" id="hero">
+        <div className="hero-content">
+          <div className="lottie-container">
+            <LottieFallback />
           </div>
+
+          <h1 className="hero-headline">Where Projects Find Their Contributors</h1>
+
+          <p className="hero-subheadline">
+            InterfaceHive connects project hosts with talented contributors.
+            Publish calls, receive submissions, and build reputation through our credit system.
+          </p>
+
+          <div className="hero-ctas">
+            {user ? (
+              <Link to="/projects" className="landing-btn btn-primary-landing">
+                Browse Projects
+                <span className="btn-glow"></span>
+              </Link>
+            ) : (
+              <>
+                <Link to="/auth/register" className="landing-btn btn-primary-landing">
+                  Get Started Free
+                  <span className="btn-glow"></span>
+                </Link>
+                <Link to="/projects" className="landing-btn btn-secondary-landing">
+                  Browse Projects
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+
+        <div className="hero-gradient"></div>
+        <div className="hexagon-pattern"></div>
+      </section>
+
+      {/* Feature Section */}
+      <section className="landing-features" id="features">
+        <div className="features-grid">
+          {/* Feature 1 */}
+          <article className="feature-card">
+            <div className="feature-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 2L28 9V23L16 30L4 23V9L16 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M16 16L28 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M16 16V30" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M16 16L4 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <h3 className="feature-title">Publish Calls</h3>
+            <p className="feature-description">
+              Create contribution requests with detailed requirements.
+              Reach contributors actively looking to help.
+            </p>
+          </article>
+
+          {/* Feature 2 */}
+          <article className="feature-card">
+            <div className="feature-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="10" stroke="currentColor" strokeWidth="2" />
+                <path d="M16 11V16L19 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M16 6V2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path d="M16 30V26" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path d="M6 16H2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path d="M30 16H26" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </div>
+            <h3 className="feature-title">Credit System</h3>
+            <p className="feature-description">
+              Earn credits for accepted contributions.
+              Build your reputation as a trusted contributor.
+            </p>
+          </article>
+
+          {/* Feature 3 */}
+          <article className="feature-card">
+            <div className="feature-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M28 20V28H4V20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M8 13L13 18L24 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="8" cy="8" r="3" stroke="currentColor" strokeWidth="2" />
+                <circle cx="24" cy="8" r="3" stroke="currentColor" strokeWidth="2" />
+              </svg>
+            </div>
+            <h3 className="feature-title">Real-time Chat</h3>
+            <p className="feature-description">
+              Communicate directly with hosts and contributors.
+              Discuss requirements and provide feedback.
+            </p>
+          </article>
+
+          {/* Feature 4 */}
+          <article className="feature-card">
+            <div className="feature-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 2L20 10L29 11.5L22.5 18L24 27L16 22.5L8 27L9.5 18L3 11.5L12 10L16 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <h3 className="feature-title">Quality Reviews</h3>
+            <p className="feature-description">
+              Structured review process ensures high-quality submissions
+              and fair evaluations.
+            </p>
+          </article>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="container mx-auto px-4 py-16 md:py-24">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Why Choose InterfaceHive?
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            A platform designed for developers who want to collaborate and grow
-          </p>
+      {/* How It Works Section */}
+      <section className="how-it-works" id="how-it-works">
+        <div className="container mx-auto">
+          <div className="section-header">
+            <h2 className="section-headline">How It Works</h2>
+            <p className="section-subheadline">
+              A simple, transparent process that connects hosts with contributors
+            </p>
+          </div>
+
+          <div className="workflow">
+            <div className="workflow-step">
+              <div className="step-number">1</div>
+              <div className="step-icon">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                  <rect x="8" y="6" width="32" height="36" rx="4" stroke="currentColor" strokeWidth="2" />
+                  <path d="M16 16H32" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M16 24H28" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M16 32H24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </div>
+              <h3 className="feature-title text-xl">Create a Call</h3>
+              <p className="step-description">Hosts publish detailed contribution requests with requirements, deadlines, and credit rewards.</p>
+            </div>
+
+            <div className="workflow-connector">
+              <svg width="40" height="40" viewBox="0 0 40 40">
+                <path d="M10 20H30M30 20L22 12M30 20L22 28" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+
+            <div className="workflow-step">
+              <div className="step-number">2</div>
+              <div className="step-icon">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                  <path d="M24 8L24 32" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M16 24L24 32L32 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M8 40H40" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </div>
+              <h3 className="feature-title text-xl">Submit Work</h3>
+              <p className="step-description">Contributors browse calls, submit their work, and communicate directly with hosts.</p>
+            </div>
+
+            <div className="workflow-connector">
+              <svg width="40" height="40" viewBox="0 0 40 40">
+                <path d="M10 20H30M30 20L22 12M30 20L22 28" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+
+            <div className="workflow-step">
+              <div className="step-number">3</div>
+              <div className="step-icon">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                  <circle cx="24" cy="24" r="16" stroke="currentColor" strokeWidth="2" />
+                  <path d="M24 14V24L30 28" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <h3 className="feature-title text-xl">Earn Credits</h3>
+              <p className="step-description">Accepted contributions earn credits, building your reputation in the marketplace.</p>
+            </div>
+          </div>
+
+          {/* Stats Grid */}
+          <div className="stats-grid">
+            <div className="stat-card">
+              <div className="stat-value" data-count="500">0</div>
+              <div className="stat-label">Active Projects</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value" data-count="2000">0</div>
+              <div className="stat-label">Contributors</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value" data-count="10000">0</div>
+              <div className="stat-label">Credits Awarded</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-value" data-count="95">0</div>
+              <span className="stat-suffix">%</span>
+              <div className="stat-label">Satisfaction Rate</div>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          <Card className="relative overflow-hidden border-2">
-            <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                <Code2 className="h-6 w-6 text-primary" />
-              </div>
-              <CardTitle className="text-xl">Find Projects</CardTitle>
-              <CardDescription className="text-base">
-                Discover open-source projects that match your skills and interests.
-                Filter by technology, difficulty, and estimated time.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="relative overflow-hidden border-2">
-            <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                <Users className="h-6 w-6 text-primary" />
-              </div>
-              <CardTitle className="text-xl">Collaborate</CardTitle>
-              <CardDescription className="text-base">
-                Work with other developers on real projects.
-                Submit contributions, get feedback, and improve your skills.
-              </CardDescription>
-            </CardHeader>
-          </Card>
-
-          <Card className="relative overflow-hidden border-2">
-            <CardHeader>
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                <Award className="h-6 w-6 text-primary" />
-              </div>
-              <CardTitle className="text-xl">Earn Credits</CardTitle>
-              <CardDescription className="text-base">
-                Build your reputation by earning credits for accepted contributions.
-                Showcase your achievements and expertise.
-              </CardDescription>
-            </CardHeader>
-          </Card>
+        {/* Decorative Honeycomb Pattern */}
+        <div className="honeycomb-decoration">
+          <svg width="100%" height="100%" viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <pattern id="honeycomb-react" width="56" height="100" patternUnits="userSpaceOnUse" patternTransform="scale(0.5)">
+                <path d="M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100" fill="none" stroke="rgba(245, 158, 11, 0.1)" strokeWidth="1" />
+                <path d="M28 0L28 34L0 50L0 16L28 0" fill="rgba(245, 158, 11, 0.03)" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#honeycomb-react)" />
+          </svg>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="bg-muted/50 border-t">
-        <div className="container mx-auto px-4 py-16 md:py-24">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Ready to Start Building?
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Join our community of developers and start contributing to exciting projects today.
-            </p>
-            {!user && (
-              <Button asChild size="lg" className="text-base">
-                <Link to="/auth/register">
-                  Create Free Account
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
-              </Button>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Stats Section */}
-      <section className="container mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
-          <div>
-            <p className="text-4xl font-bold text-primary mb-2">Open Source</p>
-            <p className="text-muted-foreground">Built for the community</p>
-          </div>
-          <div>
-            <p className="text-4xl font-bold text-primary mb-2">Collaborative</p>
-            <p className="text-muted-foreground">Work together on projects</p>
-          </div>
-          <div>
-            <p className="text-4xl font-bold text-primary mb-2">Credit System</p>
-            <p className="text-muted-foreground">Recognition for contributions</p>
-          </div>
+      <section className="landing-cta" id="cta">
+        <div className="cta-background"></div>
+        <div className="cta-content" style={{ scale: 0.9 }}>
+          <h2 className="cta-headline">Ready to Join the Hive?</h2>
+          <p className="text-lg text-muted-foreground mb-12">
+            Start contributing today or publish your first call for contributors.
+          </p>
+          {user ? (
+            <Link to="/projects/create" className="landing-btn btn-primary-landing px-12 py-4 text-xl">
+              Create Your First Call
+              <span className="btn-glow"></span>
+            </Link>
+          ) : (
+            <Link to="/auth/register" className="landing-btn btn-primary-landing px-12 py-4 text-xl">
+              Create Account
+              <span className="btn-glow"></span>
+            </Link>
+          )}
         </div>
       </section>
     </div>
@@ -160,4 +407,3 @@ const Home: React.FC = () => {
 };
 
 export default Home;
-

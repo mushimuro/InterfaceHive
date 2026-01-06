@@ -27,15 +27,15 @@ const Navbar: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-      <div className="container mx-auto px-4 lg:px-6">
-        <div className="flex items-center justify-between h-14">
+    <nav className="glass-card sticky top-0 z-50 px-4 lg:px-6 h-14 flex items-center shadow-sm">
+      <div className="container mx-auto">
+        <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-            <div className="h-7 w-7 bg-primary rounded-md flex items-center justify-center">
-              <Layers className="h-4 w-4 text-primary-foreground" />
+            <div className="h-8 w-8 bg-gradient-to-br from-amber-400 to-amber-600 rounded-lg flex items-center justify-center shadow-lg">
+              <Layers className="h-5 w-5 text-black" />
             </div>
-            <span className="font-semibold text-base hidden sm:inline">InterfaceHive</span>
+            <span className="font-bold text-lg hidden sm:inline text-gradient">InterfaceHive</span>
           </Link>
 
           {/* Navigation Links */}
@@ -133,9 +133,9 @@ const Navbar: React.FC = () => {
                 <Button variant="ghost" size="sm" asChild>
                   <Link to="/auth/login">Login</Link>
                 </Button>
-                <Button size="sm" asChild>
-                  <Link to="/auth/register">Sign Up</Link>
-                </Button>
+                <Link to="/auth/register" className="premium-button text-sm px-4 py-1.5 h-9 rounded-md">
+                  Sign Up
+                </Link>
               </div>
             )}
           </div>
