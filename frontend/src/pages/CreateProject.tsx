@@ -38,21 +38,37 @@ const CreateProject: React.FC = () => {
   const [activeTab, setActiveTab] = useState('idea');
 
   useLayoutEffect(() => {
+    if (!containerRef.current) return;
+
     const ctx = gsap.context(() => {
-      gsap.from(".create-header-anim", {
-        opacity: 0,
-        y: -20,
-        duration: 0.8,
-        ease: "power3.out"
-      });
-      gsap.from(".create-section-anim", {
-        opacity: 0,
-        y: 20,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: "power3.out",
-        delay: 0.2
-      });
+      gsap.fromTo(".create-header-anim",
+        {
+          opacity: 0,
+          y: -20
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power3.out",
+          clearProps: "all"
+        }
+      );
+      gsap.fromTo(".create-section-anim",
+        {
+          opacity: 0,
+          y: 20
+        },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          stagger: 0.1,
+          ease: "power3.out",
+          delay: 0.2,
+          clearProps: "all"
+        }
+      );
     }, containerRef);
     return () => ctx.revert();
   }, []);
