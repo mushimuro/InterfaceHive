@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import CreditBadge from './CreditBadge';
-import { User, LogOut, FileText, Award, Settings, PlusCircle, Hexagon } from 'lucide-react';
+import { User, LogOut, FileText, Award, Settings, Hexagon } from 'lucide-react';
 import { ModeToggle } from './ModeToggle';
 
 const Navbar: React.FC = () => {
@@ -51,14 +51,6 @@ const Navbar: React.FC = () => {
               <Link to="/projects">Projects</Link>
             </Button>
 
-            {user && user.email_verified && (
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/projects/create">
-                  <PlusCircle className="h-4 w-4 mr-1.5" />
-                  <span className="hidden sm:inline">Create</span>
-                </Link>
-              </Button>
-            )}
 
             {user ? (
               <>
