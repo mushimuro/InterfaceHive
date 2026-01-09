@@ -36,6 +36,14 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ filters, onFiltersChang
     });
   };
 
+  const handleUsageTypeChange = (value: string) => {
+    onFiltersChange({
+      ...filters,
+      usage_type: value === 'all' ? undefined : value as any,
+      page: 1,
+    });
+  };
+
   const handleStatusChange = (value: string) => {
     onFiltersChange({
       ...filters,
@@ -77,6 +85,7 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ filters, onFiltersChang
   const hasActiveFilters =
     filters.search ||
     filters.difficulty ||
+    filters.usage_type ||
     filters.status !== 'open' ||
     filters.tags ||
     filters.ordering !== '-created_at';
@@ -117,6 +126,20 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ filters, onFiltersChang
             <SelectItem value="easy">Easy</SelectItem>
             <SelectItem value="intermediate">Intermediate</SelectItem>
             <SelectItem value="advanced">Advanced</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select
+          value={filters.usage_type || 'all'}
+          onValueChange={handleUsageTypeChange}
+        >
+          <SelectTrigger className="w-full sm:w-[180px]">
+            <SelectValue placeholder="Usage Purpose" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Any Purpose</SelectItem>
+            <SelectItem value="practice">Practice</SelectItem>
+            <SelectItem value="commercial">Commercial</SelectItem>
           </SelectContent>
         </Select>
 

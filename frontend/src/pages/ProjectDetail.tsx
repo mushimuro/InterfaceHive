@@ -186,10 +186,18 @@ const ProjectDetail: React.FC = () => {
           <div className="detail-header-content relative z-10">
             <div className="flex flex-col md:flex-row justify-between items-start gap-6">
               <div className="flex-1 space-y-4">
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Badge className={`${statusColors[project.status as keyof typeof statusColors]} border uppercase text-[10px]`}>
                     {project.status}
                   </Badge>
+                  {project.usage_type && (
+                    <Badge className={`${project.usage_type === 'commercial'
+                        ? 'bg-indigo-100/50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border-indigo-500/20'
+                        : 'bg-blue-100/50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 border-blue-500/20'
+                      } border uppercase text-[10px]`}>
+                      {project.usage_type === 'commercial' ? 'Commercial Use' : 'Practice Use'}
+                    </Badge>
+                  )}
                   {project.difficulty && (
                     <Badge className={`${difficultyColors[project.difficulty as keyof typeof difficultyColors]} border uppercase text-[10px]`}>
                       {project.difficulty}
