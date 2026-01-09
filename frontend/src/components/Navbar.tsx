@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import CreditBadge from './CreditBadge';
-import { User, LogOut, FileText, Award, Settings, PlusCircle, Layers } from 'lucide-react';
+import { User, LogOut, FileText, Award, Settings, PlusCircle, Hexagon } from 'lucide-react';
 import { ModeToggle } from './ModeToggle';
 
 const Navbar: React.FC = () => {
@@ -27,15 +27,18 @@ const Navbar: React.FC = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="glass-card sticky top-0 z-50 px-4 lg:px-6 h-14 flex items-center shadow-sm">
+    <nav className="glass-card sticky top-0 z-50 px-4 lg:px-6 h-16 flex items-center border-b border-[hsl(var(--border))]">
       <div className="container mx-auto">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-            <div className="h-8 w-8 bg-gradient-to-br from-amber-400 to-amber-600 rounded-lg flex items-center justify-center shadow-lg">
-              <Layers className="h-5 w-5 text-black" />
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="relative">
+              <div className="h-9 w-9 bg-gradient-to-br from-[hsl(var(--accent-hive-light))] via-[hsl(var(--accent-hive))] to-[hsl(var(--accent-hive-dark))] rounded-xl flex items-center justify-center shadow-lg shadow-[hsl(var(--accent-hive))]/20 group-hover:shadow-[hsl(var(--accent-hive))]/30 transition-shadow duration-300">
+                <Hexagon className="h-5 w-5 text-[hsl(222.2_84%_4.9%)]" strokeWidth={2.5} />
+              </div>
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 to-transparent pointer-events-none" />
             </div>
-            <span className="font-bold text-lg hidden sm:inline text-gradient">InterfaceHive</span>
+            <span className="font-display font-bold text-lg hidden sm:inline text-gradient tracking-tight">InterfaceHive</span>
           </Link>
 
           {/* Navigation Links */}
@@ -62,6 +65,7 @@ const Navbar: React.FC = () => {
                 <Button
                   variant={isActive('/my-projects') ? 'secondary' : 'ghost'}
                   size="sm"
+                  className="font-medium"
                   asChild
                 >
                   <Link to="/my-projects">My Projects</Link>
@@ -69,9 +73,10 @@ const Navbar: React.FC = () => {
                 <Button
                   variant={isActive('/my-contributions') ? 'secondary' : 'ghost'}
                   size="sm"
+                  className="font-medium"
                   asChild
                 >
-                  <Link to="/my-contributions">My Contributions</Link>
+                  <Link to="/my-contributions">Contributions</Link>
                 </Button>
 
                 <ModeToggle />
@@ -79,50 +84,53 @@ const Navbar: React.FC = () => {
                 {/* User Menu */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="flex items-center gap-2 ml-2">
-                      <User className="h-4 w-4" />
-                      <span className="hidden md:inline max-w-[120px] truncate">{user.display_name}</span>
+                    <Button variant="outline" size="sm" className="flex items-center gap-2.5 ml-2 pl-2 pr-3 h-9 border-[hsl(var(--border))] hover:border-[hsl(var(--accent-hive))]/30 transition-colors">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-[hsl(var(--accent-hive))]/20 to-[hsl(var(--accent-hive-dark))]/20 flex items-center justify-center border border-[hsl(var(--accent-hive))]/20">
+                        <User className="h-3.5 w-3.5 text-[hsl(var(--accent-hive))]" />
+                      </div>
+                      <span className="hidden md:inline max-w-[100px] truncate text-sm font-medium">{user.display_name}</span>
                       {user.total_credits !== undefined && (
                         <CreditBadge credits={user.total_credits} />
                       )}
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel>
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium">{user.display_name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  <DropdownMenuContent align="end" className="w-56 glass-card border-[hsl(var(--border))]">
+                    <DropdownMenuLabel className="pb-3">
+                      <div className="flex flex-col gap-1">
+                        <p className="font-display font-semibold">{user.display_name}</p>
+                        <p className="text-xs text-muted-foreground truncate font-normal">{user.email}</p>
                       </div>
                     </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to="/profile" className="cursor-pointer">
-                        <Settings className="mr-2 h-4 w-4" />
+                    <DropdownMenuSeparator className="bg-[hsl(var(--border))]" />
+                    <DropdownMenuItem asChild className="cursor-pointer py-2.5">
+                      <Link to="/profile">
+                        <Settings className="mr-2.5 h-4 w-4 text-muted-foreground" />
                         Profile Settings
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/my-projects" className="cursor-pointer">
-                        <FileText className="mr-2 h-4 w-4" />
-                        My Requests
+                    <DropdownMenuItem asChild className="cursor-pointer py-2.5">
+                      <Link to="/my-projects">
+                        <FileText className="mr-2.5 h-4 w-4 text-muted-foreground" />
+                        My Projects
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/my-contributions" className="cursor-pointer">
-                        <FileText className="mr-2 h-4 w-4" />
+                    <DropdownMenuItem asChild className="cursor-pointer py-2.5">
+                      <Link to="/my-contributions">
+                        <FileText className="mr-2.5 h-4 w-4 text-muted-foreground" />
                         My Contributions
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/profile" className="cursor-pointer">
-                        <Award className="mr-2 h-4 w-4" />
-                        Credits ({user.total_credits || 0})
+                    <DropdownMenuItem asChild className="cursor-pointer py-2.5">
+                      <Link to="/profile">
+                        <Award className="mr-2.5 h-4 w-4 text-[hsl(var(--accent-hive))]" />
+                        <span className="text-[hsl(var(--accent-hive))] font-semibold">{user.total_credits || 0}</span>
+                        <span className="ml-1">credits</span>
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      Logout
+                    <DropdownMenuSeparator className="bg-[hsl(var(--border))]" />
+                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive py-2.5 focus:text-destructive">
+                      <LogOut className="mr-2.5 h-4 w-4" />
+                      Sign out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -130,11 +138,11 @@ const Navbar: React.FC = () => {
             ) : (
               <div className="flex items-center gap-2 ml-2">
                 <ModeToggle />
-                <Button variant="ghost" size="sm" asChild>
-                  <Link to="/auth/login">Login</Link>
+                <Button variant="ghost" size="sm" className="font-medium" asChild>
+                  <Link to="/auth/login">Sign in</Link>
                 </Button>
-                <Link to="/auth/register" className="premium-button text-sm px-4 py-1.5 h-9 rounded-md">
-                  Sign Up
+                <Link to="/auth/register" className="premium-button text-sm px-4 py-1.5 h-9">
+                  Get Started
                 </Link>
               </div>
             )}

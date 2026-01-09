@@ -28,16 +28,18 @@ const MyContributions: React.FC = () => {
   useLayoutEffect(() => {
     if (data && !isLoading) {
       const ctx = gsap.context(() => {
-        gsap.from(".contrib-header-anim", { opacity: 0, scale: 0.95, duration: 0.8, ease: "power3.out" });
-        gsap.from(".contrib-stat-anim", { opacity: 0, y: 20, duration: 0.6, stagger: 0.1, ease: "power3.out", delay: 0.2 });
-        gsap.from(".contrib-row-anim", {
-          opacity: 0,
-          y: 20,
-          duration: 0.5,
-          stagger: 0.08,
-          ease: "power3.out",
-          delay: 0.4
-        });
+        gsap.fromTo(".contrib-header-anim",
+          { opacity: 0, scale: 0.95 },
+          { opacity: 1, scale: 1, duration: 0.8, ease: "power3.out", clearProps: "all" }
+        );
+        gsap.fromTo(".contrib-stat-anim",
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: "power3.out", delay: 0.2, clearProps: "all" }
+        );
+        gsap.fromTo(".contrib-row-anim",
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: "power3.out", delay: 0.4, clearProps: "all" }
+        );
       }, containerRef);
       return () => ctx.revert();
     }

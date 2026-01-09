@@ -37,85 +37,98 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center justify-center p-6 md:p-10 relative">
-      <div className="flex w-full max-w-sm flex-col gap-6 relative z-10">
-        <div className="glass-card p-8 rounded-xl shadow-2xl flex flex-col gap-6">
-          <div className="flex flex-col gap-2 text-center">
-            <h1 className="text-3xl font-bold text-gradient">Create Account</h1>
-            <p className="text-muted-foreground text-sm">
-              Enter your information to create an account
+    <div className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center p-6 md:p-10 relative">
+      {/* Background decoration */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-[hsl(var(--accent-hive))]/[0.05] rounded-full blur-[100px]" />
+        <div className="absolute bottom-1/3 left-1/4 w-[400px] h-[400px] bg-[hsl(var(--accent-secondary))]/[0.03] rounded-full blur-[80px]" />
+      </div>
+
+      <div className="flex w-full max-w-md flex-col gap-6 relative z-10">
+        <div className="glass-card-glow p-8 md:p-10 rounded-2xl flex flex-col gap-8">
+          {/* Header */}
+          <div className="flex flex-col gap-3 text-center">
+            <h1 className="font-display text-3xl font-bold text-gradient">Create Account</h1>
+            <p className="text-muted-foreground">
+              Join InterfaceHive and start contributing
             </p>
           </div>
+
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
             {error && <ErrorMessage message={error} type="error" />}
 
-            <div className="flex flex-col gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
+            <div className="flex flex-col gap-5">
+              <div className="grid gap-2.5">
+                <Label htmlFor="email" className="font-medium">Email</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="you@example.com"
                   required
-                  className="bg-background/50 border-white/10"
+                  className="h-11 bg-background/50 border-[hsl(var(--border))] focus:border-[hsl(var(--accent-hive))]/50 transition-colors"
                   {...register('email')}
                   disabled={isLoading}
                 />
                 {errors.email && (
-                  <p className="text-sm text-red-500">{errors.email.message}</p>
+                  <p className="text-sm text-destructive">{errors.email.message}</p>
                 )}
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="display_name">Display Name</Label>
+              <div className="grid gap-2.5">
+                <Label htmlFor="display_name" className="font-medium">Display Name</Label>
                 <Input
                   id="display_name"
                   type="text"
-                  placeholder="John Doe"
+                  placeholder="Your name"
                   required
-                  className="bg-background/50 border-white/10"
+                  className="h-11 bg-background/50 border-[hsl(var(--border))] focus:border-[hsl(var(--accent-hive))]/50 transition-colors"
                   {...register('display_name')}
                   disabled={isLoading}
                 />
                 {errors.display_name && (
-                  <p className="text-sm text-red-500">{errors.display_name.message}</p>
+                  <p className="text-sm text-destructive">{errors.display_name.message}</p>
                 )}
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  className="bg-background/50 border-white/10"
-                  {...register('password')}
-                  disabled={isLoading}
-                />
-                {errors.password && (
-                  <p className="text-sm text-red-500">{errors.password.message}</p>
-                )}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2.5">
+                  <Label htmlFor="password" className="font-medium">Password</Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    required
+                    className="h-11 bg-background/50 border-[hsl(var(--border))] focus:border-[hsl(var(--accent-hive))]/50 transition-colors"
+                    {...register('password')}
+                    disabled={isLoading}
+                  />
+                  {errors.password && (
+                    <p className="text-sm text-destructive">{errors.password.message}</p>
+                  )}
+                </div>
+                <div className="grid gap-2.5">
+                  <Label htmlFor="confirm_password" className="font-medium">Confirm</Label>
+                  <Input
+                    id="confirm_password"
+                    type="password"
+                    required
+                    className="h-11 bg-background/50 border-[hsl(var(--border))] focus:border-[hsl(var(--accent-hive))]/50 transition-colors"
+                    {...register('confirm_password')}
+                    disabled={isLoading}
+                  />
+                  {errors.confirm_password && (
+                    <p className="text-sm text-destructive">{errors.confirm_password.message}</p>
+                  )}
+                </div>
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="confirm_password">Confirm Password</Label>
-                <Input
-                  id="confirm_password"
-                  type="password"
-                  required
-                  className="bg-background/50 border-white/10"
-                  {...register('confirm_password')}
-                  disabled={isLoading}
-                />
-                {errors.confirm_password && (
-                  <p className="text-sm text-red-500">{errors.confirm_password.message}</p>
-                )}
-              </div>
-              <button type="submit" className="premium-button w-full h-11" disabled={isLoading}>
+              <button type="submit" className="premium-button w-full h-12 text-base mt-2" disabled={isLoading}>
                 {isLoading ? <LoadingSpinner size="sm" /> : 'Create Account'}
               </button>
             </div>
           </form>
-          <div className="text-balance text-center text-xs text-muted-foreground">
+
+          <div className="text-center text-sm text-muted-foreground">
             Already have an account?{' '}
-            <Link to="/auth/login" className="text-accent-hive hover:underline">Sign in</Link>
+            <Link to="/auth/login" className="text-[hsl(var(--accent-hive))] font-medium hover:text-[hsl(var(--accent-hive-light))] transition-colors">
+              Sign in
+            </Link>
           </div>
         </div>
       </div>

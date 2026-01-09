@@ -1,243 +1,105 @@
 # InterfaceHive
 
-**A platform connecting builders with contributors for open-source and real-world projects.**
+**A Premium Collective Intelligence Hub connecting project visionaries with high-tier contributors.**
 
-InterfaceHive enables hosts to publish contribution requests and contributors to submit work, with a credit-based reputation system that awards credits when contributions are accepted.
+InterfaceHive is a state-of-the-art platform where project specifications meet elite execution. Deploy contribution requests, earn reputation credits, and architect the future through merit-based collaboration, all within a high-performance "Hive" ecosystem.
 
-## Features
-
-- **🔐 Authentication:** JWT-based authentication with email verification
-- **📋 Project Management:** Create, edit, and manage contribution requests
-- **🔍 Project Discovery:** Full-text search with PostgreSQL GIN index, tag filtering
-- **💬 Contribution System:** Submit work, review submissions, accept/decline decisions
-- **⭐ Credit System:** Atomic credit transactions with audit trail (max 1 credit per user/project)
-- **♿ Accessibility:** WCAG 2.1 Level AA compliance
-- **🔒 GDPR Compliant:** User data deletion and export rights
-- **📱 Responsive:** Desktop-first design, mobile-compatible
-
-## Tech Stack
-
-### Backend
-- **Framework:** Django 5.0 + Django REST Framework 3.14
-- **Database:** PostgreSQL 15 with full-text search (GIN indexes)
-- **Authentication:** JWT via djangorestframework-simplejwt
-- **Task Queue:** Celery + Redis (email sending, GDPR anonymization)
-- **Caching:** Redis
-- **API Docs:** drf-spectacular (OpenAPI 3.0)
-
-### Frontend
-- **Framework:** React 18 + TypeScript + Vite
-- **UI Components:** shadcn/ui (Radix primitives) + Tailwind CSS
-- **Routing:** React Router
-- **State Management:** TanStack Query (server state) + React Context
-- **Forms:** react-hook-form + zod
-- **HTTP Client:** axios
-
-## Quick Start
-
-### Prerequisites
-
-- **Python 3.11+**
-- **Node.js 20+**
-- **PostgreSQL 15+**
-- **Redis 7+**
-- **Git**
-
-### Backend Setup
-
-```bash
-cd backend
-
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Note: psycopg2-binary requires PostgreSQL to be installed
-# If you encounter issues, install PostgreSQL first
-
-# Set up environment variables
-cp .env.example .env  # Edit with your database credentials
-
-# Run migrations
-python manage.py migrate
-
-# Create superuser
-python manage.py createsuperuser
-
-# Start development server
-python manage.py runserver
-```
-
-### Frontend Setup
-
-```bash
-cd frontend
-
-# Install dependencies
-npm install
-
-# Set up environment variables
-cp .env.example .env  # Edit with your API URL
-
-# Start development server
-npm run dev
-```
-
-### Database Setup (Docker)
-
-```bash
-# Start PostgreSQL
-docker run -d \
-  --name interfacehive-postgres \
-  -e POSTGRES_DB=interfacehive \
-  -e POSTGRES_USER=interfacehive \
-  -e POSTGRES_PASSWORD=dev_password \
-  -p 5432:5432 \
-  postgres:15
-
-# Start Redis
-docker run -d \
-  --name interfacehive-redis \
-  -p 6379:6379 \
-  redis:7
-```
-
-### Celery Worker (Optional for Email)
-
-```bash
-cd backend
-source venv/bin/activate
-
-# Start Celery worker
-celery -A config worker --loglevel=info
-
-# Start Celery Beat (scheduled tasks)
-celery -A config beat --loglevel=info
-```
-
-## Project Structure
-
-```
-InterfaceHive/
-├── backend/                 # Django backend
-│   ├── apps/               # Django apps
-│   │   ├── users/         # Authentication & user management
-│   │   ├── projects/      # Project creation & management
-│   │   ├── contributions/ # Contribution submission & review
-│   │   └── credits/       # Credit system & ledger
-│   ├── config/            # Django settings & configuration
-│   ├── manage.py
-│   └── requirements.txt
-│
-├── frontend/               # React frontend
-│   ├── src/
-│   │   ├── api/          # API client & endpoints
-│   │   ├── components/   # React components
-│   │   ├── hooks/        # Custom React hooks
-│   │   ├── pages/        # Page components
-│   │   ├── schemas/      # Zod validation schemas
-│   │   └── lib/          # Utility functions
-│   ├── package.json
-│   └── vite.config.ts
-│
-└── specs/                  # Feature specifications & planning
-    └── 001-platform-mvp/
-        ├── spec.md         # Feature specification
-        ├── plan.md         # Implementation plan
-        ├── tasks.md        # Task breakdown
-        ├── data-model.md   # Database schema
-        ├── research.md     # Technical decisions
-        ├── quickstart.md   # Developer guide
-        └── contracts/
-            └── openapi.yaml # API specification
-```
-
-## API Documentation
-
-Once the backend is running, API documentation is available at:
-
-- **Swagger UI:** http://localhost:8000/api/docs/
-- **ReDoc:** http://localhost:8000/api/redoc/
-- **OpenAPI Schema:** http://localhost:8000/api/schema/
-
-## Development Workflow
-
-### Phase 1: Setup (Complete ✅)
-- Backend: Django + Celery + Redis configuration
-- Frontend: Vite + React + TypeScript + shadcn/ui
-- Documentation: README, .gitignore, configuration files
-
-### Phase 2: Foundation (Next)
-- Core models (User, Project, Contribution, CreditLedgerEntry)
-- Database migrations & indexes
-- Shared services & utilities
-
-### Phase 3+: Feature Implementation
-- FR-1: Authentication & Registration
-- FR-3: Project Management
-- FR-4: Project Discovery & Search
-- FR-5/6: Project Detail & Contribution Submission
-- FR-7/9: Review & Credits (Critical - atomic transactions)
-
-## Testing
-
-### Backend
-```bash
-cd backend
-pytest
-pytest --cov  # Coverage report (target: >= 70%)
-```
-
-### Frontend
-```bash
-cd frontend
-npm test
-npm run test:coverage
-```
-
-### E2E Tests
-```bash
-npx playwright test
-```
-
-## Performance Targets
-
-- **Initial page load:** < 3 seconds
-- **API response time (p95):** < 3 seconds
-- **Full-text search:** < 100ms with GIN index
-- **Concurrent users:** 500 without performance degradation
-
-## Security
-
-- JWT authentication with 1-hour access tokens, 7-day refresh tokens
-- CSRF protection on all state-changing operations
-- Rate limiting: 10 projects/hour, 20 contributions/hour per user
-- Input validation and sanitization
-- SQL injection prevention (Django ORM)
-- XSS prevention (output escaping)
-
-## Contributing
-
-1. Follow the task breakdown in `specs/001-platform-mvp/tasks.md`
-2. Ensure >= 70% test coverage (100% for critical paths)
-3. All code must pass linters (ESLint/Prettier for frontend, Black/Flake8 for backend)
-4. Follow the InterfaceHive Constitution (code quality, test coverage, UX, performance)
-
-## License
-
-[License TBD]
-
-## Support
-
-For questions or issues, please refer to:
-- **Specifications:** `specs/001-platform-mvp/`
-- **API Docs:** http://localhost:8000/api/docs/
-- **Implementation Guide:** `specs/001-platform-mvp/quickstart.md`
+![InterfaceHive Premium Design](https://img.shields.io/badge/Design-Premium_Glassmorphism-amber?style=for-the-badge)
+![Tech Stack](https://img.shields.io/badge/Stack-Django_%2B_React_%2B_GSAP-blue?style=for-the-badge)
+![AI Powered](https://img.shields.io/badge/AI-Gemini_Enhanced-purple?style=for-the-badge)
 
 ---
 
-**Built with ❤️ for the open-source community**
+## Core Features
 
+-   **Premium Hive Aesthetic:** A high-end, glassmorphic user interface featuring dynamic GSAP animations, hexagon patterns, and a sleek dark-label design system.
+-   **Real-Time Collaboration:** Integrated neural chat channels for instant synchronization between project hosts and verified contributors via WebSockets.
+-   **AI-Assisted Ingestion:** Deploy project specifications in seconds using the AI Assistant, capable of generating detailed requirements from high-level ideas or existing GitHub repositories.
+-   **Meritocratic Credit System:** Secure your reputation through verified merges. Earn credits that signal your expertise and unlock higher-tier project opportunities.
+-   **Advanced Intelligence Discovery:** Filter through project protocols with granular precision using full-text search and categorized "neural" tags.
+-   **Secure Uplink:** JWT-based authentication with encrypted identity verification and protected route protocols.
+
+---
+
+## Tech Stack
+
+### Backend (The Neural Core)
+-   **Framework:** [Django 5.0](https://www.djangoproject.com/) + [Django REST Framework](https://www.django-rest-framework.org/)
+-   **Real-time:** [Django Channels](https://channels.readthedocs.io/) + [Daphne](https://github.com/django/daphne) (WebSockets)
+-   **Intelligence:** [Google Generative AI (Gemini)](https://ai.google.dev/) for project conceptualization.
+-   **Data Archeology:** [PostgreSQL](https://www.postgresql.org/) with GIN indexes for lightning-fast search.
+-   **Queue & Cache:** [Celery](https://docs.celeryq.dev/) + [Redis](https://redis.io/) for asynchronous protocol execution.
+-   **Identity:** SimpleJWT for secure analyst authentication.
+
+### Frontend (The Interface Layer)
+-   **Framework:** [React 19](https://react.dev/) + [Vite](https://vitejs.dev/) + [TypeScript](https://www.typescriptlang.org/)
+-   **Styling:** [Tailwind CSS](https://tailwindcss.com/) with a custom Glassmorphism Design System.
+-   **Motion:** [GSAP (GreenSock)](https://greensock.com/gsap/) for high-precision staggered animations and parallax effects.
+-   **Components:** [shadcn/ui](https://ui.shadcn.com/) (Radix Primitives) + Lucid-React icons.
+-   **Data Sync:** [TanStack Query v5](https://tanstack.com/query/latest) for efficient server state management.
+
+---
+
+## Quick Start
+
+### 1. Repository Initialization
+```bash
+git clone https://github.com/mushimuro/InterfaceHive.git
+cd InterfaceHive
+```
+
+### 2. Backend Deployment (Neural Core)
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+cp .env.example .env      # Configure your DB and Gemini API keys
+python manage.py migrate
+python manage.py runserver
+```
+
+### 3. Frontend Initialization (Interface Layer)
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+## Project Architecture
+
+```
+InterfaceHive/
+├── backend/                 # Django Neural Core
+│   ├── apps/               # Protocol definitions
+│   │   ├── users/         # Identity management
+│   │   ├── projects/      # Specification deployment
+│   │   ├── contributions/ # Submission streams
+│   │   └── credits/       # Reputation ledger
+│   └── config/            # System configuration
+├── frontend/               # React Interface Layer
+│   ├── src/
+│   │   ├── api/          # Neural handshake protocols
+│   │   ├── components/   # UI building blocks (Glassmorphic)
+│   │   ├── pages/        # View archetypes
+│   │   └── styles/        # Global Hive design tokens
+└── specs/                  # Core documentation & manifestos
+```
+
+---
+
+## API Intelligence
+
+Once the system is online, access the schema documentation at:
+-   **Protocol Specs:** `http://localhost:8000/api/docs/`
+-   **Neural Map (ReDoc):** `http://localhost:8000/api/redoc/`
+
+---
+
+## Protocol Security
+InterfaceHive enforces strict collaboration standards:
+-   Granular permission layers for Analysts vs. Hosts.
+-   Rate-limited submission streams to maintain hive quality.
+-   Encrypted data handling and secure WebSocket handshakes.
