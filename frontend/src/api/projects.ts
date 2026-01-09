@@ -9,6 +9,7 @@ export interface Project {
   desired_outputs: string;
   status: 'draft' | 'open' | 'closed';
   difficulty?: 'easy' | 'intermediate' | 'advanced';
+  usage_type: 'practice' | 'commercial';
   estimated_time?: string;
   github_url?: string;
   host: {
@@ -35,6 +36,7 @@ export interface ProjectFormData {
   inputs_dependencies?: string;
   desired_outputs: string;
   difficulty?: 'easy' | 'intermediate' | 'advanced';
+  usage_type: 'practice' | 'commercial';
   estimated_time?: string;
   github_url?: string;
   tags?: string[];
@@ -45,6 +47,7 @@ export interface ProjectFilters {
   search?: string;
   status?: 'open' | 'closed' | 'draft';
   difficulty?: 'easy' | 'intermediate' | 'advanced';
+  usage_type?: 'practice' | 'commercial';
   tags?: string;
   ordering?: string;
   page?: number;

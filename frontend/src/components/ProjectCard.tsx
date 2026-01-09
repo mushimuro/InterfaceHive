@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Badge } from './ui/badge';
 import { Clock, Award, User, ArrowUpRight } from 'lucide-react';
 import { type Project } from '../api/projects';
 
@@ -44,13 +43,24 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
             <ArrowUpRight className="h-4 w-4 text-muted-foreground/40 group-hover:text-[hsl(var(--accent-hive))] transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 flex-shrink-0 mt-0.5" />
           </div>
 
-          {/* Difficulty badge */}
-          {project.difficulty && difficulty && (
-            <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium ${difficulty.bg} ${difficulty.text} ${difficulty.border} border`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${difficulty.dot}`} />
-              {project.difficulty}
+          {/* Badges */}
+          <div className="flex flex-wrap gap-2">
+            {project.difficulty && difficulty && (
+              <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium ${difficulty.bg} ${difficulty.text} ${difficulty.border} border`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${difficulty.dot}`} />
+                {project.difficulty}
+              </div>
+            )}
+
+            <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] font-medium ${project.usage_type === 'commercial'
+              ? 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20'
+              : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20'
+              } border`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${project.usage_type === 'commercial' ? 'bg-indigo-500' : 'bg-blue-500'
+                }`} />
+              {project.usage_type === 'commercial' ? 'Commercial' : 'Practice'}
             </div>
-          )}
+          </div>
 
           <p className="line-clamp-2 text-sm text-muted-foreground leading-relaxed">
             {project.description}

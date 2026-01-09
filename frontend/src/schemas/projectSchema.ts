@@ -32,6 +32,9 @@ export const githubUrlSchema = z
 // Difficulty level validation
 export const difficultySchema = z.enum(['easy', 'intermediate', 'advanced'] as [string, ...string[]]).or(z.literal(''));
 
+// Usage type validation
+export const usageTypeSchema = z.enum(['commercial', 'practice'] as [string, ...string[]]).or(z.literal(''));
+
 // Project create/edit schema
 export const projectSchema = z.object({
   title: projectTitleSchema,
@@ -40,6 +43,7 @@ export const projectSchema = z.object({
   inputs_dependencies: z.string().max(2000, 'Inputs/dependencies is too long').optional(),
   desired_outputs: z.string().min(20, 'Please describe desired outputs (min 20 characters)').max(2000, 'Desired outputs is too long'),
   difficulty: difficultySchema.optional(),
+  usage_type: usageTypeSchema,
   estimated_time: z.string().max(50, 'Estimated time is too long').optional(),
   github_url: githubUrlSchema,
   tags: z.array(z.string()).max(5, 'Maximum 5 tags allowed').optional(),
@@ -50,6 +54,7 @@ export const projectSchema = z.object({
 export const projectFilterSchema = z.object({
   search: z.string().optional(),
   difficulty: difficultySchema.optional(),
+  usage_type: usageTypeSchema.optional(),
   status: z.enum(['draft', 'open', 'closed']).optional(),
   tags: z.array(z.string()).optional(),
   ordering: z.enum(['created_at', '-created_at', 'title', '-title']).optional(),

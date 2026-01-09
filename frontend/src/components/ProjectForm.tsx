@@ -30,6 +30,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
   } = form;
 
   const difficulty = watch('difficulty');
+  const usage_type = watch('usage_type');
   const status = watch('status');
 
   return (
@@ -118,6 +119,39 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         </p>
         {errors.desired_outputs && (
           <p className="text-sm text-red-500">{errors.desired_outputs.message}</p>
+        )}
+      </div>
+
+      {/* Usage Type */}
+      <div className="space-y-2">
+        <Label htmlFor="usage_type">
+          Project Usage Purpose <span className="text-red-500">*</span>
+        </Label>
+        <Select
+          value={usage_type}
+          onValueChange={(value) => setValue('usage_type', value as any)}
+          disabled={isLoading}
+        >
+          <SelectTrigger className="glass-card bg-white/5 border-white/10 rounded-2xl h-12 focus:border-accent-hive/50 transition-all">
+            <SelectValue placeholder="Select usage purpose" />
+          </SelectTrigger>
+          <SelectContent className="glass-card bg-black/80 backdrop-blur-xl border-white/10">
+            <SelectItem value="practice" className="hover:bg-accent-hive/10 focus:bg-accent-hive/10 cursor-pointer">
+              <div className="flex flex-col py-1">
+                <span className="font-bold text-sm">Practice / Learning</span>
+                <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Self-improvement and knowledge sharing</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="commercial" className="hover:bg-accent-hive/10 focus:bg-accent-hive/10 cursor-pointer">
+              <div className="flex flex-col py-1">
+                <span className="font-bold text-sm">Commercial / Production</span>
+                <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Business oriented or published products</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        {errors.usage_type && (
+          <p className="text-sm text-red-500">{errors.usage_type.message}</p>
         )}
       </div>
 
