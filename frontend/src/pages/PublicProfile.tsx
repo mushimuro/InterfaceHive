@@ -2,7 +2,6 @@ import React, { useLayoutEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import apiClient from '../api/client';
-import { Badge } from '../components/ui/badge';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import { Github, Globe, Calendar, Award, User, ShieldCheck } from 'lucide-react';

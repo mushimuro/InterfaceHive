@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useLayoutEffect, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { verifyEmail, resendVerification } from '../api/auth';
-import { Button } from '../components/ui/button';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
-import { CheckCircle, XCircle, ShieldCheck, Mail, ArrowRight } from 'lucide-react';
+import { XCircle, ShieldCheck, Mail, ArrowRight } from 'lucide-react';
 import { gsap } from 'gsap';
 
 const VerifyEmail: React.FC = () => {

@@ -1,0 +1,6 @@
+src/pages/MyContributions.tsx(246,34): error TS18048: 'data' is possibly 'undefined'.
+src/pages/MyContributions.tsx(247,33): error TS18048: 'data' is possibly 'undefined'.
+src/pages/Profile.tsx(7,1): error TS6133: 'CreditBadge' is declared but its value is never read.
+src/pages/PublicProfile.tsx(5,1): error TS6133: 'Badge' is declared but its value is never read.
+src/pages/VerifyEmail.tsx(4,1): error TS6133: 'Button' is declared but its value is never read.
+src/pages/VerifyEmail.tsx(7,10): error TS6133: 'CheckCircle' is declared but its value is never read.

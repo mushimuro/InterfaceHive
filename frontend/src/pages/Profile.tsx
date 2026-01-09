@@ -4,7 +4,6 @@ import { useMyCreditBalance, useMyCreditLedger } from '../hooks/useCredits';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import ProfileForm from '../components/ProfileForm';
-import CreditBadge from '../components/CreditBadge';
 import CreditLedger from '../components/CreditLedger';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
