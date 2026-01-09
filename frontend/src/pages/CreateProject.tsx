@@ -25,6 +25,7 @@ const CreateProject: React.FC = () => {
     resolver: zodResolver(projectSchema),
     defaultValues: {
       status: 'open',
+      usage_type: 'practice',
       tags: [],
     },
   });
@@ -104,6 +105,7 @@ const CreateProject: React.FC = () => {
     if (data.estimated_time) form.setValue('estimated_time', data.estimated_time);
     if (data.tags) form.setValue('tags', data.tags);
     if (data.github_url) form.setValue('github_url', data.github_url);
+    if (data.usage_type) form.setValue('usage_type', data.usage_type);
     if (data.status) form.setValue('status', 'open');
   };
 
@@ -118,6 +120,7 @@ const CreateProject: React.FC = () => {
       estimated_time: '',
       tags: [],
       github_url: '',
+      usage_type: 'practice',
       status: 'open',
     });
     setAiIdea('');
