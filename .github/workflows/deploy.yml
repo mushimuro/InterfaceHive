@@ -44,22 +44,53 @@ jobs:
       uses: appleboy/ssh-action@master
       with:
         host: ${{ secrets.EC2_HOST }}
-        username: ec2-user
+        username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          cd ~/InterfaceHive || git clone https://github.com/${{ github.repository }} ~/InterfaceHive
+          # Create directory if it doesn't exist and navigate into it
+          mkdir -p ~/InterfaceHive
           cd ~/InterfaceHive
-          git pull origin main
           
-          # Update the docker-compose image tags
-          export DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+          # Initialize git repo if not already done
+          if [ ! -d .git ]; then
+            git init
+            git remote add origin https://github.com/${{ github.repository }}.git
+          fi
+          
+          # Fetch and pull latest code
+          git fetch origin
+          git reset --hard origin/master
+          
+          # Create/update .env file with production secrets
+          cat > .env << EOF
+          DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }}
+          POSTGRES_DB=interfacehive
+          POSTGRES_USER=interfacehive_user
+          POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+          SECRET_KEY=${{ secrets.SECRET_KEY }}
+          DEBUG=False
+          ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS || secrets.EC2_HOST }},localhost,127.0.0.1
+          REDIS_URL=redis://redis:6379/0
+          EOF
           
           # Pull latest images
-          docker pull $DOCKERHUB_USERNAME/interfacehive-backend:latest
-          docker pull $DOCKERHUB_USERNAME/interfacehive-frontend:latest
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/interfacehive-backend:latest
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/interfacehive-frontend:latest
           
-          # Restart services
+          # Stop existing containers
+          docker-compose -f docker-compose.prod.yml down
+          
+          # Start services with latest images
           docker-compose -f docker-compose.prod.yml up -d
           
-          # Check logs/status
+          # Wait for backend to be ready
+          sleep 10
+          
+          # Run migrations
+          docker-compose -f docker-compose.prod.yml exec -T backend python manage.py migrate --noinput || echo "Migrations skipped or failed"
+          
+          # Collect static files
+          docker-compose -f docker-compose.prod.yml exec -T backend python manage.py collectstatic --noinput || echo "Static files collection skipped or failed"
+          
+          # Check status
           docker-compose -f docker-compose.prod.yml ps
