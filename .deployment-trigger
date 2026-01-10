@@ -1,6 +1,7 @@
 # Deployment Trigger File
 # This file is used to trigger deployments when secrets are updated
 
-Last deployment: 2026-01-10
-Reason: Fix VITE_API_BASE_URL configuration2
+Last deployment: 2026-01-10 - Second attempt
+Reason: Fix VITE_API_BASE_URL configuration (force rebuild with no cache)
+Status: Forcing rebuild without cache2
 
