@@ -2,5 +2,5 @@
 # This file is used to trigger deployments when secrets are updated
 
 Last deployment: 2026-01-10
-Reason: Fix VITE_API_BASE_URL configuration
+Reason: Fix VITE_API_BASE_URL configuration2
 
