@@ -314,8 +314,8 @@ const MyProjects: React.FC = () => {
 
               <div className="pt-10">
                 <Pagination
-                  currentPage={data.current_page}
-                  totalPages={data.total_pages}
+                  currentPage={data?.current_page || 1}
+                  totalPages={data?.total_pages || 1}
                   onPageChange={(p) => setPage(p)}
                 />
               </div>

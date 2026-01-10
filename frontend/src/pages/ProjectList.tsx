@@ -100,8 +100,8 @@ const ProjectList: React.FC = () => {
               {/* Pagination */}
               <div className="mt-10">
                 <Pagination
-                  currentPage={data.current_page}
-                  totalPages={data.total_pages}
+                  currentPage={data?.current_page || 1}
+                  totalPages={data?.total_pages || 1}
                   onPageChange={(p) => setFilters({ ...filters, page: p })}
                 />
               </div>
