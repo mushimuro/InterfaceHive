@@ -1,4 +1,5 @@
 import React, { useState, useLayoutEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Badge } from '../components/ui/badge';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -11,6 +12,7 @@ import Pagination from '../components/Pagination';
 import { gsap } from 'gsap';
 
 const MyContributions: React.FC = () => {
+  const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
@@ -53,21 +55,21 @@ const MyContributions: React.FC = () => {
         return (
           <Badge className="bg-green-500/10 text-green-400 border border-green-500/20 uppercase text-[10px] tracking-widest px-2 py-0.5">
             <CheckCircle className="h-3 w-3 mr-1" />
-            Active Protocol
+            {t('myContributions.activeProtocol')}
           </Badge>
         );
       case 'declined':
         return (
           <Badge className="bg-red-500/10 text-red-400 border border-red-500/20 uppercase text-[10px] tracking-widest px-2 py-0.5">
             <XCircle className="h-3 w-3 mr-1" />
-            Terminated
+            {t('myContributions.terminated')}
           </Badge>
         );
       case 'pending':
         return (
           <Badge className="bg-amber-500/10 text-amber-400 border border-amber-500/20 uppercase text-[10px] tracking-widest px-2 py-0.5">
             <Clock className="h-3 w-3 mr-1" />
-            Under Review
+            {t('myContributions.underReview')}
           </Badge>
         );
       default:
@@ -109,15 +111,15 @@ const MyContributions: React.FC = () => {
                 <History className="h-10 w-10 text-accent-hive" />
               </div>
               <div>
-                <h1 className="text-4xl md:text-5xl font-black tracking-tight text-gradient">My Neural Trail</h1>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tight text-gradient">{t('myContributions.title')}</h1>
                 <p className="text-muted-foreground text-lg font-light mt-1">
-                  Track and manage your history of contributions to the collective intelligence.
+                  {t('myContributions.subtitle')}
                 </p>
               </div>
             </div>
             <Link to="/projects" className="premium-button whitespace-nowrap px-8 py-4 h-auto text-sm">
               <Zap className="mr-2 h-5 w-5" />
-              Explore Ops
+              {t('myContributions.exploreOps')}
             </Link>
           </div>
         </div>
@@ -125,10 +127,10 @@ const MyContributions: React.FC = () => {
         {/* Stats Panel */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
           {[
-            { label: 'Total Invocations', value: stats.total, icon: FileText, color: 'text-accent-hive' },
-            { label: 'Pending Audit', value: stats.pending, icon: Clock, color: 'text-amber-500' },
-            { label: 'Verified Merges', value: stats.accepted, icon: CheckCircle, color: 'text-green-500' },
-            { label: 'Legacy Data', value: stats.declined, icon: XCircle, color: 'text-red-500' }
+            { label: t('myContributions.totalInvocations'), value: stats.total, icon: FileText, color: 'text-accent-hive' },
+            { label: t('myContributions.pendingAudit'), value: stats.pending, icon: Clock, color: 'text-amber-500' },
+            { label: t('myContributions.verifiedMerges'), value: stats.accepted, icon: CheckCircle, color: 'text-green-500' },
+            { label: t('myContributions.legacyData'), value: stats.declined, icon: XCircle, color: 'text-red-500' }
           ].map((stat, i) => (
             <div key={i} className="contrib-stat-anim glass-card p-6 rounded-2xl text-center group hover:border-accent-hive/30 transition-all">
               <div className={`p-3 rounded-xl bg-white/5 border border-white/10 ${stat.color} w-fit mx-auto mb-4 group-hover:scale-110 transition-transform`}>
@@ -150,23 +152,23 @@ const MyContributions: React.FC = () => {
           className="mb-8"
         >
           <TabsList className="grid w-full grid-cols-4 glass-card p-1.5 h-12 rounded-2xl">
-            <TabsTrigger value="all" className="rounded-xl data-[state=active]:bg-accent-hive data-[state=active]:text-black text-[11px] font-bold uppercase tracking-wider">Historical</TabsTrigger>
-            <TabsTrigger value="pending" className="rounded-xl data-[state=active]:bg-accent-hive data-[state=active]:text-black text-[11px] font-bold uppercase tracking-wider">Under Review</TabsTrigger>
-            <TabsTrigger value="accepted" className="rounded-xl data-[state=active]:bg-accent-hive data-[state=active]:text-black text-[11px] font-bold uppercase tracking-wider">Accepted</TabsTrigger>
-            <TabsTrigger value="declined" className="rounded-xl data-[state=active]:bg-accent-hive data-[state=active]:text-black text-[11px] font-bold uppercase tracking-wider">Declined</TabsTrigger>
+            <TabsTrigger value="all" className="rounded-xl data-[state=active]:bg-accent-hive data-[state=active]:text-black text-[11px] font-bold uppercase tracking-wider">{t('myContributions.historical')}</TabsTrigger>
+            <TabsTrigger value="pending" className="rounded-xl data-[state=active]:bg-accent-hive data-[state=active]:text-black text-[11px] font-bold uppercase tracking-wider">{t('myContributions.underReview')}</TabsTrigger>
+            <TabsTrigger value="accepted" className="rounded-xl data-[state=active]:bg-accent-hive data-[state=active]:text-black text-[11px] font-bold uppercase tracking-wider">{t('myContributions.accepted')}</TabsTrigger>
+            <TabsTrigger value="declined" className="rounded-xl data-[state=active]:bg-accent-hive data-[state=active]:text-black text-[11px] font-bold uppercase tracking-wider">{t('myContributions.declined')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="all" className="mt-0 pt-8">
             {isLoading && (
               <div className="flex flex-col items-center justify-center py-24 gap-4">
                 <LoadingSpinner size="lg" />
-                <p className="text-muted-foreground text-sm font-light tracking-[0.3em] animate-pulse uppercase">Tracing contributions...</p>
+                <p className="text-muted-foreground text-sm font-light tracking-[0.3em] animate-pulse uppercase">{t('myContributions.loading')}</p>
               </div>
             )}
 
             {error && (
               <div className="glass-card p-10 rounded-3xl text-center">
-                <ErrorMessage message="Contribution stream corrupted. Unable to fetch history." type="error" />
+                <ErrorMessage message={t('myContributions.error')} type="error" />
               </div>
             )}
 
@@ -175,12 +177,12 @@ const MyContributions: React.FC = () => {
                 <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-8">
                   <FileText className="h-8 w-8 text-muted-foreground/30" />
                 </div>
-                <h3 className="text-2xl font-black text-white/50 mb-3 uppercase tracking-widest">No Activity Stream Found</h3>
+                <h3 className="text-2xl font-black text-white/50 mb-3 uppercase tracking-widest">{t('myContributions.noContributions')}</h3>
                 <p className="text-muted-foreground max-w-md mx-auto mb-10 font-light text-lg">
-                  Initiate your first contribution request to begin building your professional reputation.
+                  {t('myContributions.noContributionsDesc')}
                 </p>
                 <Link to="/projects" className="premium-button px-12 py-4 h-auto">
-                  Browse Operations
+                  {t('myContributions.browseOperations')}
                 </Link>
               </div>
             )}
@@ -208,11 +210,11 @@ const MyContributions: React.FC = () => {
                         <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60">
                           <div className="flex items-center gap-2">
                             <Clock className="h-3.5 w-3.5 text-accent-hive/60" />
-                            <span>SUBMITTED {format(new Date(contribution.created_at), 'MMM d, yyyy')}</span>
+                            <span>{t('myContributions.submitted')} {format(new Date(contribution.created_at), 'MMM d, yyyy')}</span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Award className="h-3.5 w-3.5 text-accent-hive/60" />
-                            <span>INTELLIGENCE OPS</span>
+                            <span>{t('myContributions.intelligenceOps')}</span>
                           </div>
                         </div>
                       </div>
@@ -225,7 +227,7 @@ const MyContributions: React.FC = () => {
                             className="p-3 rounded-xl glass-card border-white/10 hover:bg-white/5 text-accent-hive/70 transition-all flex items-center gap-2 text-xs font-bold uppercase"
                           >
                             <Edit className="h-4 w-4" />
-                            <span>Modify</span>
+                            <span>{t('myContributions.modify')}</span>
                           </button>
                           <button
                             onClick={() => handleDelete(contribution.id)}
@@ -233,7 +235,7 @@ const MyContributions: React.FC = () => {
                             className="p-3 rounded-xl glass-card border-white/10 hover:bg-red-500/10 text-red-400/70 transition-all flex items-center gap-2 text-xs font-bold uppercase"
                           >
                             <Trash2 className="h-4 w-4" />
-                            <span>Withdraw</span>
+                            <span>{t('myContributions.withdraw')}</span>
                           </button>
                         </div>
                       )}

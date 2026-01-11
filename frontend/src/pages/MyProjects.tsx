@@ -1,5 +1,6 @@
 import React, { useState, useLayoutEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useMyProjects, useDeleteProject, useUpdateProject } from '../hooks/useProjects';
 import type { Project } from '../api/projects';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
@@ -27,6 +28,7 @@ import Pagination from '../components/Pagination';
 import { gsap } from 'gsap';
 
 const StatusEditButton: React.FC<{ project: Project }> = ({ project }) => {
+  const { t } = useTranslation();
   const updateMutation = useUpdateProject(project.id);
 
   const handleStatusChange = async (newStatus: 'open' | 'closed' | 'draft') => {
@@ -51,22 +53,22 @@ const StatusEditButton: React.FC<{ project: Project }> = ({ project }) => {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="glass-card border-white/10 h-8 text-[11px] font-bold uppercase tracking-wider" disabled={updateMutation.isPending}>
           <FileEdit className="mr-1.5 h-3.5 w-3.5 text-accent-hive/70" />
-          {updateMutation.isPending ? 'Updating...' : 'Set Status'}
+          {updateMutation.isPending ? t('myProjects.updating') : t('myProjects.setStatus')}
           <ChevronDown className="ml-1.5 h-3 w-3 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="glass-card border-white/10 bg-black/80 backdrop-blur-xl">
         <DropdownMenuItem onClick={() => handleStatusChange('open')} disabled={project.status === 'open'} className="text-xs uppercase font-bold tracking-tight">
           {getStatusIcon('open')}
-          Open Channel
+          {t('myProjects.openChannel')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleStatusChange('closed')} disabled={project.status === 'closed'} className="text-xs uppercase font-bold tracking-tight">
           {getStatusIcon('closed')}
-          Close Channel
+          {t('myProjects.closeChannel')}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleStatusChange('draft')} disabled={project.status === 'draft'} className="text-xs uppercase font-bold tracking-tight">
           {getStatusIcon('draft')}
-          Archive Draft
+          {t('myProjects.archiveDraft')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -74,6 +76,7 @@ const StatusEditButton: React.FC<{ project: Project }> = ({ project }) => {
 };
 
 const MyProjects: React.FC = () => {
+  const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('newest');
@@ -155,15 +158,15 @@ const MyProjects: React.FC = () => {
                 <Briefcase className="h-10 w-10 text-accent-hive" />
               </div>
               <div>
-                <h1 className="text-4xl md:text-5xl font-black tracking-tight text-gradient">My Deployments</h1>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tight text-gradient">{t('myProjects.title')}</h1>
                 <p className="text-muted-foreground text-lg font-light mt-1">
-                  Orchestrate your active collaboration requests and project requirements.
+                  {t('myProjects.subtitle')}
                 </p>
               </div>
             </div>
             <Link to="/projects/create" className="premium-button whitespace-nowrap px-8 py-4 h-auto text-sm">
               <Plus className="mr-2 h-5 w-5" />
-              Initialize Request
+              {t('myProjects.initializeRequest')}
             </Link>
           </div>
         </div>
@@ -179,10 +182,10 @@ const MyProjects: React.FC = () => {
             className="w-full lg:w-auto"
           >
             <TabsList className="grid grid-cols-4 w-full lg:w-[480px] glass-card p-1 h-11 rounded-xl">
-              <TabsTrigger value="all" className="rounded-lg data-[state=active]:bg-accent-hive data-[state=active]:text-black text-[11px] font-bold uppercase tracking-wider">All</TabsTrigger>
-              <TabsTrigger value="open" className="rounded-lg data-[state=active]:bg-accent-hive data-[state=active]:text-black text-[11px] font-bold uppercase tracking-wider">Open</TabsTrigger>
-              <TabsTrigger value="closed" className="rounded-lg data-[state=active]:bg-accent-hive data-[state=active]:text-black text-[11px] font-bold uppercase tracking-wider">Closed</TabsTrigger>
-              <TabsTrigger value="draft" className="rounded-lg data-[state=active]:bg-accent-hive data-[state=active]:text-black text-[11px] font-bold uppercase tracking-wider">Drafts</TabsTrigger>
+              <TabsTrigger value="all" className="rounded-lg data-[state=active]:bg-accent-hive data-[state=active]:text-black text-[11px] font-bold uppercase tracking-wider">{t('myProjects.all')}</TabsTrigger>
+              <TabsTrigger value="open" className="rounded-lg data-[state=active]:bg-accent-hive data-[state=active]:text-black text-[11px] font-bold uppercase tracking-wider">{t('myProjects.open')}</TabsTrigger>
+              <TabsTrigger value="closed" className="rounded-lg data-[state=active]:bg-accent-hive data-[state=active]:text-black text-[11px] font-bold uppercase tracking-wider">{t('myProjects.closed')}</TabsTrigger>
+              <TabsTrigger value="draft" className="rounded-lg data-[state=active]:bg-accent-hive data-[state=active]:text-black text-[11px] font-bold uppercase tracking-wider">{t('myProjects.drafts')}</TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -191,7 +194,7 @@ const MyProjects: React.FC = () => {
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
               <Input
                 type="text"
-                placeholder="Search deployment database..."
+                placeholder={t('myProjects.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-11 w-full h-11 glass-card bg-white/5 border-white/10 rounded-xl focus:border-accent-hive/50 transition-all font-light"
@@ -199,14 +202,14 @@ const MyProjects: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-3 shrink-0">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 hidden sm:block">Sort Index:</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/50 hidden sm:block">{t('myProjects.sortIndex')}</span>
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-[160px] h-11 glass-card border-white/10 rounded-xl text-xs font-bold uppercase tracking-tighter">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="glass-card bg-black/80 backdrop-blur-xl border-white/10">
-                  <SelectItem value="newest" className="text-xs font-bold uppercase">Chronological</SelectItem>
-                  <SelectItem value="oldest" className="text-xs font-bold uppercase">Reverse</SelectItem>
+                  <SelectItem value="newest" className="text-xs font-bold uppercase">{t('myProjects.chronological')}</SelectItem>
+                  <SelectItem value="oldest" className="text-xs font-bold uppercase">{t('myProjects.reverse')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -218,13 +221,13 @@ const MyProjects: React.FC = () => {
           {isLoading && (
             <div className="flex flex-col items-center justify-center py-24 gap-4">
               <LoadingSpinner size="lg" />
-              <p className="text-muted-foreground text-sm font-light tracking-[0.3em] animate-pulse uppercase">Syncing protocol list...</p>
+              <p className="text-muted-foreground text-sm font-light tracking-[0.3em] animate-pulse uppercase">{t('myProjects.loading')}</p>
             </div>
           )}
 
           {error && (
             <div className="glass-card p-10 rounded-3xl text-center">
-              <ErrorMessage message="Protocol link failed. Database inaccessible." type="error" />
+              <ErrorMessage message={t('myProjects.error')} type="error" />
             </div>
           )}
 
@@ -233,14 +236,14 @@ const MyProjects: React.FC = () => {
               <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-6">
                 <LayoutGrid className="h-8 w-8 text-muted-foreground/30" />
               </div>
-              <h3 className="text-2xl font-black text-white/50 mb-2 uppercase tracking-widest">No Deployments Found</h3>
+              <h3 className="text-2xl font-black text-white/50 mb-2 uppercase tracking-widest">{t('myProjects.noProjects')}</h3>
               <p className="text-muted-foreground max-w-sm mx-auto mb-10 font-light">
-                {searchQuery ? "Synchronize your search parameters or wipe all filters." : "Initialize your first project protocol to begin community collaboration."}
+                {searchQuery ? t('myProjects.noProjectsSearch') : t('myProjects.noProjectsEmpty')}
               </p>
               {!searchQuery && (
                 <Link to="/projects/create" className="premium-button px-8 py-3 h-auto">
                   <Plus className="mr-2 h-5 w-5" />
-                  Create First Request
+                  {t('myProjects.createFirst')}
                 </Link>
               )}
             </div>
@@ -272,11 +275,11 @@ const MyProjects: React.FC = () => {
                       <div className="flex flex-wrap items-center gap-6 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">
                         <div className="flex items-center gap-2">
                           <Clock className="h-3.5 w-3.5 text-accent-hive/60" />
-                          <span>SYNCHED {format(new Date(project.created_at), 'MMM d, yyyy')}</span>
+                          <span>{t('myProjects.synched')} {format(new Date(project.created_at), 'MMM d, yyyy')}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Users className="h-3.5 w-3.5 text-accent-hive/60" />
-                          <span>{project.contribution_count} ANALYSTS</span>
+                          <span>{project.contribution_count} {t('myProjects.analysts')}</span>
                         </div>
                         {project.tags && project.tags.length > 0 && (
                           <div className="hidden sm:flex flex-wrap gap-2">

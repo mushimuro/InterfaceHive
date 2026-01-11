@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -35,6 +36,7 @@ const LottieFallback = () => (
 );
 
 const Home: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -179,27 +181,26 @@ const Home: React.FC = () => {
             <LottieFallback />
           </div>
 
-          <h1 className="hero-headline">Where Projects Find Their Contributors</h1>
+          <h1 className="hero-headline">{t('home.hero.title')}</h1>
 
           <p className="hero-subheadline">
-            InterfaceHive connects project hosts with talented contributors.
-            Publish calls, receive submissions, and build reputation through our credit system.
+            {t('home.hero.subtitle')}
           </p>
 
           <div className="hero-ctas">
             {user ? (
               <Link to="/projects" className="landing-btn btn-primary-landing">
-                Browse Projects
+                {t('home.hero.browseProjects')}
                 <span className="btn-glow"></span>
               </Link>
             ) : (
               <>
                 <Link to="/auth/register" className="landing-btn btn-primary-landing">
-                  Get Started Free
+                  {t('home.hero.cta')}
                   <span className="btn-glow"></span>
                 </Link>
                 <Link to="/projects" className="landing-btn btn-secondary-landing">
-                  Browse Projects
+                  {t('home.hero.browseProjects')}
                 </Link>
               </>
             )}
@@ -223,10 +224,9 @@ const Home: React.FC = () => {
                 <path d="M16 16L4 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <h3 className="feature-title">Publish Calls</h3>
+            <h3 className="feature-title">{t('home.features.publishCalls.title')}</h3>
             <p className="feature-description">
-              Create contribution requests with detailed requirements.
-              Reach contributors actively looking to help.
+              {t('home.features.publishCalls.description')}
             </p>
           </article>
 
@@ -242,10 +242,9 @@ const Home: React.FC = () => {
                 <path d="M30 16H26" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
             </div>
-            <h3 className="feature-title">Credit System</h3>
+            <h3 className="feature-title">{t('home.features.creditSystem.title')}</h3>
             <p className="feature-description">
-              Earn credits for accepted contributions.
-              Build your reputation as a trusted contributor.
+              {t('home.features.creditSystem.description')}
             </p>
           </article>
 
@@ -259,10 +258,9 @@ const Home: React.FC = () => {
                 <circle cx="24" cy="8" r="3" stroke="currentColor" strokeWidth="2" />
               </svg>
             </div>
-            <h3 className="feature-title">Real-time Chat</h3>
+            <h3 className="feature-title">{t('home.features.realtimeChat.title')}</h3>
             <p className="feature-description">
-              Communicate directly with hosts and contributors.
-              Discuss requirements and provide feedback.
+              {t('home.features.realtimeChat.description')}
             </p>
           </article>
 
@@ -273,10 +271,9 @@ const Home: React.FC = () => {
                 <path d="M16 2L20 10L29 11.5L22.5 18L24 27L16 22.5L8 27L9.5 18L3 11.5L12 10L16 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <h3 className="feature-title">Quality Reviews</h3>
+            <h3 className="feature-title">{t('home.features.qualityReviews.title')}</h3>
             <p className="feature-description">
-              Structured review process ensures high-quality submissions
-              and fair evaluations.
+              {t('home.features.qualityReviews.description')}
             </p>
           </article>
         </div>
@@ -286,9 +283,9 @@ const Home: React.FC = () => {
       <section className="how-it-works" id="how-it-works">
         <div className="container mx-auto">
           <div className="section-header">
-            <h2 className="section-headline">How It Works</h2>
+            <h2 className="section-headline">{t('home.howItWorks.title')}</h2>
             <p className="section-subheadline">
-              A simple, transparent process that connects hosts with contributors
+              {t('home.howItWorks.subtitle')}
             </p>
           </div>
 
@@ -303,8 +300,8 @@ const Home: React.FC = () => {
                   <path d="M16 32H24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 </svg>
               </div>
-              <h3 className="feature-title text-xl">Create a Call</h3>
-              <p className="step-description">Hosts publish detailed contribution requests with requirements, deadlines, and credit rewards.</p>
+              <h3 className="feature-title text-xl">{t('home.howItWorks.step1.title')}</h3>
+              <p className="step-description">{t('home.howItWorks.step1.description')}</p>
             </div>
 
             <div className="workflow-connector">
@@ -322,8 +319,8 @@ const Home: React.FC = () => {
                   <path d="M8 40H40" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 </svg>
               </div>
-              <h3 className="feature-title text-xl">Submit Work</h3>
-              <p className="step-description">Contributors browse calls, submit their work, and communicate directly with hosts.</p>
+              <h3 className="feature-title text-xl">{t('home.howItWorks.step2.title')}</h3>
+              <p className="step-description">{t('home.howItWorks.step2.description')}</p>
             </div>
 
             <div className="workflow-connector">
@@ -340,8 +337,8 @@ const Home: React.FC = () => {
                   <path d="M24 14V24L30 28" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
-              <h3 className="feature-title text-xl">Earn Credits</h3>
-              <p className="step-description">Accepted contributions earn credits, building your reputation in the marketplace.</p>
+              <h3 className="feature-title text-xl">{t('home.howItWorks.step3.title')}</h3>
+              <p className="step-description">{t('home.howItWorks.step3.description')}</p>
             </div>
           </div>
 
@@ -349,20 +346,20 @@ const Home: React.FC = () => {
           <div className="stats-grid">
             <div className="stat-card">
               <div className="stat-value" data-count="500">0</div>
-              <div className="stat-label">Active Projects</div>
+              <div className="stat-label">{t('home.stats.activeProjects')}</div>
             </div>
             <div className="stat-card">
               <div className="stat-value" data-count="2000">0</div>
-              <div className="stat-label">Contributors</div>
+              <div className="stat-label">{t('home.stats.contributors')}</div>
             </div>
             <div className="stat-card">
               <div className="stat-value" data-count="10000">0</div>
-              <div className="stat-label">Credits Awarded</div>
+              <div className="stat-label">{t('home.stats.creditsAwarded')}</div>
             </div>
             <div className="stat-card">
               <div className="stat-value" data-count="95">0</div>
               <span className="stat-suffix">%</span>
-              <div className="stat-label">Satisfaction Rate</div>
+              <div className="stat-label">{t('home.stats.satisfactionRate')}</div>
             </div>
           </div>
         </div>
@@ -385,18 +382,18 @@ const Home: React.FC = () => {
       <section className="landing-cta" id="cta">
         <div className="cta-background"></div>
         <div className="cta-content" style={{ scale: 0.9 }}>
-          <h2 className="cta-headline">Ready to Join the Hive?</h2>
+          <h2 className="cta-headline">{t('home.cta.title')}</h2>
           <p className="text-lg text-muted-foreground mb-12">
-            Start contributing today or publish your first call for contributors.
+            {t('home.cta.subtitle')}
           </p>
           {user ? (
             <Link to="/projects/create" className="landing-btn btn-primary-landing px-12 py-4 text-xl">
-              Create Your First Call
+              {t('home.cta.createFirstCall')}
               <span className="btn-glow"></span>
             </Link>
           ) : (
             <Link to="/auth/register" className="landing-btn btn-primary-landing px-12 py-4 text-xl">
-              Create Account
+              {t('home.cta.createAccount')}
               <span className="btn-glow"></span>
             </Link>
           )}

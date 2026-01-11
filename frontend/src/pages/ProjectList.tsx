@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useProjects } from '../hooks/useProjects';
 import type { ProjectFilters as FilterType } from '../api/projects';
 import ProjectCard from '../components/ProjectCard';
@@ -12,6 +13,7 @@ import { gsap } from 'gsap';
 import { useLayoutEffect, useRef } from 'react';
 
 const ProjectList: React.FC = () => {
+  const { t } = useTranslation();
   const [filters, setFilters] = useState<FilterType>({
     status: 'open',
     page: 1,
@@ -53,15 +55,15 @@ const ProjectList: React.FC = () => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
               <div className="space-y-3">
                 <h1 className="font-display text-4xl md:text-5xl font-extrabold tracking-tight">
-                  Discover <span className="text-gradient-vivid">Projects</span>
+                  {t('projects.discoverTitle')} <span className="text-gradient-vivid">{t('projects.discoverHighlight')}</span>
                 </h1>
                 <p className="text-muted-foreground text-lg max-w-xl leading-relaxed">
-                  Find unique opportunities, collaborate with experts, and earn rewards for your contributions.
+                  {t('projects.discoverSubtitle')}
                 </p>
               </div>
               <Link to="/projects/create" className="premium-button group">
                 <Plus className="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
-                Create Project
+                {t('projects.create')}
               </Link>
             </div>
 
@@ -82,7 +84,7 @@ const ProjectList: React.FC = () => {
           {error && (
             <div className="container-wide">
               <ErrorMessage
-                message="Failed to load projects. Please try again."
+                message={t('errors.failedToLoadProjects')}
                 type="error"
               />
             </div>
@@ -115,15 +117,15 @@ const ProjectList: React.FC = () => {
                     </div>
                     <div className="space-y-2">
                       <p className="font-display text-xl font-semibold text-foreground">
-                        No projects found
+                        {t('projects.noProjectsFound')}
                       </p>
                       <p className="text-muted-foreground max-w-sm">
-                        Try adjusting your filters or create a new project to get started.
+                        {t('projects.noProjectsDescription')}
                       </p>
                     </div>
                     <Link to="/projects/create" className="premium-button mt-2">
                       <Plus className="mr-2 h-4 w-4" />
-                      Create Project
+                      {t('projects.create')}
                     </Link>
                   </div>
                 </div>

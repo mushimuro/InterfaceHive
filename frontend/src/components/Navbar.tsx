@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from './ui/button';
 import {
@@ -13,11 +14,13 @@ import {
 import CreditBadge from './CreditBadge';
 import { User, LogOut, FileText, Award, Settings, Hexagon } from 'lucide-react';
 import { ModeToggle } from './ModeToggle';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const Navbar: React.FC = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     await logout();
@@ -48,7 +51,7 @@ const Navbar: React.FC = () => {
               size="sm"
               asChild
             >
-              <Link to="/projects">Projects</Link>
+              <Link to="/projects">{t('nav.projects')}</Link>
             </Button>
 
 
@@ -60,7 +63,7 @@ const Navbar: React.FC = () => {
                   className="font-medium"
                   asChild
                 >
-                  <Link to="/my-projects">My Projects</Link>
+                  <Link to="/my-projects">{t('nav.myProjects')}</Link>
                 </Button>
                 <Button
                   variant={isActive('/my-contributions') ? 'secondary' : 'ghost'}
@@ -68,9 +71,10 @@ const Navbar: React.FC = () => {
                   className="font-medium"
                   asChild
                 >
-                  <Link to="/my-contributions">Contributions</Link>
+                  <Link to="/my-contributions">{t('nav.contributions')}</Link>
                 </Button>
 
+                <LanguageSwitcher />
                 <ModeToggle />
 
                 {/* User Menu */}
@@ -97,44 +101,45 @@ const Navbar: React.FC = () => {
                     <DropdownMenuItem asChild className="cursor-pointer py-2.5">
                       <Link to="/profile">
                         <Settings className="mr-2.5 h-4 w-4 text-muted-foreground" />
-                        Profile Settings
+                        {t('nav.profile')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className="cursor-pointer py-2.5">
                       <Link to="/my-projects">
                         <FileText className="mr-2.5 h-4 w-4 text-muted-foreground" />
-                        My Projects
+                        {t('nav.myProjects')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className="cursor-pointer py-2.5">
                       <Link to="/my-contributions">
                         <FileText className="mr-2.5 h-4 w-4 text-muted-foreground" />
-                        My Contributions
+                        {t('nav.contributions')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className="cursor-pointer py-2.5">
                       <Link to="/profile">
                         <Award className="mr-2.5 h-4 w-4 text-[hsl(var(--accent-hive))]" />
                         <span className="text-[hsl(var(--accent-hive))] font-semibold">{user.total_credits || 0}</span>
-                        <span className="ml-1">credits</span>
+                        <span className="ml-1">{t('nav.credits')}</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-[hsl(var(--border))]" />
                     <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive py-2.5 focus:text-destructive">
                       <LogOut className="mr-2.5 h-4 w-4" />
-                      Sign out
+                      {t('nav.signout')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
             ) : (
               <div className="flex items-center gap-2 ml-2">
+                <LanguageSwitcher />
                 <ModeToggle />
                 <Button variant="ghost" size="sm" className="font-medium" asChild>
-                  <Link to="/auth/login">Sign in</Link>
+                  <Link to="/auth/login">{t('nav.signin')}</Link>
                 </Button>
                 <Link to="/auth/register" className="premium-button text-sm px-4 py-1.5 h-9">
-                  Get Started
+                  {t('nav.getStarted')}
                 </Link>
               </div>
             )}

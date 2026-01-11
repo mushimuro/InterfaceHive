@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { loginSchema, type LoginFormData } from '../schemas/authSchema';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/ui/button';
@@ -11,6 +12,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const Login: React.FC = () => {
+  const { t } = useTranslation();
   const { login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,9 +52,9 @@ const Login: React.FC = () => {
         <div className="glass-card-glow p-8 md:p-10 rounded-2xl flex flex-col gap-8">
           {/* Header */}
           <div className="flex flex-col gap-3 text-center">
-            <h1 className="font-display text-3xl font-bold text-gradient">Welcome Back</h1>
+            <h1 className="font-display text-3xl font-bold text-gradient">{t('auth.loginTitle')}</h1>
             <p className="text-muted-foreground">
-              Sign in to continue to InterfaceHive
+              {t('auth.loginSubtitle')}
             </p>
           </div>
 
@@ -61,11 +63,11 @@ const Login: React.FC = () => {
 
             <div className="flex flex-col gap-5">
               <div className="grid gap-2.5">
-                <Label htmlFor="email" className="font-medium">Email</Label>
+                <Label htmlFor="email" className="font-medium">{t('auth.email')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder={t('auth.emailPlaceholder')}
                   required
                   className="h-11 bg-background/50 border-[hsl(var(--border))] focus:border-[hsl(var(--accent-hive))]/50 transition-colors"
                   {...register('email')}
@@ -77,12 +79,12 @@ const Login: React.FC = () => {
               </div>
               <div className="grid gap-2.5">
                 <div className="flex items-center">
-                  <Label htmlFor="password" className="font-medium">Password</Label>
+                  <Label htmlFor="password" className="font-medium">{t('auth.password')}</Label>
                   <Link
                     to="/auth/forgot-password"
                     className="ml-auto text-sm text-[hsl(var(--accent-hive))] hover:text-[hsl(var(--accent-hive-light))] transition-colors"
                   >
-                    Forgot password?
+                    {t('auth.forgotPassword')}
                   </Link>
                 </div>
                 <Input
@@ -99,7 +101,7 @@ const Login: React.FC = () => {
               </div>
 
               <button type="submit" className="premium-button w-full h-12 text-base" disabled={isLoading}>
-                {isLoading ? <LoadingSpinner size="sm" /> : 'Sign in'}
+                {isLoading ? <LoadingSpinner size="sm" /> : t('auth.loginButton')}
               </button>
 
               <div className="relative">
@@ -107,7 +109,7 @@ const Login: React.FC = () => {
                   <div className="w-full divider-glow" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-[hsl(var(--card))] px-3 text-muted-foreground font-medium">or</span>
+                  <span className="bg-[hsl(var(--card))] px-3 text-muted-foreground font-medium">{t('common.or')}</span>
                 </div>
               </div>
 
@@ -121,15 +123,15 @@ const Login: React.FC = () => {
                 }}
                 disabled={isLoading}
               >
-                Use test account
+                {t('auth.useTestAccount')}
               </Button>
             </div>
           </form>
 
           <div className="text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{' '}
+            {t('auth.dontHaveAccount')}{' '}
             <Link to="/auth/register" className="text-[hsl(var(--accent-hive))] font-medium hover:text-[hsl(var(--accent-hive-light))] transition-colors">
-              Create account
+              {t('auth.createAccount')}
             </Link>
           </div>
         </div>

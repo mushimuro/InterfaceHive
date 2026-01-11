@@ -2,6 +2,7 @@ import React, { useState, useLayoutEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { projectSchema, type ProjectFormData } from '../schemas/projectSchema';
 import { useCreateProject } from '../hooks/useProjects';
 import ProjectForm from '../components/ProjectForm';
@@ -17,6 +18,7 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { gsap } from 'gsap';
 
 const CreateProject: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
@@ -138,7 +140,7 @@ const CreateProject: React.FC = () => {
     } catch (err: any) {
       setError(
         err.response?.data?.detail ||
-        'Failed to initiate project protocol. Please verify your data strings.'
+        t('createProject.errorCreating')
       );
     }
   };
@@ -152,10 +154,10 @@ const CreateProject: React.FC = () => {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <h1 className="text-4xl md:text-5xl font-black tracking-tight text-gradient mb-4">
-                Initialize New <span className="relative">Project <span className="absolute -bottom-1 left-0 w-full h-1 bg-accent-hive/30 rounded-full" /></span>
+                {t('createProject.title')} <span className="relative text-gradient">{t('createProject.titleHighlight')} <span className="absolute -bottom-1 left-0 w-full h-1 bg-accent-hive/30 rounded-full" /></span>
               </h1>
               <p className="text-muted-foreground text-lg max-w-2xl font-light">
-                Bridge the gap between vision and execution. Deploy your requirements to our global network of experts.
+                {t('createProject.subtitle')}
               </p>
             </div>
             <div className="flex justify-center">
@@ -183,13 +185,13 @@ const CreateProject: React.FC = () => {
                 <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20">
                   <BrainCircuit className="h-6 w-6 text-purple-400" />
                 </div>
-                <h3 className="font-black text-xl tracking-widest uppercase text-white/90">Hive Logic Assistant</h3>
+                <h3 className="font-black text-xl tracking-widest uppercase text-white/90">{t('createProject.aiAssistant')}</h3>
               </div>
 
               {aiError && (
                 <div className="mb-6">
                   <ErrorMessage
-                    message={aiError instanceof Error ? aiError.message : 'AI synchronization failed'}
+                    message={aiError instanceof Error ? aiError.message : t('createProject.aiError')}
                     type="error"
                   />
                 </div>
@@ -199,20 +201,20 @@ const CreateProject: React.FC = () => {
                 <TabsList className="grid w-full grid-cols-2 glass-card p-1 h-11 rounded-2xl mb-8">
                   <TabsTrigger value="idea" className="rounded-xl data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all">
                     <Lightbulb className="h-4 w-4 mr-2" />
-                    Conceptualize
+                    {t('createProject.conceptualize')}
                   </TabsTrigger>
                   <TabsTrigger value="repo" className="rounded-xl data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all">
                     <Github className="h-4 w-4 mr-2" />
-                    Ingest Repository
+                    {t('createProject.ingestRepository')}
                   </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="idea" className="space-y-6 mt-0">
                   <div className="space-y-3">
-                    <Label htmlFor="ai-idea" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Vision Description</Label>
+                    <Label htmlFor="ai-idea" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t('createProject.visionDescription')}</Label>
                     <Textarea
                       id="ai-idea"
-                      placeholder="Input your project vision. The more detail, the more precise the neural generation..."
+                      placeholder={t('createProject.visionPlaceholder')}
                       value={aiIdea}
                       onChange={(e) => setAiIdea(e.target.value)}
                       rows={4}
@@ -228,12 +230,12 @@ const CreateProject: React.FC = () => {
                       {isAiLoading ? (
                         <div className="flex items-center justify-center gap-2">
                           <LoadingSpinner size="sm" />
-                          <span>SYNTHESIZING...</span>
+                          <span>{t('createProject.synthesizing')}</span>
                         </div>
                       ) : (
                         <div className="flex items-center justify-center gap-2 uppercase font-black text-xs tracking-widest">
                           <Sparkles className="h-4 w-4" />
-                          Generate Intel
+                          {t('createProject.generateIntel')}
                         </div>
                       )}
                     </button>
@@ -244,17 +246,17 @@ const CreateProject: React.FC = () => {
                       className="glass-card border-white/10 rounded-2xl h-12 px-6 hover:bg-white/5"
                     >
                       <Trash2 className="h-4 w-4 mr-2 opacity-50" />
-                      Wipe Data
+                      {t('createProject.wipeData')}
                     </Button>
                   </div>
                 </TabsContent>
 
                 <TabsContent value="repo" className="space-y-6 mt-0">
                   <div className="space-y-3">
-                    <Label htmlFor="ai-repo" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Source Link (GitHub)</Label>
+                    <Label htmlFor="ai-repo" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{t('createProject.sourceLink')}</Label>
                     <Input
                       id="ai-repo"
-                      placeholder="https://github.com/analyst/core-module"
+                      placeholder={t('createProject.sourcePlaceholder')}
                       value={aiRepoUrl}
                       onChange={(e) => setAiRepoUrl(e.target.value)}
                       className="glass-card bg-white/5 border-white/10 rounded-2xl h-12 focus:border-purple-500/50 transition-all"
@@ -269,12 +271,12 @@ const CreateProject: React.FC = () => {
                       {isAiLoading ? (
                         <div className="flex items-center justify-center gap-2">
                           <LoadingSpinner size="sm" />
-                          <span>ANALYZING CODE...</span>
+                          <span>{t('createProject.analyzingCode')}</span>
                         </div>
                       ) : (
                         <div className="flex items-center justify-center gap-2 uppercase font-black text-xs tracking-widest">
                           <BrainCircuit className="h-4 w-4" />
-                          Extract Schema
+                          {t('createProject.extractSchema')}
                         </div>
                       )}
                     </button>
@@ -285,7 +287,7 @@ const CreateProject: React.FC = () => {
                       className="glass-card border-white/10 rounded-2xl h-12 px-6 hover:bg-white/5"
                     >
                       <Trash2 className="h-4 w-4 mr-2 opacity-50" />
-                      Wipe Data
+                      {t('createProject.wipeData')}
                     </Button>
                   </div>
                 </TabsContent>
@@ -296,13 +298,13 @@ const CreateProject: React.FC = () => {
             <div className="create-section-anim glass-card p-10 rounded-3xl border-accent-hive/10">
               <h3 className="text-2xl font-black mb-10 uppercase tracking-widest text-white/90 flex items-center gap-3">
                 <div className="w-1.5 h-8 bg-accent-hive rounded-full" />
-                Project Specifications
+                {t('createProject.projectSpecifications')}
               </h3>
               <ProjectForm
                 form={form}
                 onSubmit={onSubmit}
                 isLoading={createProjectMutation.isPending}
-                submitLabel="Deploy Project"
+                submitLabel={t('createProject.deployProject')}
               />
             </div>
           </div>
@@ -313,14 +315,14 @@ const CreateProject: React.FC = () => {
               <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-[50px] -mr-16 -mt-16" />
               <h3 className="text-xl font-black text-blue-400 mb-6 uppercase tracking-widest flex items-center gap-2">
                 <Info className="h-5 w-5" />
-                Intelligence Tips
+                {t('createProject.intelligenceTips')}
               </h3>
               <ul className="space-y-6">
                 {[
-                  { title: "BE SPECIFIC", desc: "Granular requirements lead to higher quality contributions." },
-                  { title: "PROVIDE CONTEXT", desc: "Explain the 'Why' behind the 'What' to engage talent." },
-                  { title: "DIFFICULTY MATRIX", desc: "Accurate difficulty tagging targets the right contributors." },
-                  { title: "TAG RELEVANCE", desc: "Use tech stack tags to improve platform discovery." }
+                  { title: t('createProject.tipBeSpecific'), desc: t('createProject.tipBeSpecificDesc') },
+                  { title: t('createProject.tipProvideContext'), desc: t('createProject.tipProvideContextDesc') },
+                  { title: t('createProject.tipDifficulty'), desc: t('createProject.tipDifficultyDesc') },
+                  { title: t('createProject.tipTagRelevance'), desc: t('createProject.tipTagRelevanceDesc') }
                 ].map((tip, idx) => (
                   <li key={idx} className="flex gap-4 group">
                     <div className="mt-1 h-2 w-2 rounded-full bg-blue-500/40 group-hover:bg-blue-400 transition-colors shrink-0" />
@@ -337,9 +339,9 @@ const CreateProject: React.FC = () => {
             <div className="create-section-anim glass-card p-8 rounded-3xl text-center relative overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-br from-accent-hive/5 to-transparent pointer-events-none" />
               <div className="relative z-10">
-                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">Network Yield</p>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2">{t('createProject.networkYield')}</p>
                 <div className="text-4xl font-black text-gradient">98.4%</div>
-                <p className="text-[10px] text-accent-hive/50 font-mono mt-2 uppercase">Successful deployment rate</p>
+                <p className="text-[10px] text-accent-hive/50 font-mono mt-2 uppercase">{t('createProject.deploymentRate')}</p>
               </div>
             </div>
           </div>

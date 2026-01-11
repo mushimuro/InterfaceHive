@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { registerSchema, type RegisterFormData } from '../schemas/authSchema';
 import { useAuth } from '../contexts/AuthContext';
 import { Input } from '../components/ui/input';
@@ -10,6 +11,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const Register: React.FC = () => {
+  const { t } = useTranslation();
   const { register: registerUser } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,9 +50,9 @@ const Register: React.FC = () => {
         <div className="glass-card-glow p-8 md:p-10 rounded-2xl flex flex-col gap-8">
           {/* Header */}
           <div className="flex flex-col gap-3 text-center">
-            <h1 className="font-display text-3xl font-bold text-gradient">Create Account</h1>
+            <h1 className="font-display text-3xl font-bold text-gradient">{t('auth.registerTitle')}</h1>
             <p className="text-muted-foreground">
-              Join InterfaceHive and start contributing
+              {t('auth.registerSubtitle')}
             </p>
           </div>
 
@@ -59,11 +61,11 @@ const Register: React.FC = () => {
 
             <div className="flex flex-col gap-5">
               <div className="grid gap-2.5">
-                <Label htmlFor="email" className="font-medium">Email</Label>
+                <Label htmlFor="email" className="font-medium">{t('auth.email')}</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="you@example.com"
+                  placeholder={t('auth.emailPlaceholder')}
                   required
                   className="h-11 bg-background/50 border-[hsl(var(--border))] focus:border-[hsl(var(--accent-hive))]/50 transition-colors"
                   {...register('email')}
@@ -74,11 +76,11 @@ const Register: React.FC = () => {
                 )}
               </div>
               <div className="grid gap-2.5">
-                <Label htmlFor="display_name" className="font-medium">Display Name</Label>
+                <Label htmlFor="display_name" className="font-medium">{t('auth.displayName')}</Label>
                 <Input
                   id="display_name"
                   type="text"
-                  placeholder="Your name"
+                  placeholder={t('auth.displayNamePlaceholder')}
                   required
                   className="h-11 bg-background/50 border-[hsl(var(--border))] focus:border-[hsl(var(--accent-hive))]/50 transition-colors"
                   {...register('display_name')}
@@ -90,7 +92,7 @@ const Register: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2.5">
-                  <Label htmlFor="password" className="font-medium">Password</Label>
+                  <Label htmlFor="password" className="font-medium">{t('auth.password')}</Label>
                   <Input
                     id="password"
                     type="password"
@@ -104,7 +106,7 @@ const Register: React.FC = () => {
                   )}
                 </div>
                 <div className="grid gap-2.5">
-                  <Label htmlFor="confirm_password" className="font-medium">Confirm</Label>
+                  <Label htmlFor="confirm_password" className="font-medium">{t('auth.confirmPassword')}</Label>
                   <Input
                     id="confirm_password"
                     type="password"
@@ -119,15 +121,15 @@ const Register: React.FC = () => {
                 </div>
               </div>
               <button type="submit" className="premium-button w-full h-12 text-base mt-2" disabled={isLoading}>
-                {isLoading ? <LoadingSpinner size="sm" /> : 'Create Account'}
+                {isLoading ? <LoadingSpinner size="sm" /> : t('auth.registerButton')}
               </button>
             </div>
           </form>
 
           <div className="text-center text-sm text-muted-foreground">
-            Already have an account?{' '}
+            {t('auth.alreadyHaveAccount')}{' '}
             <Link to="/auth/login" className="text-[hsl(var(--accent-hive))] font-medium hover:text-[hsl(var(--accent-hive-light))] transition-colors">
-              Sign in
+              {t('auth.signIn')}
             </Link>
           </div>
         </div>
