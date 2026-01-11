@@ -68,8 +68,10 @@ jobs:
           POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
           SECRET_KEY=${{ secrets.SECRET_KEY }}
           DEBUG=False
-          ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS || secrets.EC2_HOST }},localhost,127.0.0.1
+          ALLOWED_HOSTS=backend,${{ secrets.ALLOWED_HOSTS || secrets.EC2_HOST }},localhost,127.0.0.1
           REDIS_URL=redis://redis:6379/0
+          USE_HTTPS=False
+          CORS_ALLOWED_ORIGINS=http://${{ secrets.EC2_HOST }},http://localhost:5173
           EOF
           
           # Pull latest images
