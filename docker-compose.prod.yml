@@ -36,6 +36,7 @@ services:
       - DEBUG=False
       - USE_HTTPS=${USE_HTTPS:-False}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-http://localhost:5173}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
       - postgres
       - redis
