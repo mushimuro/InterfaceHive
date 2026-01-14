@@ -18,3 +18,10 @@ export const generateFromIdea = async (idea: string): Promise<AIProjectData> => 
     });
     return data;
 };
+
+export const generateRandomProject = async (autoSave: boolean = false): Promise<any> => {
+    const { data } = await apiClient.post<any>('/ai/generate-random/', {
+        auto_save: autoSave
+    });
+    return data;
+};

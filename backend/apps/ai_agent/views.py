@@ -34,3 +34,60 @@ class GenerateFromIdeaView(APIView):
         except Exception as e:
             logger.error(f"AI Generation Error: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class GenerateRandomProjectView(APIView):
+    """Generate a completely random project idea and optionally save it."""
+    permission_classes = []  # Allow unauthenticated access for viewing
+    
+    def post(self, request):
+        try:
+            service = GeminiService()
+            data = service.generate_random_project()
+            
+            # Check if we should auto-save the project
+            auto_save = request.data.get('auto_save', False)
+            
+            if auto_save:
+                # Import here to avoid circular dependency
+                from apps.projects.models import Project, ProjectTag, ProjectTagMap
+                from apps.users.models import User
+                
+                # Get or create a system user for AI-generated projects
+                system_user, _ = User.objects.get_or_create(
+                    email='ai@interfacehive.system',
+                    defaults={
+                        'display_name': 'AI Generator',
+                        'is_verified': True,
+                        'is_active': False,  # System user shouldn't be able to login
+                    }
+                )
+                
+                # Extract tags from data
+                tags_data = data.pop('tags', [])
+                
+                # Create the project
+                project = Project.objects.create(
+                    host_user=system_user,
+                    is_ai_generated=True,
+                    status='open',
+                    **data
+                )
+                
+                # Create/associate tags
+                for tag_name in tags_data:
+                    tag, _ = ProjectTag.objects.get_or_create(name=tag_name.lower().strip())
+                    ProjectTagMap.objects.create(project=project, tag=tag)
+                
+                # Return the saved project data
+                from apps.projects.serializers import ProjectDetailSerializer
+                serializer = ProjectDetailSerializer(project)
+                return Response({
+                    'saved': True,
+                    'project': serializer.data
+                })
+            
+            return Response(data)
+        except Exception as e:
+            logger.error(f"AI Generation Error: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

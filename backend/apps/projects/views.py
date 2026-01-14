@@ -44,7 +44,7 @@ class ProjectListCreateView(generics.ListCreateAPIView):
     queryset = Project.objects.all()
     pagination_class = ProjectPagination
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['status', 'difficulty', 'usage_type']
+    filterset_fields = ['status', 'difficulty', 'usage_type', 'is_ai_generated']
     search_fields = ['title', 'description', 'desired_outputs']
     ordering_fields = ['created_at', 'updated_at', 'title']
     ordering = ['-created_at']

@@ -115,6 +115,20 @@ class GeminiService:
         response = self.model.generate_content(prompt)
         return self._parse_json_response(response.text)
 
+    def generate_random_project(self):
+        """Generate a completely random project idea."""
+        prompt = f"""
+        Create a unique and creative software project idea for a contribution request.
+        Make it interesting, practical, and realistic for developers to collaborate on.
+        Be creative with the project type - it could be a web app, mobile app, CLI tool, 
+        library, API, game, data science project, etc.
+        
+        {self._get_prompt_format()}
+        """
+        
+        response = self.model.generate_content(prompt)
+        return self._parse_json_response(response.text)
+
     def _parse_json_response(self, text):
         # clean markdown code blocks if present
         clean_text = text.replace('```json', '').replace('```', '').strip()

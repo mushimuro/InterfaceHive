@@ -12,6 +12,7 @@ export interface Project {
   usage_type: 'practice' | 'commercial';
   estimated_time?: string;
   github_url?: string;
+  is_ai_generated?: boolean;
   host: {
     id: string;
     email: string;
@@ -52,6 +53,7 @@ export interface ProjectFilters {
   ordering?: string;
   page?: number;
   page_size?: number;
+  is_ai_generated?: boolean;
 }
 
 /**

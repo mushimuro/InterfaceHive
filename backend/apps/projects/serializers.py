@@ -42,6 +42,7 @@ class ProjectListSerializer(serializers.ModelSerializer):
             'host',
             'tags',
             'contribution_count',
+            'is_ai_generated',
             'created_at',
             'updated_at',
         ]
@@ -86,6 +87,7 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
             'tags',
             'contribution_count',
             'accepted_contributors',
+            'is_ai_generated',
             'created_at',
             'updated_at',
         ]
@@ -133,6 +135,7 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
             'github_url',
             'tags',
             'status',
+            'is_ai_generated',
         ]
     
     def validate_title(self, value):
@@ -226,6 +229,7 @@ class ProjectUpdateSerializer(serializers.ModelSerializer):
             'github_url',
             'tags',
             'status',
+            'is_ai_generated',
         ]
     
     def validate_title(self, value):

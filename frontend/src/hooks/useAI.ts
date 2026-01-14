@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { generateFromRepo, generateFromIdea } from '../api/ai';
+import { generateFromRepo, generateFromIdea, generateRandomProject } from '../api/ai';
 
 export const useGenerateFromRepo = () => {
     return useMutation({
@@ -10,5 +10,11 @@ export const useGenerateFromRepo = () => {
 export const useGenerateFromIdea = () => {
     return useMutation({
         mutationFn: (idea: string) => generateFromIdea(idea),
+    });
+};
+
+export const useGenerateRandomProject = () => {
+    return useMutation({
+        mutationFn: (autoSave: boolean = false) => generateRandomProject(autoSave),
     });
 };

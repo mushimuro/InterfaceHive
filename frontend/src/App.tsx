@@ -15,6 +15,7 @@ import Home from './pages/Home';
 import ProjectList from './pages/ProjectList';
 import ProjectDetail from './pages/ProjectDetail';
 import CreateProject from './pages/CreateProject';
+import GenerateProject from './pages/GenerateProject';
 import EditProject from './pages/EditProject';
 import MyProjects from './pages/MyProjects';
 import MyContributions from './pages/MyContributions';
@@ -59,6 +60,7 @@ function App() {
               {/* Protected Project Routes */}
               <Route element={<ProtectedRoute requireVerified />}>
                 <Route path="/projects/create" element={<CreateProject />} />
+                <Route path="/projects/generate" element={<GenerateProject />} />
                 <Route path="/projects/:id/edit" element={<EditProject />} />
                 <Route path="/my-projects" element={<MyProjects />} />
                 <Route path="/my-contributions" element={<MyContributions />} />
