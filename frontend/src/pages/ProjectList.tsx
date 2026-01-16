@@ -11,7 +11,7 @@ import { Plus, Search, Sparkles, Lightbulb } from 'lucide-react';
 import Pagination from '../components/Pagination';
 import { gsap } from 'gsap';
 import { useLayoutEffect, useRef } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 
 const ProjectList: React.FC = () => {
   const { t } = useTranslation();

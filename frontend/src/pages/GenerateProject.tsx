@@ -7,7 +7,6 @@ import { projectSchema, type ProjectFormData } from '../schemas/projectSchema';
 import { useCreateProject } from '../hooks/useProjects';
 import ProjectForm from '../components/ProjectForm';
 import ErrorMessage from '../components/ErrorMessage';
-import { Button } from '../components/ui/button';
 import { Sparkles, Rocket, Wand2, Dices, Info, Zap } from 'lucide-react';
 import { useGenerateRandomProject } from '../hooks/useAI';
 import LoadingSpinner from '../components/LoadingSpinner';
