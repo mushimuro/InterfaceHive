@@ -47,7 +47,9 @@ class GeminiService:
             "what_it_does": "Functional description",
             "inputs_dependencies": "Tech stack and dependencies",
             "desired_outputs": "What contributors should deliver",
-            "difficulty": "EASY, INTERMEDIATE, or ADVANCED",
+            "difficulty": "easy, intermediate, or advanced (lowercase)",
+            "estimated_time": "Estimated time to complete (e.g., '2-3 weeks', '1 month')",
+            "usage_type": "commercial or practice (lowercase)",
             "tags": ["tag1", "tag2"] (max 5)
         }
         """

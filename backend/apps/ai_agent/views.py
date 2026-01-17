@@ -16,9 +16,22 @@ class GenerateFromRepoView(APIView):
         try:
             service = GeminiService()
             data = service.generate_from_repo(github_url)
+            
+            # Ensure required fields have defaults
+            data.setdefault('estimated_time', '2-4 weeks')
+            data.setdefault('usage_type', 'practice')
+            data.setdefault('difficulty', 'intermediate')
+            data.setdefault('github_url', github_url)
+            
+            # Normalize difficulty and usage_type to lowercase
+            if 'difficulty' in data:
+                data['difficulty'] = data['difficulty'].lower()
+            if 'usage_type' in data:
+                data['usage_type'] = data['usage_type'].lower()
+            
             return Response(data)
         except Exception as e:
-            logger.error(f"AI Generation Error: {str(e)}")
+            logger.error(f"AI Generation Error: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class GenerateFromIdeaView(APIView):
@@ -30,9 +43,22 @@ class GenerateFromIdeaView(APIView):
         try:
             service = GeminiService()
             data = service.generate_from_idea(idea)
+            
+            # Ensure required fields have defaults
+            data.setdefault('estimated_time', '2-4 weeks')
+            data.setdefault('usage_type', 'practice')
+            data.setdefault('difficulty', 'intermediate')
+            data.setdefault('github_url', '')
+            
+            # Normalize difficulty and usage_type to lowercase
+            if 'difficulty' in data:
+                data['difficulty'] = data['difficulty'].lower()
+            if 'usage_type' in data:
+                data['usage_type'] = data['usage_type'].lower()
+            
             return Response(data)
         except Exception as e:
-            logger.error(f"AI Generation Error: {str(e)}")
+            logger.error(f"AI Generation Error: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -45,6 +71,18 @@ class GenerateRandomProjectView(APIView):
             service = GeminiService()
             data = service.generate_random_project()
             
+            # Ensure required fields have defaults
+            data.setdefault('estimated_time', '2-4 weeks')
+            data.setdefault('usage_type', 'practice')
+            data.setdefault('difficulty', 'intermediate')
+            data.setdefault('github_url', '')
+            
+            # Normalize difficulty and usage_type to lowercase
+            if 'difficulty' in data:
+                data['difficulty'] = data['difficulty'].lower()
+            if 'usage_type' in data:
+                data['usage_type'] = data['usage_type'].lower()
+            
             # Check if we should auto-save the project
             auto_save = request.data.get('auto_save', False)
             
@@ -54,11 +92,13 @@ class GenerateRandomProjectView(APIView):
                 from apps.users.models import User
                 
                 # Get or create a system user for AI-generated projects
+                from django.utils import timezone
                 system_user, _ = User.objects.get_or_create(
                     email='ai@interfacehive.system',
                     defaults={
                         'display_name': 'AI Generator',
-                        'is_verified': True,
+                        'email_verified': True,
+                        'email_verified_at': timezone.now(),
                         'is_active': False,  # System user shouldn't be able to login
                     }
                 )
@@ -89,5 +129,5 @@ class GenerateRandomProjectView(APIView):
             
             return Response(data)
         except Exception as e:
-            logger.error(f"AI Generation Error: {str(e)}")
+            logger.error(f"AI Generation Error: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
