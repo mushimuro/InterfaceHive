@@ -73,15 +73,15 @@ class GenerateRandomProjectView(APIView):
             
             # Ensure required fields have defaults
             data.setdefault('estimated_time', '2-4 weeks')
-            data.setdefault('usage_type', 'practice')
             data.setdefault('difficulty', 'intermediate')
             data.setdefault('github_url', '')
             
-            # Normalize difficulty and usage_type to lowercase
+            # AI-generated templates are ALWAYS practice type
+            data['usage_type'] = 'practice'
+            
+            # Normalize difficulty to lowercase
             if 'difficulty' in data:
                 data['difficulty'] = data['difficulty'].lower()
-            if 'usage_type' in data:
-                data['usage_type'] = data['usage_type'].lower()
             
             # Check if we should auto-save the project
             auto_save = request.data.get('auto_save', False)

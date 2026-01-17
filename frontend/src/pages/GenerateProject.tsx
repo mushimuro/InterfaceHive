@@ -72,9 +72,9 @@ const GenerateProject: React.FC = () => {
       // Auto-save the project to database for inspiration
       const response = await generateRandomMutation.mutateAsync(true);
       
-      // If it was saved, navigate to the projects page
+      // If it was saved, navigate to the project-templates page
       if (response.saved && response.project) {
-        navigate('/projects');
+        navigate('/project-templates');
       } else {
         // Fallback: populate form if save failed
         populateForm(response);
