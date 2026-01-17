@@ -13,6 +13,7 @@ import VerifyEmailSent from './pages/VerifyEmailSent';
 // Project Pages
 import Home from './pages/Home';
 import ProjectList from './pages/ProjectList';
+import ProjectTemplates from './pages/ProjectTemplates';
 import ProjectDetail from './pages/ProjectDetail';
 import CreateProject from './pages/CreateProject';
 import GenerateProject from './pages/GenerateProject';
@@ -52,6 +53,7 @@ function App() {
 
               {/* Project Routes (Public browsing, auth required for create/edit) */}
               <Route path="/projects" element={<ProjectList />} />
+              <Route path="/project-templates" element={<ProjectTemplates />} />
               <Route path="/projects/:id" element={<ProjectDetail />} />
 
               {/* Public User Profiles */}

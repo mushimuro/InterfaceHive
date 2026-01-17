@@ -53,6 +53,13 @@ const Navbar: React.FC = () => {
             >
               <Link to="/projects">{t('nav.projects')}</Link>
             </Button>
+            <Button
+              variant={isActive('/project-templates') ? 'secondary' : 'ghost'}
+              size="sm"
+              asChild
+            >
+              <Link to="/project-templates">{t('nav.projectTemplates', 'Templates')}</Link>
+            </Button>
 
 
             {user ? (
