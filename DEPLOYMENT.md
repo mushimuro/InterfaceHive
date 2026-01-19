@@ -38,6 +38,9 @@ Navigate to your repository → Settings → Secrets and variables → Actions, 
 ### Frontend Configuration
 - `VITE_API_BASE_URL`: Backend API URL for the frontend (e.g., `http://your-domain.com` or `http://54.123.45.67`)
 
+### AI Configuration
+- `GEMINI_API_KEY`: Google Gemini AI API key (get from https://makersuite.google.com/app/apikey)
+
 ## EC2 Server Setup
 
 ### 1. Connect to your EC2 instance
