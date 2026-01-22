@@ -11,7 +11,7 @@ InterfaceHive is a state-of-the-art platform where project specifications meet e
 
 [Live Demo](#) | [Documentation](./docs) | [Report Bug](https://github.com/mushimuro/InterfaceHive/issues) | [Request Feature](https://github.com/mushimuro/InterfaceHive/issues)
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [About](#about)
 - [Features](#features)
@@ -30,7 +30,7 @@ InterfaceHive is a state-of-the-art platform where project specifications meet e
 - [License](#license)
 - [Contact](#contact)
 
-## 📖 About
+## About
 
 ### The Problem
 
@@ -52,33 +52,33 @@ InterfaceHive bridges this gap by creating a premium ecosystem where:
 
 InterfaceHive was born from the need to create a professional-grade platform that combines modern web technologies with AI capabilities, demonstrating full-stack development excellence while solving real collaboration challenges.
 
-## ✨ Features
+## Features
 
 ### Core Functionality
-- ✅ **AI-Powered Project Generation:** Generate complete project specifications from ideas or GitHub repositories using Google Gemini AI
-- ✅ **Project Templates:** Browse AI-generated project templates for inspiration
-- ✅ **Contribution Requests:** Submit and manage contribution requests with acceptance/rejection workflows
-- ✅ **Credit System:** Earn reputation credits for accepted contributions
-- ✅ **Real-Time Chat:** WebSocket-powered chat rooms for project collaboration
-- ✅ **Full-Text Search:** PostgreSQL GIN-indexed search across projects
-- ✅ **Tag System:** Categorize and filter projects by skills and technologies
+-  **AI-Powered Project Generation:** Generate complete project specifications from ideas or GitHub repositories using Google Gemini AI
+-  **Project Templates:** Browse AI-generated project templates for inspiration
+-  **Contribution Requests:** Submit and manage contribution requests with acceptance/rejection workflows
+-  **Credit System:** Earn reputation credits for accepted contributions
+-  **Real-Time Chat:** WebSocket-powered chat rooms for project collaboration
+-  **Full-Text Search:** PostgreSQL GIN-indexed search across projects
+-  **Tag System:** Categorize and filter projects by skills and technologies
 
 ### Premium User Experience
-- 🎨 **Glassmorphic Design:** High-end UI with frosted glass effects and smooth gradients
-- ⚡ **GSAP Animations:** Fluid, staggered animations for professional polish
-- 🌐 **i18n Support:** Full internationalization with English and Japanese
-- 📱 **Responsive Design:** Optimized for desktop, tablet, and mobile
-- 🔒 **Email Verification:** Secure account activation with token-based verification
-- 👤 **User Profiles:** Public and private profile management
+-  **Glassmorphic Design:** High-end UI with frosted glass effects and smooth gradients
+-  **GSAP Animations:** Fluid, staggered animations for professional polish
+-  **i18n Support:** Full internationalization with English and Japanese
+-  **Responsive Design:** Optimized for desktop, tablet, and mobile
+-  **Email Verification:** Secure account activation with token-based verification
+-  **User Profiles:** Public and private profile management
 
 ### Developer Features
-- 🚀 **RESTful API:** Comprehensive Django REST Framework API
-- 🔐 **JWT Authentication:** Secure token-based authentication
-- 📊 **Admin Dashboard:** Django admin interface for project management
-- 🧪 **Type Safety:** Full TypeScript implementation on frontend
-- 🎯 **Form Validation:** react-hook-form + Zod schemas
+-  **RESTful API:** Comprehensive Django REST Framework API
+-  **JWT Authentication:** Secure token-based authentication
+-  **Admin Dashboard:** Django admin interface for project management
+-  **Type Safety:** Full TypeScript implementation on frontend
+-  **Form Validation:** react-hook-form + Zod schemas
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 ### Frontend
 - **Framework:** React 19 with TypeScript
@@ -107,7 +107,7 @@ InterfaceHive was born from the need to create a professional-grade platform tha
 - **Caching:** Redis for sessions and Celery
 - **CORS:** django-cors-headers
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -236,7 +236,7 @@ GEMINI_API_KEY=your-gemini-api-key
 3. Click "Create API Key"
 4. Copy the key to both backend and frontend `.env` files
 
-## 💻 Usage
+##  Usage
 
 ### For Project Hosts
 
@@ -295,7 +295,7 @@ GEMINI_API_KEY=your-gemini-api-key
 4. View in "Templates" section
 ```
 
-## 📚 API Documentation
+##  API Documentation
 
 ### Authentication
 
@@ -357,7 +357,7 @@ POST /api/v1/ai/generate-random/       - Generate random project
 
 **Full API documentation:** http://localhost:8000/api/docs/
 
-## 🏗️ Architecture
+##  Architecture
 
 ### System Architecture
 
@@ -462,7 +462,7 @@ frontend/src/
 └── pages/__tests__/
 ```
 
-## 🚢 Deployment
+##  Deployment
 
 ### Production Checklist
 
@@ -499,76 +499,13 @@ npm run build
 - **Database:** AWS RDS, DigitalOcean Managed Databases
 - **Full Stack:** Docker deployment on cloud VPS
 
-## 🗺️ Roadmap
-
-### Current Version: v1.0.0 ✅
-
-- [x] Core project management features
-- [x] User authentication and verification
-- [x] AI-powered project generation
-- [x] Real-time chat functionality
-- [x] Credit/reputation system
-- [x] Internationalization (EN/JP)
-- [x] Responsive glassmorphic design
-
-### Upcoming (v1.1.0)
-
-- [ ] Project analytics dashboard
-- [ ] Email notifications for events
-- [ ] Advanced search filters
-- [ ] User skill endorsements
-- [ ] Project milestones and tracking
-- [ ] File upload for project resources
-
-### Future Ideas (v2.0.0)
-
-- [ ] Mobile app (React Native)
-- [ ] Video call integration
-- [ ] AI-powered contribution matching
-- [ ] Blockchain-based credit verification
-- [ ] Advanced project templates marketplace
-- [ ] Team formation algorithms
-
-## 🤝 Contributing
-
-Contributions are what make the open source community amazing! Any contributions you make are **greatly appreciated**.
-
-### How to Contribute
-
-1. **Fork the Project**
-2. **Create your Feature Branch**
-   ```bash
-   git checkout -b feature/AmazingFeature
-   ```
-3. **Commit your Changes**
-   ```bash
-   git commit -m 'Add some AmazingFeature'
-   ```
-4. **Push to the Branch**
-   ```bash
-   git push origin feature/AmazingFeature
-   ```
-5. **Open a Pull Request**
-
-### Development Guidelines
-
-- Follow PEP 8 for Python code
-- Use ESLint/Prettier for JavaScript/TypeScript
-- Write tests for new features
-- Update documentation as needed
-- Keep commits atomic and well-described
-
-## 📝 License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
-## 📞 Contact
+##  Contact
 
 **Project Link:** [https://github.com/mushimuro/InterfaceHive](https://github.com/mushimuro/InterfaceHive)
 
 **Issue Tracker:** [GitHub Issues](https://github.com/mushimuro/InterfaceHive/issues)
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 Built with amazing technologies:
 - [Django](https://www.djangoproject.com/) - The web framework for perfectionists
