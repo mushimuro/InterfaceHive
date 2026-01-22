@@ -1,0 +1,105 @@
+sequenceDiagram
+    participant C as Contributor
+    participant F as Frontend
+    participant API as Backend API
+    participant Svc as Service Layer
+    participant DB as PostgreSQL
+    participant Q as Celery Queue
+    participant Email as Email Service
+
+    rect rgb(200, 230, 255)
+        Note over C,DB: Phase 1: Contribution Submission
+        C->>F: Fill contribution form
+        Note over F: Validate with Zod schema
+        F->>API: POST /contributions/create/
+        API->>Svc: create_contribution(data, user)
+
+        Note over Svc: Validation checks:<br/>1. Project is open<br/>2. User not already contributed<br/>3. User not project host
+
+        Svc->>DB: INSERT INTO contributions
+        DB-->>Svc: Contribution created
+        Svc-->>API: Success
+        API-->>F: 201 Created + contribution data
+        F-->>C: "Contribution submitted!"
+    end
+
+    rect rgb(255, 240, 200)
+        Note over H,Email: Phase 2: Host Decision (Accept)
+        H->>F: View contributions
+        F->>API: GET /contributions/?project_id=X
+        API-->>F: List of pending contributions
+
+        H->>F: Click "Accept"
+        Note over F: Confirm dialog
+        F->>API: POST /contributions/:id/accept/
+
+        API->>Svc: accept_contribution(contribution_id, host_user)
+
+        Note over Svc,DB: ATOMIC TRANSACTION BEGINS
+
+        activate Svc
+        Svc->>DB: BEGIN TRANSACTION
+
+        Note over Svc: Step 1: Update contribution
+        Svc->>DB: UPDATE contributions<br/>SET status='accepted',<br/>decided_by_user_id=host_id,<br/>decided_at=NOW()
+        DB-->>Svc: 1 row updated
+
+        Note over Svc: Step 2: Award credit
+        Svc->>DB: INSERT INTO credit_ledger_entry<br/>(to_user_id, project_id,<br/>contribution_id, amount=1,<br/>entry_type='award')
+
+        alt Duplicate credit (DB constraint violation)
+            DB-->>Svc: IntegrityError: unique constraint
+            Note over Svc: Log warning, continue<br/>(contribution accepted, credit already exists)
+        else Credit awarded successfully
+            DB-->>Svc: Credit entry created
+
+            Note over Svc: Step 3: Update reputation
+            Svc->>DB: UPDATE users<br/>SET reputation_data = jsonb_set(...)<br/>WHERE id=contributor_id
+            DB-->>Svc: Reputation updated
+        end
+
+        Svc->>DB: COMMIT TRANSACTION
+        deactivate Svc
+
+        Note over Svc,DB: TRANSACTION COMMITTED
+
+        Note over Svc: Queue async email (after commit)
+        Svc->>Q: send_contribution_notification.delay(<br/>contribution_id, decision='accepted')
+
+        Svc-->>API: Success + contribution data
+        API-->>F: 200 OK
+        F-->>H: "Contribution accepted!"
+
+        Note over Q,Email: Async email sending
+        Q->>DB: Fetch contribution details
+        DB-->>Q: Contribution + user emails
+        Q->>Email: Send acceptance email
+        Email-->>Q: Email sent
+    end
+
+    rect rgb(255, 230, 230)
+        Note over H,Email: Phase 3: Host Decision (Decline)
+        H->>F: Click "Decline"
+        F->>API: POST /contributions/:id/decline/
+
+        API->>Svc: decline_contribution(contribution_id, host_user)
+
+        activate Svc
+        Svc->>DB: BEGIN TRANSACTION
+
+        Svc->>DB: UPDATE contributions<br/>SET status='declined',<br/>decided_by_user_id=host_id,<br/>decided_at=NOW()
+        DB-->>Svc: 1 row updated
+
+        Note over Svc: No credit awarded
+
+        Svc->>DB: COMMIT TRANSACTION
+        deactivate Svc
+
+        Svc->>Q: send_contribution_notification.delay(<br/>contribution_id, decision='declined')
+
+        Svc-->>API: Success
+        API-->>F: 200 OK
+        F-->>H: "Contribution declined"
+
+        Q->>Email: Send decline email
+    end
