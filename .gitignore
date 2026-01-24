@@ -1,1 +1,9 @@
 .cursor/
+.claude/
+.specify/
+docs/
+specs/
+
+CLAUDE.md
+DEPLOYMENT.md
+prd.md
