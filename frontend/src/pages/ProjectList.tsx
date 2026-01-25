@@ -19,7 +19,7 @@ const ProjectList: React.FC = () => {
     page: 1,
     page_size: 10,
     ordering: '-created_at',
-    is_ai_generated: false, // Only show user-generated projects
+    is_ai_generated: false,
   });
 
   const { data, isLoading, error } = useProjects(filters);
@@ -28,68 +28,72 @@ const ProjectList: React.FC = () => {
   useLayoutEffect(() => {
     if (data && !isLoading) {
       const ctx = gsap.context(() => {
-        gsap.from(".project-card-item", {
-          opacity: 0,
-          y: 30,
-          duration: 0.6,
-          stagger: 0.1,
-          ease: "power3.out",
-          clearProps: "all"
-        });
+        gsap.fromTo(".project-header-anim",
+          { opacity: 0, scale: 0.95 },
+          { opacity: 1, scale: 1, duration: 0.8, ease: "power3.out", clearProps: "all" }
+        );
+        gsap.fromTo(".project-filter-anim",
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.6, delay: 0.2, ease: "power3.out", clearProps: "all" }
+        );
+        gsap.fromTo(".project-card-item",
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, delay: 0.4, ease: "power3.out", clearProps: "all" }
+        );
       }, containerRef);
       return () => ctx.revert();
     }
   }, [data, isLoading]);
 
   return (
-    <div className="flex flex-1 flex-col" ref={containerRef}>
-      {/* Background decoration */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 right-0 w-[800px] h-[600px] bg-[hsl(var(--accent-hive))]/[0.03] rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[400px] bg-[hsl(var(--accent-secondary))]/[0.02] rounded-full blur-[100px] translate-y-1/2 -translate-x-1/3" />
-      </div>
+    <div className="flex flex-1 flex-col pb-20" ref={containerRef}>
+      <div className="container-wide py-10">
 
-      <div className="@container/main flex flex-1 flex-col gap-2 relative">
-        <div className="flex flex-col gap-4 py-8 md:gap-8 md:py-12">
-          {/* Header */}
-          <div className="container-wide">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
-              <div className="space-y-3">
-                <h1 className="font-display text-4xl md:text-5xl font-extrabold tracking-tight">
+        {/* Header Section */}
+        <div className="project-header-anim mb-12 relative overflow-hidden glass-card p-10 rounded-3xl">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-accent-hive/5 rounded-full blur-[100px] -mr-40 -mt-40" />
+          <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8 text-center md:text-left">
+            <div className="flex items-center gap-6">
+              <div className="p-4 rounded-2xl bg-accent-hive/10 border border-accent-hive/20 shadow-inner">
+                <Search className="h-10 w-10 text-accent-hive" />
+              </div>
+              <div>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tight">
                   {t('projects.discoverTitle', 'Discover')} <span className="text-gradient-vivid">{t('projects.discoverHighlight', 'Projects')}</span>
                 </h1>
-                <p className="text-muted-foreground text-lg max-w-xl leading-relaxed">
-                  {t('projects.discoverSubtitle', 'Explore community-created projects and collaborate with others.')}
+                <p className="text-muted-foreground text-lg font-light mt-1 max-w-xl">
+                  {t('projects.discoverSubtitle', 'Find unique opportunities, collaborate with experts, and earn rewards.')}
                 </p>
               </div>
-              <div className="flex gap-3">
-                <Link to="/project-templates" className="premium-button bg-gradient-to-r from-purple-600 to-indigo-600 group">
-                  <Sparkles className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform duration-300" />
-                  {t('projects.viewTemplates', 'Templates')}
-                </Link>
-                <Link to="/projects/create" className="premium-button group">
-                  <Plus className="mr-2 h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
-                  {t('projects.create', 'Create Project')}
-                </Link>
-              </div>
             </div>
-
-            {/* Filters */}
-            <div className="glass-card-glow p-5 rounded-2xl mb-10">
-              <ProjectFilters filters={filters} onFiltersChange={setFilters} />
+            <div className="flex flex-wrap justify-center md:justify-end gap-4">
+              <Link to="/project-templates" className="premium-button bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-4 h-auto text-sm">
+                <Sparkles className="mr-2 h-5 w-5" />
+                {t('projects.viewTemplates', 'Templates')}
+              </Link>
+              <Link to="/projects/create" className="premium-button px-8 py-4 h-auto text-sm">
+                <Plus className="mr-2 h-5 w-5" />
+                {t('projects.create', 'Create Project')}
+              </Link>
             </div>
           </div>
+        </div>
 
+        {/* Filters Section */}
+        <div className="project-filter-anim glass-card-glow p-6 rounded-2xl mb-12">
+          <ProjectFilters filters={filters} onFiltersChange={setFilters} />
+        </div>
+
+        {/* Content Area */}
+        <div className="relative">
           {/* Loading State */}
           {isLoading && (
-            <div className="container-wide">
-              <ProjectSkeletonGrid count={6} />
-            </div>
+            <ProjectSkeletonGrid count={6} />
           )}
 
           {/* Error State */}
           {error && (
-            <div className="container-wide">
+            <div className="glass-card p-10 rounded-3xl text-center">
               <ErrorMessage
                 message={t('errors.failedToLoadProjects')}
                 type="error"
@@ -99,45 +103,45 @@ const ProjectList: React.FC = () => {
 
           {/* Projects Grid */}
           {data && !isLoading && (
-            <div className="container-wide">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {data.data.map((project: any) => (
-                  <ProjectCard key={project.id} project={project} />
+                  <div key={project.id} className="project-card-item">
+                    <ProjectCard project={project} />
+                  </div>
                 ))}
               </div>
 
               {/* Pagination */}
-              <div className="mt-10">
-                <Pagination
-                  currentPage={data?.current_page || 1}
-                  totalPages={data?.total_pages || 1}
-                  onPageChange={(p) => setFilters({ ...filters, page: p })}
-                />
-              </div>
+              {data.total_pages > 1 && (
+                <div className="mt-16">
+                  <Pagination
+                    currentPage={data?.current_page || 1}
+                    totalPages={data?.total_pages || 1}
+                    onPageChange={(p) => setFilters({ ...filters, page: p })}
+                  />
+                </div>
+              )}
 
               {/* No Results */}
               {data.data.length === 0 && (
-                <div className="text-center py-20">
-                  <div className="flex flex-col items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center">
-                      <Search className="h-8 w-8 text-muted-foreground/40" />
-                    </div>
-                    <div className="space-y-2">
-                      <p className="font-display text-xl font-semibold text-foreground">
-                        {t('projects.noProjectsFound', 'No Projects Found')}
-                      </p>
-                      <p className="text-muted-foreground max-w-sm">
-                        {t('projects.noProjectsDescription', 'Try adjusting your filters or create a new project.')}
-                      </p>
-                    </div>
-                    <Link to="/projects/create" className="premium-button mt-2">
-                      <Plus className="mr-2 h-4 w-4" />
-                      {t('projects.create', 'Create Project')}
-                    </Link>
+                <div className="glass-card p-24 rounded-3xl text-center">
+                  <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-8">
+                    <Search className="h-8 w-8 text-muted-foreground/30" />
                   </div>
+                  <h3 className="text-2xl font-black text-white/50 mb-3 uppercase tracking-widest">
+                    {t('projects.noProjectsFound', 'No Projects Found')}
+                  </h3>
+                  <p className="text-muted-foreground max-w-md mx-auto mb-10 font-light text-lg">
+                    {t('projects.noProjectsDescription', 'Try adjusting your filters or create a new project.')}
+                  </p>
+                  <Link to="/projects/create" className="premium-button px-12 py-4 h-auto">
+                    <Plus className="mr-2 h-5 w-5" />
+                    {t('projects.create', 'Create Project')}
+                  </Link>
                 </div>
               )}
-            </div>
+            </>
           )}
         </div>
       </div>

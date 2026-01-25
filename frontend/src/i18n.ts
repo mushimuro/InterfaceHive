@@ -17,7 +17,7 @@ const resources = {
         profile: 'Profile Settings',
         credits: 'credits',
       },
-      
+
       // Home Page
       home: {
         hero: {
@@ -75,7 +75,7 @@ const resources = {
           createAccount: 'Create Account',
         },
       },
-      
+
       // Authentication
       auth: {
         login: 'Login',
@@ -109,7 +109,7 @@ const resources = {
         emailVerified: 'Email Verified Successfully!',
         proceedToLogin: 'Proceed to Login',
       },
-      
+
       // Projects
       projects: {
         title: 'Projects',
@@ -170,7 +170,7 @@ const resources = {
         acceptedContributors: 'Accepted Contributors',
         pendingContributions: 'Pending Contributions',
       },
-      
+
       // Create Project Page
       createProject: {
         title: 'Initialize New',
@@ -207,7 +207,8 @@ const resources = {
 
       // My Projects Page
       myProjects: {
-        title: 'My Deployments',
+        titlePrefix: 'My',
+        titleHighlight: 'Deployments',
         subtitle: 'Orchestrate your active collaboration requests and project requirements.',
         initializeRequest: 'Initialize Request',
         searchPlaceholder: 'Search deployment database...',
@@ -235,7 +236,8 @@ const resources = {
 
       // My Contributions Page  
       myContributions: {
-        title: 'My Contributions',
+        titlePrefix: 'My',
+        titleHighlight: 'Contributions',
         subtitle: 'Track and manage your history of contributions to the collective intelligence.',
         exploreOps: 'Explore Ops',
         totalInvocations: 'Total Invocations',
@@ -285,7 +287,7 @@ const resources = {
         submittedOn: 'Submitted on',
         reviewedOn: 'Reviewed on',
       },
-      
+
       // Profile
       profile: {
         title: 'Profile',
@@ -322,7 +324,7 @@ const resources = {
         notifications: 'Notifications',
         privacy: 'Privacy',
       },
-      
+
       // Credits
       credits: {
         title: 'Credits',
@@ -341,7 +343,7 @@ const resources = {
         creditEarned: 'Credit earned!',
         creditSpent: 'Credit spent',
       },
-      
+
       // Chat
       chat: {
         title: 'Chat',
@@ -355,7 +357,7 @@ const resources = {
         members: 'Members',
         projectChat: 'Project Chat',
       },
-      
+
       // Common UI Elements
       common: {
         loading: 'Loading...',
@@ -426,7 +428,7 @@ const resources = {
         goHome: 'Go to home',
         copyright: '© 2026 InterfaceHive. All rights reserved.',
       },
-      
+
       // Error Messages
       errors: {
         generic: 'Something went wrong. Please try again.',
@@ -444,7 +446,7 @@ const resources = {
         loginFailed: 'Login failed. Please check your credentials.',
         sessionExpired: 'Your session has expired. Please login again.',
       },
-      
+
       // Success Messages
       success: {
         saved: 'Saved successfully!',
@@ -455,7 +457,7 @@ const resources = {
         sent: 'Sent successfully!',
         copied: 'Copied to clipboard!',
       },
-      
+
       // Date & Time
       datetime: {
         justNow: 'Just now',
@@ -472,7 +474,7 @@ const resources = {
         time: 'Time',
         datetime: 'Date & Time',
       },
-      
+
       // Language switcher
       language: {
         english: 'English',
@@ -495,7 +497,7 @@ const resources = {
         profile: '프로필 설정',
         credits: '크레딧',
       },
-      
+
       // Home Page
       home: {
         hero: {
@@ -553,7 +555,7 @@ const resources = {
           createAccount: '계정 만들기',
         },
       },
-      
+
       // Authentication
       auth: {
         login: '로그인',
@@ -587,7 +589,7 @@ const resources = {
         emailVerified: '이메일 인증 완료!',
         proceedToLogin: '로그인하기',
       },
-      
+
       // Projects
       projects: {
         title: '프로젝트',
@@ -648,7 +650,7 @@ const resources = {
         acceptedContributors: '승인된 기여자',
         pendingContributions: '대기 중인 기여',
       },
-      
+
       // Create Project Page
       createProject: {
         title: '새 프로젝트',
@@ -685,7 +687,8 @@ const resources = {
 
       // My Projects Page
       myProjects: {
-        title: '내 배포',
+        titlePrefix: '내',
+        titleHighlight: '배포',
         subtitle: '활성 협업 요청 및 프로젝트 요구사항을 조정하세요.',
         initializeRequest: '요청 초기화',
         searchPlaceholder: '배포 데이터베이스 검색...',
@@ -713,7 +716,8 @@ const resources = {
 
       // My Contributions Page
       myContributions: {
-        title: '내 기여 이력',
+        titlePrefix: '내',
+        titleHighlight: '기여 이력',
         subtitle: '여러 프로젝트에 대한 기여 이력을 추적하고 관리하세요.',
         exploreOps: '작업 탐색',
         totalInvocations: '총 호출',
@@ -763,7 +767,7 @@ const resources = {
         submittedOn: '제출일',
         reviewedOn: '검토일',
       },
-      
+
       // Profile
       profile: {
         title: '프로필',
@@ -800,7 +804,7 @@ const resources = {
         notifications: '알림',
         privacy: '개인정보',
       },
-      
+
       // Credits
       credits: {
         title: '크레딧',
@@ -819,7 +823,7 @@ const resources = {
         creditEarned: '크레딧 획득!',
         creditSpent: '크레딧 사용',
       },
-      
+
       // Chat
       chat: {
         title: '채팅',
@@ -833,7 +837,7 @@ const resources = {
         members: '멤버',
         projectChat: '프로젝트 채팅',
       },
-      
+
       // Common UI Elements
       common: {
         loading: '로딩 중...',
@@ -904,7 +908,7 @@ const resources = {
         goHome: '홈으로',
         copyright: '© 2026 InterfaceHive. All rights reserved.',
       },
-      
+
       // Error Messages
       errors: {
         generic: '문제가 발생했습니다. 다시 시도해주세요.',
@@ -922,7 +926,7 @@ const resources = {
         loginFailed: '로그인 실패. 자격 증명을 확인해주세요.',
         sessionExpired: '세션이 만료되었습니다. 다시 로그인해주세요.',
       },
-      
+
       // Success Messages
       success: {
         saved: '저장되었습니다!',
@@ -933,7 +937,7 @@ const resources = {
         sent: '전송되었습니다!',
         copied: '클립보드에 복사되었습니다!',
       },
-      
+
       // Date & Time
       datetime: {
         justNow: '방금 전',
@@ -950,7 +954,7 @@ const resources = {
         time: '시간',
         datetime: '날짜 및 시간',
       },
-      
+
       // Language switcher
       language: {
         english: 'English',
@@ -969,7 +973,7 @@ i18n
     resources,
     fallbackLng: 'en', // Fallback language if detection fails
     supportedLngs: ['en', 'ko'], // Supported languages
-    
+
     detection: {
       // Order of language detection
       order: ['localStorage', 'navigator', 'htmlTag'],

@@ -1,0 +1,8 @@
+feat(frontend): unify design system and animations across all major dashboards
+
+- Standardized width constraints using refined `container-wide` utility (`max-w-6xl`).
+- Implemented consistent GSAP animation patterns: scale-in for page headers and rising (y-axis) transitions for content lists.
+- Unified header aesthetics across Discover Projects, My Deployments, My Contributions, and Templates pages.
+- Refactored headlines to support a split prefix/gradient-highlight format for high-end visual consistency.
+- Updated i18n resources in English and Korean to accommodate the new title structure.
+- Ensured uniform layout and vertical alignment across all primary user interfaces.

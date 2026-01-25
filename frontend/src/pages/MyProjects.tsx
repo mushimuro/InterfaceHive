@@ -94,22 +94,18 @@ const MyProjects: React.FC = () => {
   useLayoutEffect(() => {
     if (data && !isLoading) {
       const ctx = gsap.context(() => {
-        gsap.from(".mg-header-anim", {
-          opacity: 0,
-          y: -20,
-          duration: 0.8,
-          ease: "power3.out",
-          clearProps: "all"
-        });
-        gsap.from(".project-row-anim", {
-          opacity: 0,
-          x: -20,
-          duration: 0.5,
-          stagger: 0.08,
-          ease: "power3.out",
-          delay: 0.2,
-          clearProps: "all"
-        });
+        gsap.fromTo(".mg-header-anim",
+          { opacity: 0, scale: 0.95 },
+          { opacity: 1, scale: 1, duration: 0.8, ease: "power3.out", clearProps: "all" }
+        );
+        gsap.fromTo(".mg-control-anim",
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.6, ease: "power3.out", delay: 0.2, clearProps: "all" }
+        );
+        gsap.fromTo(".project-row-anim",
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.5, stagger: 0.08, ease: "power3.out", delay: 0.4, clearProps: "all" }
+        );
       }, containerRef);
       return () => ctx.revert();
     }
@@ -147,7 +143,7 @@ const MyProjects: React.FC = () => {
 
   return (
     <div className="flex flex-1 flex-col" ref={containerRef}>
-      <div className="container mx-auto px-4 lg:px-6 py-10">
+      <div className="container-wide py-10">
 
         {/* Header */}
         <div className="mg-header-anim mb-12 relative overflow-hidden glass-card p-10 rounded-3xl">
@@ -158,7 +154,9 @@ const MyProjects: React.FC = () => {
                 <Briefcase className="h-10 w-10 text-accent-hive" />
               </div>
               <div>
-                <h1 className="text-4xl md:text-5xl font-black tracking-tight text-gradient">{t('myProjects.title')}</h1>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tight">
+                  {t('myProjects.titlePrefix', 'My')} <span className="text-gradient-vivid">{t('myProjects.titleHighlight', 'Deployments')}</span>
+                </h1>
                 <p className="text-muted-foreground text-lg font-light mt-1">
                   {t('myProjects.subtitle')}
                 </p>
@@ -172,7 +170,7 @@ const MyProjects: React.FC = () => {
         </div>
 
         {/* Control Center */}
-        <div className="mg-header-anim mb-8 glass-card p-4 rounded-2xl flex flex-col lg:flex-row items-center gap-6">
+        <div className="mg-control-anim mb-8 glass-card p-4 rounded-2xl flex flex-col lg:flex-row items-center gap-6">
           <Tabs
             defaultValue="all"
             onValueChange={(value) => {

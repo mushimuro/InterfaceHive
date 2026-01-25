@@ -100,7 +100,7 @@ const MyContributions: React.FC = () => {
 
   return (
     <div className="flex flex-1 flex-col" ref={containerRef}>
-      <div className="container mx-auto px-4 lg:px-6 py-10">
+      <div className="container-wide py-10">
 
         {/* Header */}
         <div className="contrib-header-anim mb-12 relative overflow-hidden glass-card p-10 rounded-3xl">
@@ -111,7 +111,9 @@ const MyContributions: React.FC = () => {
                 <History className="h-10 w-10 text-accent-hive" />
               </div>
               <div>
-                <h1 className="text-4xl md:text-5xl font-black tracking-tight text-gradient">{t('myContributions.title')}</h1>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tight">
+                  {t('myContributions.titlePrefix', 'My')} <span className="text-gradient-vivid">{t('myContributions.titleHighlight', 'Contributions')}</span>
+                </h1>
                 <p className="text-muted-foreground text-lg font-light mt-1">
                   {t('myContributions.subtitle')}
                 </p>

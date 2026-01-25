@@ -286,7 +286,7 @@ const ProjectDetail: React.FC = () => {
 
   return (
     <div className="flex flex-col pb-12">
-      <div className="container mx-auto px-4 lg:px-6 pt-6">
+      <div className="container-wide pt-6">
         {/* Back Button */}
         <Link to="/projects" className="inline-flex items-center text-sm text-muted-foreground hover:text-accent-hive transition-colors mb-6 group">
           <ChevronLeft className="h-4 w-4 mr-1 group-hover:-translate-x-1 transition-transform" />
@@ -306,8 +306,8 @@ const ProjectDetail: React.FC = () => {
                   </Badge>
                   {project.usage_type && (
                     <Badge className={`${project.usage_type === 'commercial'
-                        ? 'bg-indigo-100/50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border-indigo-500/20'
-                        : 'bg-blue-100/50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 border-blue-500/20'
+                      ? 'bg-indigo-100/50 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400 border-indigo-500/20'
+                      : 'bg-blue-100/50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 border-blue-500/20'
                       } border uppercase text-[10px]`}>
                       {project.usage_type === 'commercial' ? 'Commercial Use' : 'Practice Use'}
                     </Badge>
@@ -364,11 +364,10 @@ const ProjectDetail: React.FC = () => {
         ) : (
           // Regular projects: Show tabs
           <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-            <TabsList className={`grid h-12 w-full glass-card p-1 rounded-xl shadow-inner ${
-              canChat ? 'grid-cols-4' : 
-              (project.status === 'open' && !isHost && !isAcceptedContributor) ? 'grid-cols-3' : 
-              'grid-cols-2'
-            }`}>
+            <TabsList className={`grid h-12 w-full glass-card p-1 rounded-xl shadow-inner ${canChat ? 'grid-cols-4' :
+                (project.status === 'open' && !isHost && !isAcceptedContributor) ? 'grid-cols-3' :
+                  'grid-cols-2'
+              }`}>
               <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-accent-hive data-[state=active]:text-black transition-all">Overview</TabsTrigger>
               <TabsTrigger value="contributions" className="rounded-lg data-[state=active]:bg-accent-hive data-[state=active]:text-black transition-all">
                 Contributors ({(contributionsData?.data?.filter(c => c.status === 'accepted').length || 0) + 1})

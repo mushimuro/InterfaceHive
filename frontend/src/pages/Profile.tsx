@@ -71,7 +71,7 @@ const Profile: React.FC = () => {
 
   return (
     <div className="flex flex-1 flex-col" ref={containerRef}>
-      <div className="container mx-auto px-4 lg:px-6 py-8">
+      <div className="container-wide py-8">
         {/* Profile Header */}
         <div className="profile-header-anim glass-card p-8 rounded-2xl mb-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-accent-hive/5 rounded-full blur-[100px] -mr-48 -mt-48" />
