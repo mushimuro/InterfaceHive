@@ -1,9 +1,10 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import HexagonNetwork from '../components/HexagonNetwork';
 import '../styles/Landing.css';
 
 // Register GSAP plugins
@@ -39,6 +40,29 @@ const Home: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
+  const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+
+  const heroImages = [
+    '/images/hero/hero1.png',
+    '/images/hero/hero2.png',
+    '/images/hero/hero3.png',
+    '/images/hero/hero4.png',
+    '/images/hero/hero5.png',
+    '/images/hero/hero6.png',
+    '/images/hero/hero7.png',
+    'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=1200&q=80',
+    'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1200&q=80'
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+    }, 8000);
+    return () => clearInterval(timer);
+  }, [heroImages.length]);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -176,6 +200,19 @@ const Home: React.FC = () => {
     <div ref={containerRef} className="landing-page text-foreground bg-background">
       {/* Hero Section */}
       <section className="landing-hero" id="hero">
+        <div className="hero-images-container">
+          {heroImages.map((src, index) => (
+            <img
+              key={index}
+              src={src}
+              alt={`Workspace ${index + 1}`}
+              className={`hero-image-slide ${index === currentImageIndex ? 'active' : ''}`}
+            />
+          ))}
+          <div className="hero-overlay"></div>
+          <HexagonNetwork />
+        </div>
+
         <div className="hero-content">
           <div className="lottie-container">
             <LottieFallback />

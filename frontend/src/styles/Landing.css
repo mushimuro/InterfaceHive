@@ -81,12 +81,10 @@
     line-height: 1.1;
     letter-spacing: -0.03em;
     color: var(--landing-text-primary);
-    background: linear-gradient(
-        135deg,
-        var(--landing-text-primary) 0%,
-        var(--landing-text-primary) 40%,
-        var(--landing-accent-light) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--landing-text-primary) 0%,
+            var(--landing-text-primary) 40%,
+            var(--landing-accent-light) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -118,11 +116,9 @@
     transform: translateX(-50%);
     width: 140%;
     height: 140%;
-    background: radial-gradient(
-        ellipse 50% 40% at 50% 30%,
-        hsl(var(--accent-hive) / 0.15) 0%,
-        transparent 70%
-    );
+    background: radial-gradient(ellipse 50% 40% at 50% 30%,
+            hsl(var(--accent-hive) / 0.15) 0%,
+            transparent 70%);
     z-index: var(--z-hero-gradient);
     pointer-events: none;
 }
@@ -134,13 +130,94 @@
     width: 100%;
     height: 100%;
     z-index: var(--z-pattern);
-    opacity: 0.5;
+    opacity: 0.15;
     pointer-events: none;
     background-image:
-        repeating-linear-gradient(0deg, transparent, transparent 60px, hsl(var(--accent-hive) / 0.03) 60px, hsl(var(--accent-hive) / 0.03) 61px),
-        repeating-linear-gradient(60deg, transparent, transparent 60px, hsl(var(--accent-hive) / 0.03) 60px, hsl(var(--accent-hive) / 0.03) 61px),
-        repeating-linear-gradient(120deg, transparent, transparent 60px, hsl(var(--accent-hive) / 0.03) 60px, hsl(var(--accent-hive) / 0.03) 61px);
+        repeating-linear-gradient(0deg, transparent, transparent 60px, hsl(var(--accent-hive) / 0.05) 60px, hsl(var(--accent-hive) / 0.05) 61px),
+        repeating-linear-gradient(60deg, transparent, transparent 60px, hsl(var(--accent-hive) / 0.05) 60px, hsl(var(--accent-hive) / 0.05) 61px),
+        repeating-linear-gradient(120deg, transparent, transparent 60px, hsl(var(--accent-hive) / 0.05) 60px, hsl(var(--accent-hive) / 0.05) 61px);
 }
+
+/* Hero Images Slideshow */
+.hero-images-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.hero-image-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transform: scale(1.1);
+    transition: transform 10s ease-out;
+}
+
+.hero-image-slide.active {
+    opacity: 0.4;
+    transform: scale(1);
+    z-index: 1;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom,
+            hsl(var(--background) / 0.8) 0%,
+            hsl(var(--background) / 0.4) 50%,
+            hsl(var(--background) / 0.9) 100%);
+    z-index: 2;
+}
+
+/* Hexagon Network */
+.hexagon-network {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+    pointer-events: none;
+}
+
+.hex-line {
+    stroke: hsl(var(--accent-hive));
+    stroke-width: 1.5;
+    stroke-dasharray: 400;
+    stroke-dashoffset: 400;
+    filter: drop-shadow(0 0 8px hsl(var(--accent-hive) / 0.6));
+    opacity: 0;
+}
+
+.hex-node .hex-outer {
+    fill: hsl(var(--accent-hive) / 0.15);
+    stroke: hsl(var(--accent-hive));
+    stroke-width: 2;
+    filter: drop-shadow(0 0 10px hsl(var(--accent-hive) / 0.4));
+}
+
+.hex-node .hex-inner {
+    fill: hsl(var(--accent-hive) / 0.1);
+    stroke: hsl(var(--accent-hive-light));
+    stroke-width: 1.5;
+}
+
+.hex-glow-ring {
+    fill: none;
+    stroke: hsl(var(--accent-hive));
+    stroke-width: 2.5;
+    opacity: 0;
+    filter: blur(4px);
+}
+
 
 /* ===================================
    Landing Buttons
@@ -163,12 +240,10 @@
 }
 
 .btn-primary-landing {
-    background: linear-gradient(
-        135deg,
-        var(--landing-accent-light) 0%,
-        var(--landing-accent) 50%,
-        var(--landing-accent-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--landing-accent-light) 0%,
+            var(--landing-accent) 50%,
+            var(--landing-accent-dark) 100%);
     background-size: 200% 200%;
     background-position: 50% 50%;
     color: hsl(222.2 84% 4.9%) !important;
@@ -215,12 +290,10 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        hsl(0 0% 100% / 0.25) 50%,
-        transparent 100%
-    );
+    background: linear-gradient(90deg,
+            transparent 0%,
+            hsl(0 0% 100% / 0.25) 50%,
+            transparent 100%);
     transition: none;
 }
 
@@ -268,14 +341,13 @@
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(
-        135deg,
-        hsl(var(--accent-hive) / 0.2) 0%,
-        transparent 50%,
-        transparent 100%
-    );
+    background: linear-gradient(135deg,
+            hsl(var(--accent-hive) / 0.2) 0%,
+            transparent 50%,
+            transparent 100%);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask-composite: exclude;
     opacity: 0;
     transition: opacity var(--transition-base);
@@ -299,11 +371,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(
-        135deg,
-        hsl(var(--accent-hive) / 0.1) 0%,
-        hsl(var(--accent-hive) / 0.05) 100%
-    );
+    background: linear-gradient(135deg,
+            hsl(var(--accent-hive) / 0.1) 0%,
+            hsl(var(--accent-hive) / 0.05) 100%);
     border: 1px solid hsl(var(--accent-hive) / 0.15);
     border-radius: var(--radius-md);
     margin-bottom: 1.5rem;
@@ -354,12 +424,10 @@
     font-weight: 800;
     margin-bottom: 1rem;
     letter-spacing: -0.02em;
-    background: linear-gradient(
-        135deg,
-        var(--landing-text-primary) 0%,
-        var(--landing-text-primary) 50%,
-        var(--landing-accent) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--landing-text-primary) 0%,
+            var(--landing-text-primary) 50%,
+            var(--landing-accent) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -408,12 +476,10 @@
     transform: translateX(-50%);
     width: 28px;
     height: 28px;
-    background: linear-gradient(
-        135deg,
-        var(--landing-accent-light) 0%,
-        var(--landing-accent) 50%,
-        var(--landing-accent-dark) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--landing-accent-light) 0%,
+            var(--landing-accent) 50%,
+            var(--landing-accent-dark) 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -479,11 +545,9 @@
     font-size: clamp(2rem, 4vw, 2.5rem);
     font-weight: 800;
     letter-spacing: -0.02em;
-    background: linear-gradient(
-        135deg,
-        var(--landing-accent-light) 0%,
-        var(--landing-accent) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--landing-accent-light) 0%,
+            var(--landing-accent) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -546,12 +610,10 @@
     font-weight: 800;
     margin-bottom: 1.5rem;
     letter-spacing: -0.02em;
-    background: linear-gradient(
-        135deg,
-        var(--landing-text-primary) 0%,
-        var(--landing-text-primary) 40%,
-        var(--landing-accent-light) 100%
-    );
+    background: linear-gradient(135deg,
+            var(--landing-text-primary) 0%,
+            var(--landing-text-primary) 40%,
+            var(--landing-accent-light) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
