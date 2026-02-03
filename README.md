@@ -11,9 +11,9 @@ InterfaceHive is a state-of-the-art platform where project specifications meet e
 
 ## Live Deployment
 
-- **Frontend Application:** [http://52.15.96.127/](http://52.15.96.127/)
-- **Backend API:** [http://52.15.96.127:8000/api/v1/](http://52.15.96.127:8000/api/v1/)
-- **API Documentation (Swagger):** [http://52.15.96.127:8000/api/docs/](http://52.15.96.127:8000/api/docs/)
+- [http://52.15.96.127/](**Frontend Application link**)
+- [http://52.15.96.127:8000/](**Backend API link**)
+- [http://52.15.96.127:8000/api/docs/](**API Documentation (Swagger)**)
 
 [Documentation](./docs) | [Report Bug](https://github.com/mushimuro/InterfaceHive/issues) | [Request Feature](https://github.com/mushimuro/InterfaceHive/issues)
 
