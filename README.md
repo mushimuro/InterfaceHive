@@ -9,11 +9,12 @@
 
 InterfaceHive is a state-of-the-art platform where project specifications meet elite execution. Deploy contribution requests, earn reputation credits, and architect the future through merit-based collaboration, all within a high-performance "Hive" ecosystem.
 
-## Live Deployment
+## Live Deploy🔗
 
-- [http://52.15.96.127/](**Frontend Application link**)
-- [http://52.15.96.127:8000/](**Backend API link**)
-- [http://52.15.96.127:8000/api/docs/](**API Documentation (Swagger)**)
+- [**Frontend Application**](http://52.15.96.127/)
+- [**Backend API**](http://52.15.96.127:8000/)
+- [**API Documentation (Swagger)**](http://52.15.96.127:8000/api/docs/)
+
 
 [Documentation](./docs) | [Report Bug](https://github.com/mushimuro/InterfaceHive/issues) | [Request Feature](https://github.com/mushimuro/InterfaceHive/issues)
 
