@@ -27,6 +27,10 @@ services:
     image: ${DOCKERHUB_USERNAME}/interfacehive-backend:latest
     container_name: interfacehive_backend
     restart: unless-stopped
+    networks:
+      default:
+        aliases:
+          - backend
     environment:
       - DATABASE_URL=postgres://${POSTGRES_USER:-interfacehive_user}:${POSTGRES_PASSWORD:-interfacehive_dev_password}@postgres:5432/${POSTGRES_DB:-interfacehive}
       - REDIS_URL=redis://redis:6379/0
