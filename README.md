@@ -9,12 +9,11 @@
 
 InterfaceHive is a state-of-the-art platform where project specifications meet elite execution. Deploy contribution requests, earn reputation credits, and architect the future through merit-based collaboration, all within a high-performance "Hive" ecosystem.
 
-## 🌐 Live Deployment
+## Live Deployment
 
 - **Frontend Application:** [http://52.15.96.127/](http://52.15.96.127/)
 - **Backend API:** [http://52.15.96.127/api/v1/](http://52.15.96.127/api/v1/)
 - **API Documentation (Swagger):** [http://52.15.96.127:8000/api/docs/](http://52.15.96.127:8000/api/docs/)
-- **Backend Admin:** [http://52.15.96.127:8000/admin/](http://52.15.96.127:8000/admin/)
 
 [Documentation](./docs) | [Report Bug](https://github.com/mushimuro/InterfaceHive/issues) | [Request Feature](https://github.com/mushimuro/InterfaceHive/issues)
 
@@ -427,7 +426,7 @@ POST /api/v1/ai/generate-random/       - Generate random project
 - Better performance for staggered animations
 - Timeline-based animation sequences
 
-## 🧪 Testing
+## Testing
 
 ### Running Tests
 
