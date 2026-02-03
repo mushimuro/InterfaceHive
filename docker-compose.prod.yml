@@ -27,6 +27,8 @@ services:
     image: ${DOCKERHUB_USERNAME}/interfacehive-backend:latest
     container_name: interfacehive_backend
     restart: unless-stopped
+    ports:
+      - "8000:8000"
     networks:
       default:
         aliases:
